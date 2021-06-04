@@ -1,0 +1,163 @@
+name: fablebike
+description: A new Flutter project.
+
+# The following line prevents the package from being accidentally published to
+# pub.dev using `pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  provider: ^5.0.0
+  tuple: ^1.0.2
+  positioned_tap_detector_2: ^1.0.0
+  transparent_image: ^1.0.0
+  flutter_image_compress: ^1.0.0-nullsafety
+  async: ^2.1.0
+  flutter_image: ^3.0.0
+  vector_math: ^2.0.0
+  proj4dart: ^1.0.4
+  meta: ^1.1.0
+  flutter_map: any
+  collection: ^1.14.0
+  flutter_map_location_marker: any
+  flutter:
+    sdk: flutter
+
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.2
+  http: ^0.13.3
+  flutter_secure_storage: ^4.2.0
+  image_picker: ^0.8.0+1
+  image_crop: ^0.4.0
+  path_provider: ^2.0.2
+  flutter_facebook_auth: ^3.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  assets:
+    - assets/map/10/587/
+    - assets/map/10/588/
+    - assets/map/10/589/
+    - assets/map/10/590/
+    - assets/map/10/591/
+    - assets/map/10/592/
+    - assets/map/10/593/
+    - assets/map/11/1175/
+    - assets/map/11/1176/
+    - assets/map/11/1177/
+    - assets/map/11/1178/
+    - assets/map/11/1179/
+    - assets/map/11/1180/
+    - assets/map/11/1181/
+    - assets/map/11/1182/
+    - assets/map/11/1183/
+    - assets/map/11/1184/
+    - assets/map/11/1185/
+    - assets/map/11/1186/
+    - assets/map/11/1187/
+    - assets/map/12/2351/
+    - assets/map/12/2352/
+    - assets/map/12/2353/
+    - assets/map/12/2354/
+    - assets/map/12/2355/
+    - assets/map/12/2356/
+    - assets/map/12/2357/
+    - assets/map/12/2358/
+    - assets/map/12/2359/
+    - assets/map/12/2360/
+    - assets/map/12/2361/
+    - assets/map/12/2362/
+    - assets/map/12/2363/
+    - assets/map/12/2364/
+    - assets/map/12/2365/
+    - assets/map/12/2366/
+    - assets/map/12/2367/
+    - assets/map/12/2368/
+    - assets/map/12/2369/
+    - assets/map/12/2370/
+    - assets/map/12/2371/
+    - assets/map/12/2372/
+    - assets/map/12/2373/
+    - assets/map/12/2374/
+    - assets/map/12/2375/
+    - assets/map/13/4703/
+    - assets/map/13/4704/
+    - assets/map/13/4705/
+    - assets/map/13/4706/
+    - assets/map/13/4707/
+    - assets/map/13/4708/
+    - assets/map/13/4709/
+    - assets/map/13/4710/
+    - assets/map/13/4711/
+    - assets/map/13/4712/
+    - assets/map/13/4713/
+    - assets/map/13/4714/
+    - assets/map/13/4715/
+    - assets/map/13/4716/
+    - assets/map/13/4717/
+    - assets/map/13/4718/
+    - assets/map/13/4719/
+    - assets/map/13/4720/
+    - assets/map/13/4721/
+    - assets/map/13/4722/
+    - assets/map/13/4723/
+    - assets/map/13/4724/
+    - assets/map/13/4725/
+    - assets/map/13/4726/
+    - assets/map/13/4727/
+    - assets/map/13/4728/
+    - assets/map/13/4729/
+    - assets/map/13/4730/
+    - assets/map/13/4731/
+    - assets/map/13/4732/
+    - assets/map/13/4733/
+    - assets/map/13/4734/
+    - assets/map/13/4735/
+    - assets/map/13/4736/
+    - assets/map/13/4737/
+    - assets/map/13/4738/
+    - assets/map/13/4739/
+    - assets/map/13/4740/
+    - assets/map/13/4741/
+    - assets/map/13/4742/
+    - assets/map/13/4743/
+    - assets/map/13/4744/
+    - assets/map/13/4745/
+    - assets/map/13/4746/
+    - assets/map/13/4747/
+    - assets/map/13/4748/
+    - assets/map/13/4749/
+    - assets/map/13/4750/
+    - assets/map/13/4751/
+    - assets/icons/
+    - assets/images/
+    - assets/data/
