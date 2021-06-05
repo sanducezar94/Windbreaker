@@ -1,3 +1,4 @@
+import 'package:fablebike/pages/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/services/authentication_service.dart';
@@ -8,7 +9,9 @@ import 'package:http/http.dart' as http;
 import './pages/home.dart';
 import './pages/map.dart';
 import './pages/routes.dart';
+import 'facebook_signup.dart';
 import 'login_screen.dart';
+import 'models/facebook_user.dart';
 import 'signup.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -57,7 +60,8 @@ class MyApp extends StatelessWidget {
           HomeScreen.route: (context) => HomeScreen(),
           AuthenticatioNWrapper.route: (context) => AuthenticatioNWrapper(),
           SignUpScreen.route: (context) => SignUpScreen(),
-          RoutesScreen.route: (context) => RoutesScreen()
+          RoutesScreen.route: (context) => RoutesScreen(),
+          ImagePickerScreen.route: (context) => ImagePickerScreen()
         },
         onGenerateRoute: (settings) {
           if (settings.name == MapScreen.route) {
@@ -66,6 +70,15 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) {
                 return MapScreen(bikeRoute: args);
+              },
+            );
+          }
+          if (settings.name == FacebookSignUpScreen.route) {
+            final args = settings.arguments as FacebookUser;
+
+            return MaterialPageRoute(
+              builder: (context) {
+                return FacebookSignUpScreen(fbUser: args);
               },
             );
           }

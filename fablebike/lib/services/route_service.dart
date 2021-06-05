@@ -5,8 +5,8 @@ import 'package:fablebike/models/route.dart';
 import 'package:http/http.dart' as http;
 import 'storage_service.dart';
 
-const SERVER_IP = '192.168.100.24:8080';
-//const SERVER_IP = 'lighthousestudio.ro';
+//const SERVER_IP = '192.168.100.24:8080';
+const SERVER_IP = 'lighthousestudio.ro';
 const API_ENDPOINT = '/route';
 
 class RouteService {
@@ -19,7 +19,7 @@ class RouteService {
       var queryParameters = {'route_id': route_id.toString()};
 
       var response = await client
-          .get(Uri.http(SERVER_IP, API_ENDPOINT, queryParameters), headers: {
+          .get(Uri.https(SERVER_IP, API_ENDPOINT, queryParameters), headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + token
       }).timeout(const Duration(seconds: 5), onTimeout: () {
         throw TimeoutException('Connection timed out!');
@@ -27,7 +27,7 @@ class RouteService {
 
       var bodyJSON = jsonDecode(response.body);
       return BikeRoute.fromJson(bodyJSON);
-    } on SocketException catch (e) {
+    } on SocketException {
       return null;
     } on Exception {
       return null;
@@ -40,7 +40,7 @@ class RouteService {
       var storage = new StorageService();
 
       var token = await storage.readValue('token');
-      var response = await client.post(Uri.http(SERVER_IP, API_ENDPOINT),
+      var response = await client.post(Uri.https(SERVER_IP, API_ENDPOINT),
           body: {
             'rating': rating.toString(),
             'route_id': route_id.toString()
@@ -57,7 +57,7 @@ class RouteService {
       } else {
         return 0.0;
       }
-    } on SocketException catch (e) {
+    } on SocketException {
       return 0.0;
     } on Exception {
       return 0.0;

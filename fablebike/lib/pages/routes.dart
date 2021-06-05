@@ -8,7 +8,6 @@ import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/drawer.dart';
 
-import 'package:latlong/latlong.dart';
 import 'dart:math' show cos, sqrt, asin;
 
 double calculateDistance(lat1, lon1, lat2, lon2) {

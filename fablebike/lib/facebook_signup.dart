@@ -1,16 +1,23 @@
+import 'package:fablebike/models/facebook_user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/authentication_service.dart';
 
-class SignUpScreen extends StatefulWidget {
-  static const route = '/signup';
+class FacebookSignUpScreen extends StatefulWidget {
+  static const route = '/facebook_signup';
+
+  final FacebookUser fbUser;
+  const FacebookSignUpScreen({
+    Key key,
+    @required this.fbUser,
+  }) : super(key: key);
+
   @override
-  _SignUpScreen createState() => _SignUpScreen();
+  _FacebookSignUpScreen createState() => _FacebookSignUpScreen();
 }
 
-class _SignUpScreen extends State<SignUpScreen> {
+class _FacebookSignUpScreen extends State<FacebookSignUpScreen> {
   final TextEditingController userController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   @override
@@ -22,9 +29,9 @@ class _SignUpScreen extends State<SignUpScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
-            controller: emailController,
+            readOnly: true,
             decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Email'),
+                border: OutlineInputBorder(), hintText: widget.fbUser.email),
           ),
         ),
         Padding(
@@ -35,23 +42,13 @@ class _SignUpScreen extends State<SignUpScreen> {
                 border: OutlineInputBorder(), hintText: 'Utilizator'),
           ),
         ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: TextField(
-            controller: passwordController,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Parola'),
-          ),
-        ),
         Padding(padding: EdgeInsets.all(16.0)),
         ElevatedButton(
             onPressed: () {
               context
                   .read<AuthenticationService>()
-                  .signUp(
-                      user: userController.text,
-                      email: emailController.text,
-                      password: passwordController.text)
+                  .facebookSignUp(
+                      user: userController.text, email: widget.fbUser.email)
                   .then((result) {
                 if (result) {
                   Navigator.pop(context);

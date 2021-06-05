@@ -17,7 +17,8 @@ Widget _buildMenuItem(
       if (isSelected) {
         Navigator.pop(context);
       } else {
-        Navigator.pushReplacementNamed(context, routeName);
+        Navigator.pop(context);
+        Navigator.pushNamed(context, routeName);
       }
     },
   );
@@ -39,8 +40,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         TextButton(
             onPressed: () {
               context.read<AuthenticationService>().signOut();
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/landing', (route) => false);
+              // Navigator.pushNamedAndRemoveUntil(
+              //     context, '/landing', (route) => false);
             },
             child: Text('Sign Out'))
       ],

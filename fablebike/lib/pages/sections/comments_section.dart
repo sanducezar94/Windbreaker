@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:fablebike/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/services/comment_service.dart';
 import 'package:path_provider/path_provider.dart';
@@ -117,7 +118,11 @@ class _CommentSectionState extends State<CommentSection> {
   }
 }
 
-Future<String> getIcon({String imageName}) async {}
+Future<String> getIcon({String imageName}) async {
+  var userService = new UserService();
+  var filePath = new UserService().getIcon(imageName: imageName);
+  return filePath;
+}
 
 Widget _buildComment(Comment comment, File image) {
   return Card(
@@ -126,15 +131,19 @@ Widget _buildComment(Comment comment, File image) {
       ListTile(
         leading: image != null
             ? Image.file(image)
-            : FutureBuilder<String>(
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    Image.file(File(snapshot.data));
-                  } else {
-                    return CircularProgressIndicator();
-                  }
-                },
-                future: getIcon(imageName: comment.icon)),
+            : comment.icon == null
+                ? Icon(Icons.account_box)
+                : FutureBuilder(
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasData) {
+                          return Image.file(File(snapshot.data));
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      }
+                    },
+                    future: getIcon(imageName: comment.icon)),
         title: Text(comment.user),
         subtitle: Text(comment.text),
       )

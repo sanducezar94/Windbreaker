@@ -6,8 +6,8 @@ import '../models/comments.dart';
 
 import 'storage_service.dart';
 
-const SERVER_IP = '192.168.100.24:8080';
-//const SERVER_IP = 'lighthousestudio.ro';
+//const SERVER_IP = '192.168.100.24:8080';
+const SERVER_IP = 'lighthousestudio.ro';
 const API_ENDPOINT = '/comment';
 
 class CommentService {
@@ -23,7 +23,7 @@ class CommentService {
       };
 
       var response = await client
-          .get(Uri.http(SERVER_IP, API_ENDPOINT, queryParameters), headers: {
+          .get(Uri.https(SERVER_IP, API_ENDPOINT, queryParameters), headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + token
       }).timeout(const Duration(seconds: 5), onTimeout: () {
         throw TimeoutException('Connection timed out!');
@@ -38,9 +38,9 @@ class CommentService {
       }
 
       return CommentsPlate(comments: comments, page: page);
-    } on SocketException catch (e) {
+    } on SocketException {
       return null;
-    } on Exception catch (e) {
+    } on Exception {
       return null;
     }
   }
@@ -52,7 +52,7 @@ class CommentService {
 
       var token = await storage.readValue('token');
 
-      var response = await client.post(Uri.http(SERVER_IP, API_ENDPOINT),
+      var response = await client.post(Uri.https(SERVER_IP, API_ENDPOINT),
           body: {
             'text': message,
             'route_id': route.toString()
@@ -68,9 +68,9 @@ class CommentService {
         return comment;
       }
       return null;
-    } on SocketException catch (e) {
+    } on SocketException {
       return null;
-    } on Exception catch (e) {
+    } on Exception {
       return null;
     }
   }

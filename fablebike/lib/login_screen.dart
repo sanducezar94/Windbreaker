@@ -1,3 +1,5 @@
+import 'package:fablebike/facebook_signup.dart';
+import 'package:fablebike/models/facebook_user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/authentication_service.dart';
@@ -14,14 +16,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  loginWithFB() async {
-    final result = await FacebookAuth.instance.login();
-    print(result.status);
+  loginWithFB(BuildContext context) async {
+    final result = await FacebookAuth.instance
+        .login(loginBehavior: LoginBehavior.nativeWithFallback);
     if (result.status == LoginStatus.success) {
-      final AccessToken acessToken = result.accessToken;
       final userData = await FacebookAuth.instance.getUserData();
+      final facebookUser = FacebookUser.fromJson(userData);
 
-      print(userData.toString());
+      var userExists = await context
+          .read<AuthenticationService>()
+          .signIn(email: facebookUser.email, password: "");
+
+      if (!userExists) {
+        Navigator.pushNamed(context, FacebookSignUpScreen.route,
+            arguments: facebookUser);
+      }
     }
   }
 
@@ -51,7 +60,6 @@ class _LoginScreenState extends State<LoginScreen> {
         Text('Not signed'),
         ElevatedButton(
             onPressed: () {
-              print('wtf');
               context.read<AuthenticationService>().signIn(
                   email: userController.text,
                   password: passwordController.text);
@@ -59,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Text('Sign In')),
         ElevatedButton(
             onPressed: () {
-              loginWithFB();
+              loginWithFB(context);
             },
             child: Text('Login with facebook')),
         ElevatedButton(
