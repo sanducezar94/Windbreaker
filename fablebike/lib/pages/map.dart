@@ -113,14 +113,6 @@ class _MapWidgetState extends State<MapWidget> {
                                   ),
                                 ],
                               ),
-                              Container(
-                                  alignment: Alignment.topCenter,
-                                  padding: EdgeInsets.only(
-                                      top: 16, right: 0, left: 0, bottom: 16),
-                                  child: Carousel(
-                                      context: context,
-                                      onItemChanged: (int val) =>
-                                          {print(val)})),
                               CommentSection(route_id: widget.bikeRoute.id),
                             ])),
                   ],

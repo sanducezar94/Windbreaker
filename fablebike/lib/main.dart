@@ -1,10 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:fablebike/pages/image_picker.dart';
+import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/services/authentication_service.dart';
-import 'package:fablebike/services/comment_service.dart';
+import 'package:fablebike/services/database_service.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 import './pages/home.dart';
 import './pages/map.dart';
@@ -13,14 +17,10 @@ import 'facebook_signup.dart';
 import 'login_screen.dart';
 import 'models/facebook_user.dart';
 import 'signup.dart';
-
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert' show json, base64, ascii;
-
-import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 const SERVER_IP = '192.168.100.24:8080';
 
@@ -36,6 +36,7 @@ Future<void> main() async {
   }
 
   WidgetsFlutterBinding.ensureInitialized();
+
   runApp(MyApp());
 }
 
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         Provider<AuthenticationService>(
           create: (_) => AuthenticationService(),
         ),
+        Provider<DatabaseService>(create: (_) => DatabaseService()),
         StreamProvider(
             create: (context) => context.read<AuthenticationService>().authUser)
       ],

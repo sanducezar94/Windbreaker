@@ -47,6 +47,8 @@ dependencies:
   image_crop: ^0.4.0
   path_provider: ^2.0.2
   flutter_facebook_auth: ^3.4.0
+  sqflite: ^2.0.0+3
+  path: ^1.8.0
 
 dev_dependencies:
   flutter_test:
@@ -161,3 +163,4 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/data/
+    - assets/data/fablebike.db

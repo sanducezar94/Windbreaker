@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import 'package:path/path.dart';
-
 import 'storage_service.dart';
 
 //const SERVER_IP = '192.168.100.24:8080';

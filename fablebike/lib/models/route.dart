@@ -11,11 +11,22 @@ class BikeRoute {
   int ratingCount;
   String file;
 
-  List<LatLng> coords;
+  List<LatLng> rtsCoordinates;
+  List<Coords> coordinates;
   List<PointOfInterest> pois;
 
   BikeRoute(this.id, this.name, this.description, this.rating, this.ascent,
-      this.descent, this.difficulty, this.coords);
+      this.descent, this.difficulty, this.rtsCoordinates);
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'rating': rating,
+      'ratingCount': ratingCount
+    };
+  }
 
   BikeRoute.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -25,37 +36,32 @@ class BikeRoute {
         descent = json['descent'],
         ascent = json['ascent'],
         difficulty = json['difficulty'],
-        file = json['file'],
-        ratingCount = json["rating_count"],
-        coords = getCoordsFromJson(json['coords']),
-        pois = getPoisFromJson(json['pois']);
-}
-
-List<LatLng> getCoordsFromJson(jsonCoords) {
-  if (jsonCoords == null) return [];
-  List<LatLng> coordsList = [];
-  for (var i = 0; i < jsonCoords.length; i++) {
-    coordsList.add(LatLng(jsonCoords[i][0], jsonCoords[i][1]));
-  }
-  return coordsList;
-}
-
-List<PointOfInterest> getPoisFromJson(jsonPOI) {
-  if (jsonPOI == null) return [];
-  List<PointOfInterest> poiList = [];
-  for (var i = 0; i < jsonPOI.length; i++) {
-    poiList.add(PointOfInterest.fromJson(jsonPOI[i]));
-  }
-  return poiList;
+        ratingCount = json["rating_count"];
 }
 
 class Coords {
   double latitude;
   double longitude;
+  double elevation;
+  int routeId;
 
-  Coords.fromJson(List<dynamic> json)
-      : latitude = json[0],
-        longitude = json[1];
+  LatLng toLatLng() {
+    return LatLng(latitude, longitude);
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+      'elevation': elevation,
+      'route_id': routeId
+    };
+  }
+
+  Coords.fromJson(Map<String, dynamic> json)
+      : latitude = json['latitude'],
+        longitude = json['longitude'],
+        elevation = json['elevation'];
 }
 
 class PointOfInterest {
@@ -64,7 +70,18 @@ class PointOfInterest {
   String name;
   String description;
   String icon;
+  int routeId;
   LatLng coords;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+      'name': name,
+      'description': description,
+      'route_id': routeId
+    };
+  }
 
   PointOfInterest.fromJson(Map<String, dynamic> json)
       : latitude = json['latitude'],

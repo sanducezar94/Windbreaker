@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -7,17 +8,7 @@ import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/drawer.dart';
-
-import 'dart:math' show cos, sqrt, asin;
-
-double calculateDistance(lat1, lon1, lat2, lon2) {
-  var p = 0.017453292519943295;
-  var c = cos;
-  var a = 0.5 -
-      c((lat2 - lat1) * p) / 2 +
-      c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-  return 12742 * asin(sqrt(a));
-}
+import 'package:provider/provider.dart';
 
 class RoutesScreen extends StatefulWidget {
   static const route = '/routes';
@@ -28,36 +19,35 @@ class RoutesScreen extends StatefulWidget {
 }
 
 class _RoutesScreenState extends State<RoutesScreen> {
-  List<BikeRoute> routes = [];
   Future<bool> getRoutes;
-
-  Future<bool> loadJsonData() async {
-    if (this.routes.length > 0) return false;
-    var jsonText = await rootBundle.loadString('assets/data/trasee.json');
-    var jsonRoutes = jsonDecode(jsonText);
-    for (var i = 0; i < jsonRoutes.length; i++) {
-      this.routes.add(BikeRoute.fromJson(jsonRoutes[i]));
-    }
-    return true;
-  }
 
   @override
   void initState() {
     super.initState();
-    getRoutes = loadJsonData();
   }
 
   @override
   Widget build(BuildContext context) {
+    Future<List<BikeRoute>> getRoutes() async {
+      var db = Provider.of<DatabaseService>(context);
+      var database = await db.database;
+      var routes = await database.query('route');
+
+      return List.generate(routes.length, (i) {
+        return BikeRoute.fromJson(routes[i]);
+      });
+    }
+
     return Scaffold(
         appBar: AppBar(title: Text('Map')),
         drawer: buildDrawer(context, '/routes'),
-        body: FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        body: FutureBuilder<List<BikeRoute>>(
+            builder: (BuildContext context,
+                AsyncSnapshot<List<BikeRoute>> snapshot) {
               List<Widget> children = [];
               if (snapshot.hasData) {
-                for (var i = 0; i < this.routes.length; i++) {
-                  children.add(_buildRoute(context, this.routes[i]));
+                for (var i = 0; i < snapshot.data.length; i++) {
+                  children.add(_buildRoute(context, snapshot.data[i]));
                 }
                 return Container(
                   color: Colors.white70,
@@ -68,7 +58,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                 return Text('Loading...');
               }
             },
-            future: this.getRoutes));
+            future: getRoutes()));
   }
 }
 
@@ -85,19 +75,40 @@ Widget _buildRoute(BuildContext context, BikeRoute route) {
         ElevatedButton(
             child: Text('Mai multe...'),
             onPressed: () async {
-              var jsonText = await rootBundle.loadString(route.file);
+              try {
+                var db = context.read<DatabaseService>();
+                var database = await db.database;
+                var routes = await database
+                    .query('route', where: 'id = ?', whereArgs: [route.id]);
 
-              var bikeRoute = BikeRoute.fromJson(jsonDecode(jsonText));
-              var serverRoute =
-                  await RouteService().getRoute(route_id: bikeRoute.id);
+                var coords = await database.query('coord',
+                    where: 'route_id = ?', whereArgs: [route.id]);
+                var pois = await database.query('pointofinterest',
+                    where: 'route_id = ?', whereArgs: [route.id]);
 
-              if (serverRoute != null) {
-                bikeRoute.rating = serverRoute.rating;
-                bikeRoute.ratingCount = serverRoute.ratingCount;
+                var bikeRoute = new BikeRoute.fromJson(routes.first);
+                bikeRoute.coordinates = List.generate(coords.length, (i) {
+                  return Coords.fromJson(coords[i]);
+                });
+                bikeRoute.rtsCoordinates = List.generate(
+                    coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
+                bikeRoute.pois = List.generate(pois.length, (i) {
+                  return PointOfInterest.fromJson(pois[i]);
+                });
+
+                var serverRoute =
+                    await RouteService().getRoute(route_id: bikeRoute.id);
+
+                if (serverRoute != null) {
+                  bikeRoute.rating = serverRoute.rating;
+                  bikeRoute.ratingCount = serverRoute.ratingCount;
+                }
+
+                Navigator.pushNamed(context, MapScreen.route,
+                    arguments: bikeRoute);
+              } on Exception catch (e) {
+                print(e);
               }
-
-              Navigator.pushNamed(context, MapScreen.route,
-                  arguments: bikeRoute);
             })
       ]),
     ]),
