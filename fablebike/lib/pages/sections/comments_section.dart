@@ -130,14 +130,21 @@ Widget _buildComment(Comment comment, File image) {
     child: Column(children: [
       ListTile(
         leading: image != null
-            ? Image.file(image)
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(48.0),
+                child: Image.file(image, width: 48, height: 48),
+              )
             : comment.icon == null
                 ? Icon(Icons.account_box)
                 : FutureBuilder(
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
                         if (snapshot.hasData) {
-                          return Image.file(File(snapshot.data));
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(48.0),
+                            child: Image.file(File(snapshot.data),
+                                width: 40, height: 40),
+                          );
                         } else {
                           return CircularProgressIndicator();
                         }

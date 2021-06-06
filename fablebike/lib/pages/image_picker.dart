@@ -84,6 +84,24 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
 
                             final croppedImage = await ImageCrop.cropImage(
                                 file: sample, area: area);
+
+                            sample.delete();
+
+                            //high quality profile pic
+                            final compressedProfilePic =
+                                await FlutterImageCompress.compressWithList(
+                                    croppedImage.readAsBytesSync(),
+                                    minHeight: 200,
+                                    minWidth: 200,
+                                    quality: 90);
+
+                            var profilePic = await storage.saveBigProfilePic(
+                                croppedImage.path,
+                                user.username,
+                                compressedProfilePic);
+                            //
+
+                            //miniature profile pic
                             final compressedFile =
                                 await FlutterImageCompress.compressWithList(
                                     croppedImage.readAsBytesSync(),
@@ -91,18 +109,20 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
                                     minWidth: 48,
                                     quality: 80);
 
-                            sample.delete();
-
                             var savedFile =
                                 await storage.createUserIconWithUsername(
                                     croppedImage.path,
                                     user.username,
                                     compressedFile);
+                            //
 
-                            var req = await UserService()
+                            var uploadProfileImageXS = await UserService()
                                 .uploadProfileImage(savedFile);
+                            var uploadProfileImageXL = await UserService()
+                                .uploadProfileImage(profilePic);
                             setState(() {
-                              pickedImage = savedFile;
+                              imageCache.clear();
+                              Navigator.pop(context);
                             });
                           } on Exception catch (e) {
                             print(e.toString());

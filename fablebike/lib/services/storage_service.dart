@@ -44,12 +44,55 @@ class StorageService {
     return file;
   }
 
+  Future<File> saveBigProfilePic(
+      String filePath, String userName, Uint8List fileStream) async {
+    try {
+      var docDir = await getApplicationDocumentsDirectory();
+      String path = docDir.path;
+      String extension = p.extension(filePath);
+      String fileName = userName + extension;
+      String finalPath = '$path/' + fileName;
+
+      if (File(finalPath).existsSync()) {
+        File(finalPath).deleteSync();
+      }
+
+      File fifi = createFile(finalPath);
+      fifi.writeAsBytesSync(fileStream);
+
+      await this.writeValue('$userName-pic', fileName);
+      return fifi;
+    } on Exception {
+      return null;
+    }
+  }
+
+  Future<File> getFileFromPath(String path, String fileName) async {
+    try {
+      var docDir = await getApplicationDocumentsDirectory();
+
+      var finalPath = p.join(docDir.path, p.join(path, fileName));
+
+      if (File(finalPath).existsSync()) {
+        return File(finalPath);
+      }
+      return null;
+    } on Exception {
+      return null;
+    }
+  }
+
   Future<File> createUserIconWithFilename(
-      String filename, Uint8List fileStream) async {
+      String fileName, Uint8List fileStream) async {
     try {
       var docDir = await getApplicationDocumentsDirectory();
       String path = docDir.path + '/user_images';
-      String finalPath = '$path/' + filename;
+      String finalPath = '$path/' + fileName;
+
+      if (File(finalPath).existsSync()) {
+        File(finalPath).deleteSync();
+      }
+
       File fifi = createFile(finalPath);
       fifi.writeAsBytesSync(fileStream);
 
