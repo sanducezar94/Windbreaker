@@ -1,9 +1,9 @@
-import 'dart:convert';
+import 'dart:ui';
 
+import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/services/route_service.dart';
@@ -38,27 +38,28 @@ class _RoutesScreenState extends State<RoutesScreen> {
       });
     }
 
-    return Scaffold(
-        appBar: AppBar(title: Text('Map')),
-        drawer: buildDrawer(context, '/routes'),
-        body: FutureBuilder<List<BikeRoute>>(
-            builder: (BuildContext context,
-                AsyncSnapshot<List<BikeRoute>> snapshot) {
-              List<Widget> children = [];
-              if (snapshot.hasData) {
-                for (var i = 0; i < snapshot.data.length; i++) {
-                  children.add(_buildRoute(context, snapshot.data[i]));
-                }
-                return Container(
-                  color: Colors.white70,
-                  child: ListView(
-                      children: children, scrollDirection: Axis.vertical),
-                );
-              } else {
-                return Text('Loading...');
-              }
-            },
-            future: getRoutes()));
+    return ColorfulSafeArea(
+        overflowRules: OverflowRules.all(true),
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Scaffold(
+            appBar: AppBar(title: Text('Map')),
+            drawer: buildDrawer(context, '/routes'),
+            body: FutureBuilder<List<BikeRoute>>(
+                builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
+                  List<Widget> children = [];
+                  if (snapshot.hasData) {
+                    for (var i = 0; i < snapshot.data.length; i++) {
+                      children.add(_buildRoute(context, snapshot.data[i]));
+                    }
+                    return Container(
+                      color: Colors.white70,
+                      child: ListView(children: children, scrollDirection: Axis.vertical),
+                    );
+                  } else {
+                    return Text('Loading...');
+                  }
+                },
+                future: getRoutes())));
   }
 }
 
@@ -78,34 +79,30 @@ Widget _buildRoute(BuildContext context, BikeRoute route) {
               try {
                 var db = context.read<DatabaseService>();
                 var database = await db.database;
-                var routes = await database
-                    .query('route', where: 'id = ?', whereArgs: [route.id]);
+                var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
 
-                var coords = await database.query('coord',
-                    where: 'route_id = ?', whereArgs: [route.id]);
-                var pois = await database.query('pointofinterest',
-                    where: 'route_id = ?', whereArgs: [route.id]);
+                var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
+                var pois = await database.query('pointofinterest', where: 'route_id = ?', whereArgs: [route.id]);
 
                 var bikeRoute = new BikeRoute.fromJson(routes.first);
                 bikeRoute.coordinates = List.generate(coords.length, (i) {
                   return Coords.fromJson(coords[i]);
                 });
-                bikeRoute.rtsCoordinates = List.generate(
-                    coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
+                bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
+                bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
                 bikeRoute.pois = List.generate(pois.length, (i) {
                   return PointOfInterest.fromJson(pois[i]);
                 });
 
-                var serverRoute =
-                    await RouteService().getRoute(route_id: bikeRoute.id);
+                var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
 
                 if (serverRoute != null) {
+                  database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount}, where: 'id = ?', whereArgs: [bikeRoute.id]);
                   bikeRoute.rating = serverRoute.rating;
                   bikeRoute.ratingCount = serverRoute.ratingCount;
                 }
 
-                Navigator.pushNamed(context, MapScreen.route,
-                    arguments: bikeRoute);
+                Navigator.pushNamed(context, MapScreen.route, arguments: bikeRoute);
               } on Exception catch (e) {
                 print(e);
               }

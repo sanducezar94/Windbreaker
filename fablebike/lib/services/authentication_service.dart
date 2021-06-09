@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:fablebike/models/user.dart';
 import 'package:http/http.dart' as http;
-
-import 'package:path/path.dart';
-
 import 'storage_service.dart';
 
 //const SERVER_IP = '192.168.100.24:8080';
@@ -14,25 +12,6 @@ const SIGNUP = '/auth/sign_up';
 const FACEBOOK_SIGNUP = '/auth/facebook';
 const FILE_UPLOAD = '/auth/upload';
 
-class AuthenticatedUser {
-  String username;
-  String email;
-  String token;
-  String icon;
-
-  List<int> ratedRoutes;
-  List<int> ratedComments;
-
-  AuthenticatedUser(String user, String email, String token, String icon) {
-    this.username = user;
-    this.email = email;
-    this.token = token;
-    this.icon = icon;
-    ratedRoutes = [];
-    ratedComments = [];
-  }
-}
-
 class AuthenticationService {
   StreamController sc = new StreamController<AuthenticatedUser>();
   Stream<AuthenticatedUser> get authUser => sc.stream;
@@ -41,9 +20,8 @@ class AuthenticationService {
     try {
       var client = http.Client();
       String authToken = base64Encode(utf8.encode(email + ':' + password));
-      var response = await client.get(Uri.https(SERVER_IP, AUTH), headers: {
-        HttpHeaders.authorizationHeader: 'Basic ' + authToken
-      }).timeout(const Duration(seconds: 5), onTimeout: () {
+      var response = await client
+          .get(Uri.https(SERVER_IP, AUTH), headers: {HttpHeaders.authorizationHeader: 'Basic ' + authToken}).timeout(const Duration(seconds: 5), onTimeout: () {
         throw TimeoutException('Connection timed out!');
       });
 
@@ -52,12 +30,10 @@ class AuthenticationService {
         var body = jsonDecode(response.body);
 
         await storage.writeValue('token', body["token"]);
-        var loggedUser = new AuthenticatedUser(
-            body["user"], email, response.body, body["icon"]);
+        var loggedUser = new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"]);
         loggedUser.ratedComments = body["rated_comments"].cast<int>();
         loggedUser.ratedRoutes = body["rated_routes"].cast<int>();
-        sc.add(new AuthenticatedUser(
-            body["user"], email, response.body, body["icon"]));
+        sc.add(new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"]));
         return true;
       }
 
@@ -81,8 +57,10 @@ class AuthenticationService {
 
       if (response.statusCode == 201) {
         var storage = new StorageService();
-        storage.writeValue('token', response.body);
-        sc.add(new AuthenticatedUser(user, email, response.body, "none"));
+        var body = jsonDecode(response.body);
+
+        storage.writeValue('token', body["token"]);
+        sc.add(new AuthenticatedUser(body["user_id"], user, email, response.body, "none"));
         return true;
       }
 
@@ -106,8 +84,9 @@ class AuthenticationService {
 
       if (response.statusCode == 200) {
         var storage = new StorageService();
+        var body = jsonDecode(response.body);
         storage.writeValue('token', response.body);
-        sc.add(new AuthenticatedUser(user, email, response.body, "none"));
+        sc.add(new AuthenticatedUser(body["user_id"], user, email, body["token"], "none"));
         return true;
       }
 
@@ -121,7 +100,7 @@ class AuthenticationService {
 
   Future<bool> signOut() async {
     try {
-      sc.add(new AuthenticatedUser('none', 'none', 'none', 'none'));
+      sc.add(new AuthenticatedUser(-1, 'none', 'none', 'none', 'none'));
       var storage = new StorageService();
       storage.deleteKey('token');
       return true;

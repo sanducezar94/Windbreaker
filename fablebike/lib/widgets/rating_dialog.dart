@@ -12,8 +12,7 @@ class _RatingDialogState extends State<RatingDialog> {
 
   Widget _buildStar(int starCount) {
     return InkWell(
-      child: Icon(Icons.star,
-          color: _stars >= starCount ? Colors.orange : Colors.grey),
+      child: Icon(Icons.star, color: _stars >= starCount ? Colors.orange : Colors.grey),
       onTap: () {
         setState(() {
           _stars = starCount;
@@ -40,13 +39,7 @@ class _RatingDialogState extends State<RatingDialog> {
         title: Center(child: Text('Acorda o nota')),
         content: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildStar(1),
-            _buildStar(2),
-            _buildStar(3),
-            _buildStar(4),
-            _buildStar(5)
-          ],
+          children: [_buildStar(1), _buildStar(2), _buildStar(3), _buildStar(4), _buildStar(5)],
         ));
   }
 }

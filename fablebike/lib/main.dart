@@ -1,13 +1,9 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:fablebike/pages/image_picker.dart';
+import 'package:fablebike/pages/poi_info.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/services/authentication_service.dart';
-import 'package:fablebike/services/database_service.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import './pages/home.dart';
@@ -15,12 +11,10 @@ import './pages/map.dart';
 import './pages/routes.dart';
 import 'facebook_signup.dart';
 import 'login_screen.dart';
-import 'models/facebook_user.dart';
+import 'models/user.dart';
 import 'signup.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 
 const SERVER_IP = '192.168.100.24:8080';
 
@@ -49,21 +43,21 @@ class MyApp extends StatelessWidget {
           create: (_) => AuthenticationService(),
         ),
         Provider<DatabaseService>(create: (_) => DatabaseService()),
-        StreamProvider(
-            create: (context) => context.read<AuthenticationService>().authUser)
+        StreamProvider(create: (context) => context.read<AuthenticationService>().authUser)
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: AuthenticatioNWrapper(),
+        home: AuthenticationWrapper(),
         routes: <String, WidgetBuilder>{
           HomeScreen.route: (context) => HomeScreen(),
-          AuthenticatioNWrapper.route: (context) => AuthenticatioNWrapper(),
+          AuthenticationWrapper.route: (context) => AuthenticationWrapper(),
           SignUpScreen.route: (context) => SignUpScreen(),
           RoutesScreen.route: (context) => RoutesScreen(),
-          ImagePickerScreen.route: (context) => ImagePickerScreen()
+          ImagePickerScreen.route: (context) => ImagePickerScreen(),
+          POIScreen.route: (context) => POIScreen()
         },
         onGenerateRoute: (settings) {
           if (settings.name == MapScreen.route) {
@@ -92,10 +86,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthenticatioNWrapper extends StatelessWidget {
+class AuthenticationWrapper extends StatelessWidget {
   static const String route = '/landing';
 
-  const AuthenticatioNWrapper({
+  const AuthenticationWrapper({
     Key key,
   }) : super(key: key);
 

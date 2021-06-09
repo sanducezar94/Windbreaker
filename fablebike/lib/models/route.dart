@@ -1,4 +1,5 @@
 import 'package:latlong/latlong.dart';
+import 'package:map_elevation/map_elevation.dart';
 
 class BikeRoute {
   int id;
@@ -12,20 +13,14 @@ class BikeRoute {
   String file;
 
   List<LatLng> rtsCoordinates;
+  List<ElevationPoint> elevationPoints;
   List<Coords> coordinates;
   List<PointOfInterest> pois;
 
-  BikeRoute(this.id, this.name, this.description, this.rating, this.ascent,
-      this.descent, this.difficulty, this.rtsCoordinates);
+  BikeRoute(this.id, this.name, this.description, this.rating, this.ascent, this.descent, this.difficulty, this.rtsCoordinates);
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'rating': rating,
-      'ratingCount': ratingCount
-    };
+    return {'id': id, 'name': name, 'description': description, 'rating': rating, 'ratingCount': ratingCount};
   }
 
   BikeRoute.fromJson(Map<String, dynamic> json)
@@ -33,9 +28,9 @@ class BikeRoute {
         name = json['name'],
         description = json['description'],
         rating = json["rating"] == null ? 0.0 : json["rating"],
-        descent = json['descent'],
-        ascent = json['ascent'],
-        difficulty = json['difficulty'],
+        //descent = json['descent'],
+        //ascent = json['ascent'],
+        //difficulty = json['difficulty'],
         ratingCount = json["rating_count"];
 }
 
@@ -49,13 +44,12 @@ class Coords {
     return LatLng(latitude, longitude);
   }
 
+  ElevationPoint toElevationPoint() {
+    return ElevationPoint(latitude, longitude, elevation);
+  }
+
   Map<String, dynamic> toMap() {
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'elevation': elevation,
-      'route_id': routeId
-    };
+    return {'latitude': latitude, 'longitude': longitude, 'elevation': elevation, 'route_id': routeId};
   }
 
   Coords.fromJson(Map<String, dynamic> json)
@@ -74,13 +68,7 @@ class PointOfInterest {
   LatLng coords;
 
   Map<String, dynamic> toMap() {
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'name': name,
-      'description': description,
-      'route_id': routeId
-    };
+    return {'latitude': latitude, 'longitude': longitude, 'name': name, 'description': description, 'route_id': routeId};
   }
 
   PointOfInterest.fromJson(Map<String, dynamic> json)

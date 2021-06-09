@@ -23,24 +23,21 @@ class _SignUpScreen extends State<SignUpScreen> {
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
             controller: emailController,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Email'),
+            decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Email'),
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
             controller: userController,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Utilizator'),
+            decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Utilizator'),
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
             controller: passwordController,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Parola'),
+            decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Parola'),
           ),
         ),
         Padding(padding: EdgeInsets.all(16.0)),
@@ -48,10 +45,7 @@ class _SignUpScreen extends State<SignUpScreen> {
             onPressed: () {
               context
                   .read<AuthenticationService>()
-                  .signUp(
-                      user: userController.text,
-                      email: emailController.text,
-                      password: passwordController.text)
+                  .signUp(user: userController.text, email: emailController.text, password: passwordController.text)
                   .then((result) {
                 if (result) {
                   Navigator.pop(context);

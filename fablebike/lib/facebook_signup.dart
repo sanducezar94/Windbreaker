@@ -1,4 +1,4 @@
-import 'package:fablebike/models/facebook_user.dart';
+import 'package:fablebike/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/authentication_service.dart';
@@ -30,26 +30,20 @@ class _FacebookSignUpScreen extends State<FacebookSignUpScreen> {
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
             readOnly: true,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: widget.fbUser.email),
+            decoration: InputDecoration(border: OutlineInputBorder(), hintText: widget.fbUser.email),
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
             controller: userController,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Utilizator'),
+            decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Utilizator'),
           ),
         ),
         Padding(padding: EdgeInsets.all(16.0)),
         ElevatedButton(
             onPressed: () {
-              context
-                  .read<AuthenticationService>()
-                  .facebookSignUp(
-                      user: userController.text, email: widget.fbUser.email)
-                  .then((result) {
+              context.read<AuthenticationService>().facebookSignUp(user: userController.text, email: widget.fbUser.email).then((result) {
                 if (result) {
                   Navigator.pop(context);
                 }

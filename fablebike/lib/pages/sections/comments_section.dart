@@ -1,12 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
-
+import 'dart:typed_data';
+import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/services/comment_service.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../models/comments.dart';
-import 'package:path/path.dart' as p;
 
 const PAGE_SIZE = 10;
 
@@ -25,20 +22,10 @@ class _CommentSectionState extends State<CommentSection> {
   Future<CommentsPlate> getComments;
   List<Comment> comments = [];
 
-  String userImagesPath = "";
-
   @override
   void initState() {
     super.initState();
-    getComments = new CommentService()
-        .getComments(page: this.page, route: widget.route_id);
-    setPath();
-  }
-
-  void setPath() async {
-    await getApplicationDocumentsDirectory().then((directory) {
-      userImagesPath = directory.path + '/user_images';
-    });
+    getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
   }
 
   @override
@@ -51,9 +38,7 @@ class _CommentSectionState extends State<CommentSection> {
               children: [
                 TextField(
                   controller: this.commentController,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Comentariu Nou...'),
+                  decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Comentariu Nou...'),
                 ),
               ],
             ),
@@ -62,8 +47,7 @@ class _CommentSectionState extends State<CommentSection> {
             ElevatedButton(
                 onPressed: () async {
                   var commentAPI = new CommentService();
-                  var postedComment = await commentAPI.addComment(
-                      message: commentController.text, route: widget.route_id);
+                  var postedComment = await commentAPI.addComment(message: commentController.text, route: widget.route_id);
                   if (postedComment != null) {
                     this.setState(() {
                       this.comments.insert(0, postedComment);
@@ -75,38 +59,33 @@ class _CommentSectionState extends State<CommentSection> {
           FutureBuilder(
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  snapshot = snapshot.inState(ConnectionState.none);
-                  if (snapshot.data.page == this.page) {
-                    this.comments.insertAll(0, snapshot.data.comments);
-                    this.page++;
-                  }
-
-                  List<Widget> widgets = [];
-                  List<Comment> newComments = snapshot.data.comments;
-
-                  for (var i = 0; i < newComments.length; i++) {
-                    var filePath = p.join(userImagesPath, newComments[i].icon);
-                    var fileExists = File(filePath).existsSync();
-                    if (fileExists) {
-                      widgets
-                          .add(_buildComment(newComments[i], File(filePath)));
-                    } else {
-                      widgets.add(_buildComment(newComments[i], null));
+                  if (snapshot.hasData) {
+                    if (snapshot.data.page == this.page) {
+                      this.comments.insertAll(0, snapshot.data.comments);
+                      this.page++;
                     }
+
+                    List<Widget> widgets = [];
+                    List<Comment> newComments = snapshot.data.comments;
+
+                    for (var i = 0; i < newComments.length; i++) {
+                      widgets.add(_buildComment(newComments[i]));
+                    }
+
+                    widgets.insert(
+                        0,
+                        ElevatedButton(
+                            onPressed: () async {
+                              this.setState(() {
+                                getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
+                              });
+                            },
+                            child: Text("Load Comments")));
+
+                    return Column(children: widgets);
+                  } else {
+                    return CircularProgressIndicator();
                   }
-
-                  widgets.insert(
-                      0,
-                      ElevatedButton(
-                          onPressed: () async {
-                            this.setState(() {
-                              getComments = new CommentService().getComments(
-                                  page: this.page, route: widget.route_id);
-                            });
-                          },
-                          child: Text("Load Comments")));
-
-                  return Column(children: widgets);
                 } else {
                   return CircularProgressIndicator();
                 }
@@ -118,39 +97,38 @@ class _CommentSectionState extends State<CommentSection> {
   }
 }
 
-Future<String> getIcon({String imageName}) async {
-  var userService = new UserService();
-  var filePath = new UserService().getIcon(imageName: imageName);
-  return filePath;
+Future<Uint8List> getIcon({String imageName, int userId, String username}) async {
+  var blobImage = await DatabaseService().query('usericon', where: 'user_id = ? and is_profile is null', whereArgs: [userId], columns: ['blob']);
+
+  if (blobImage.length == 0) {
+    var serverImage = await UserService().getIcon(imageName: imageName, userId: userId, username: username);
+    return serverImage;
+  } else {
+    return blobImage.first['blob'];
+  }
 }
 
-Widget _buildComment(Comment comment, File image) {
+Widget _buildComment(Comment comment) {
   return Card(
     clipBehavior: Clip.antiAlias,
     child: Column(children: [
       ListTile(
-        leading: image != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(48.0),
-                child: Image.file(image, width: 48, height: 48),
-              )
-            : comment.icon == null
-                ? Icon(Icons.account_box)
-                : FutureBuilder(
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.hasData) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(48.0),
-                            child: Image.file(File(snapshot.data),
-                                width: 40, height: 40),
-                          );
-                        } else {
-                          return CircularProgressIndicator();
-                        }
-                      }
-                    },
-                    future: getIcon(imageName: comment.icon)),
+        leading: FutureBuilder<Uint8List>(
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(48.0),
+                    child: Image.memory(snapshot.data, width: 40, height: 40),
+                  );
+                } else {
+                  return CircularProgressIndicator();
+                }
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
+            future: getIcon(imageName: comment.icon, username: comment.user, userId: comment.userId)),
         title: Text(comment.user),
         subtitle: Text(comment.text),
       )

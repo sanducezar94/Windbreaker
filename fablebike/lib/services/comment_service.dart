@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:fablebike/services/database_service.dart';
 import 'package:http/http.dart' as http;
 import '../models/comments.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'storage_service.dart';
 
@@ -13,27 +15,37 @@ const API_ENDPOINT = '/comment';
 class CommentService {
   Future<CommentsPlate> getComments({int route, int page}) async {
     try {
-      var client = http.Client();
-      var storage = new StorageService();
+      dynamic commentsJson;
+      var connectivity = await (Connectivity().checkConnectivity());
+      if (connectivity == ConnectivityResult.none) {
+        var dbOfflineRouteData = await DatabaseService().query('route', where: 'id = ?', whereArgs: [route], columns: ['page_0', 'page_1', 'page_2']);
 
-      var token = await storage.readValue('token');
-      var queryParameters = {
-        'page': page.toString(),
-        'route_id': route.toString()
-      };
+        if (dbOfflineRouteData.length == 0 || page > 2 || dbOfflineRouteData.first['page_' + page.toString()] == null) return null;
 
-      var response = await client
-          .get(Uri.https(SERVER_IP, API_ENDPOINT, queryParameters), headers: {
-        HttpHeaders.authorizationHeader: 'Bearer ' + token
-      }).timeout(const Duration(seconds: 5), onTimeout: () {
-        throw TimeoutException('Connection timed out!');
-      });
+        commentsJson = jsonDecode(dbOfflineRouteData.first['page_' + page.toString()]);
+      } else {
+        var client = http.Client();
+        var storage = new StorageService();
+
+        var token = await storage.readValue('token');
+        var queryParameters = {'page': page.toString(), 'route_id': route.toString()};
+
+        var response = await client.get(Uri.https(SERVER_IP, API_ENDPOINT, queryParameters),
+            headers: {HttpHeaders.authorizationHeader: 'Bearer ' + token}).timeout(const Duration(seconds: 5), onTimeout: () {
+          throw TimeoutException('Connection timed out!');
+        });
+        commentsJson = jsonDecode(response.body);
+
+        var obj = page == 0
+            ? {'page_0': response.body}
+            : page == 1
+                ? {'page_1': response.body}
+                : {'page_2': response.body};
+        await DatabaseService().update('route', obj, where: 'id = ?', args: [route]);
+      }
 
       List<Comment> comments = [];
-
-      var bodyJSON = jsonDecode(response.body);
-
-      for (var comment in bodyJSON["comments"]) {
+      for (var comment in commentsJson["comments"]) {
         comments.add(Comment.fromJson(comment));
       }
 
@@ -53,13 +65,8 @@ class CommentService {
       var token = await storage.readValue('token');
 
       var response = await client.post(Uri.https(SERVER_IP, API_ENDPOINT),
-          body: {
-            'text': message,
-            'route_id': route.toString()
-          },
-          headers: {
-            HttpHeaders.authorizationHeader: 'Bearer ' + token
-          }).timeout(const Duration(seconds: 5), onTimeout: () {
+          body: {'text': message, 'route_id': route.toString()},
+          headers: {HttpHeaders.authorizationHeader: 'Bearer ' + token}).timeout(const Duration(seconds: 5), onTimeout: () {
         throw TimeoutException('Connection timed out!');
       });
 

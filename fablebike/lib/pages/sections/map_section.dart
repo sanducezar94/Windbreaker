@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong/latlong.dart';
+import 'package:map_elevation/map_elevation.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 
@@ -12,9 +13,7 @@ LatLng myLocation = LatLng(46.45447, 27.72501);
 double calculateDistance(lat1, lon1, lat2, lon2) {
   var p = 0.017453292519943295;
   var c = cos;
-  var a = 0.5 -
-      c((lat2 - lat1) * p) / 2 +
-      c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+  var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
   return 12742 * asin(sqrt(a));
 }
 
@@ -32,10 +31,11 @@ class MapSection extends StatefulWidget {
 
 class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
   double rotation = 0;
-  double size = 24.0;
+  double size = 12.0;
   bool init = false;
   MapController mapController;
   double kmTraveled = 0;
+  var hoverPoint = LatLng(0, 0);
 
   @override
   void initState() {
@@ -44,22 +44,16 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
   }
 
   void goToPoint(LatLng dest) {
-    final latTween =
-        Tween<double>(begin: mapController.center.latitude, end: dest.latitude);
-    final longTween = Tween<double>(
-        begin: mapController.center.longitude, end: dest.longitude);
+    final latTween = Tween<double>(begin: mapController.center.latitude, end: dest.latitude);
+    final longTween = Tween<double>(begin: mapController.center.longitude, end: dest.longitude);
     final zoomTween = Tween<double>(begin: mapController.zoom, end: 13.0);
 
-    var controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1500));
+    var controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
 
-    Animation<double> animation =
-        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+    Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
     controller.addListener(() {
-      mapController.move(
-          LatLng(latTween.evaluate(animation), longTween.evaluate(animation)),
-          zoomTween.evaluate(animation));
+      mapController.move(LatLng(latTween.evaluate(animation), longTween.evaluate(animation)), zoomTween.evaluate(animation));
     });
 
     animation.addStatusListener((status) {
@@ -77,21 +71,16 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
     double km = 0;
     for (var i = 0; i < widget.bikeRoute.rtsCoordinates.length - 1; i++) {
       var distanceToUser = calculateDistance(
-          widget.bikeRoute.rtsCoordinates[i].latitude,
-          widget.bikeRoute.rtsCoordinates[i].longitude,
-          myLocation.latitude,
-          myLocation.longitude);
+          widget.bikeRoute.rtsCoordinates[i].latitude, widget.bikeRoute.rtsCoordinates[i].longitude, myLocation.latitude, myLocation.longitude);
 
       if (distanceToUser > 2) {
-        km += calculateDistance(
-            widget.bikeRoute.rtsCoordinates[i].latitude,
-            widget.bikeRoute.rtsCoordinates[i].longitude,
-            widget.bikeRoute.rtsCoordinates[i + 1].latitude,
-            widget.bikeRoute.rtsCoordinates[i + 1].longitude);
+        km += calculateDistance(widget.bikeRoute.rtsCoordinates[i].latitude, widget.bikeRoute.rtsCoordinates[i].longitude,
+            widget.bikeRoute.rtsCoordinates[i + 1].latitude, widget.bikeRoute.rtsCoordinates[i + 1].longitude);
       } else {
         i = 9999;
       }
     }
+    kmTraveled = km;
     return km;
   }
 
@@ -101,14 +90,17 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
     double height = MediaQuery.of(context).size.height - 80;
 
     var markers = <Marker>[];
+    markers.add(Marker(
+        width: 16,
+        height: 16,
+        builder: (ctx) => Transform.rotate(angle: -this.rotation * 3.14159 / 180, child: Container(child: Image(image: AssetImage('assets/icons/church.png')))),
+        point: hoverPoint));
     for (var i = 0; i < widget.bikeRoute.pois.length; i++) {
       markers.add(Marker(
           width: this.size,
           height: this.size,
-          builder: (ctx) => Transform.rotate(
-              angle: -this.rotation * 3.14159 / 180,
-              child: Container(
-                  child: Image(image: AssetImage('assets/icons/church.png')))),
+          builder: (ctx) =>
+              Transform.rotate(angle: -this.rotation * 3.14159 / 180, child: Container(child: Image(image: AssetImage('assets/icons/church.png')))),
           point: widget.bikeRoute.pois[i].coords));
     }
 
@@ -119,17 +111,17 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
               if (snapshot.hasData) {
                 return Text(snapshot.data.toStringAsPrecision(3) + ' km');
               }
-              return Text('Ai iesit de pe ruta.');
+              return kmTraveled > 0 ? Text(kmTraveled.toStringAsPrecision(3) + ' km') : Text('Ai iesit de pe ruta.');
             } else
-              return Text('Ai iesit de pe ruta.');
+              return kmTraveled > 0 ? Text(kmTraveled.toStringAsPrecision(3) + ' km') : Text('Ai iesit de pe ruta.');
           },
           future: getKmTraveled()),
       Container(
-        height: height * 0.35,
+        height: height * 0.5,
         child: FlutterMap(
           mapController: mapController,
           options: MapOptions(
-              center: LatLng(46.6387, 27.7372),
+              center: myLocation,
               minZoom: 10.0,
               maxZoom: 13.0,
               zoom: 10.0,
@@ -161,10 +153,7 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
             ),
             PolylineLayerOptions(
               polylines: [
-                Polyline(
-                    points: widget.bikeRoute.rtsCoordinates,
-                    strokeWidth: 4,
-                    color: Colors.blue),
+                Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 4, color: Colors.blue),
               ],
             ),
             LocationMarkerLayerOptions(),
@@ -181,6 +170,22 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
               onItemChanged: (int index) {
                 goToPoint(widget.bikeRoute.pois[index].coords);
               })),
+      Container(
+        height: height * 0.15,
+        child: NotificationListener<ElevationHoverNotification>(
+          onNotification: (ElevationHoverNotification notification) {
+            setState(() {
+              hoverPoint = notification.position;
+            });
+            return true;
+          },
+          child: Elevation(
+            widget.bikeRoute.elevationPoints,
+            color: Colors.grey,
+            elevationGradientColors: ElevationGradientColors(gt10: Colors.green, gt20: Colors.orangeAccent, gt30: Colors.redAccent),
+          ),
+        ),
+      ),
     ]);
   }
 }

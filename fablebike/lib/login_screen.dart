@@ -1,5 +1,5 @@
 import 'package:fablebike/facebook_signup.dart';
-import 'package:fablebike/models/facebook_user.dart';
+import 'package:fablebike/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/authentication_service.dart';
@@ -17,19 +17,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   loginWithFB(BuildContext context) async {
-    final result = await FacebookAuth.instance
-        .login(loginBehavior: LoginBehavior.nativeWithFallback);
+    final result = await FacebookAuth.instance.login(loginBehavior: LoginBehavior.nativeWithFallback);
     if (result.status == LoginStatus.success) {
       final userData = await FacebookAuth.instance.getUserData();
       final facebookUser = FacebookUser.fromJson(userData);
 
-      var userExists = await context
-          .read<AuthenticationService>()
-          .signIn(email: facebookUser.email, password: "");
+      var userExists = await context.read<AuthenticationService>().signIn(email: facebookUser.email, password: "");
 
       if (!userExists) {
-        Navigator.pushNamed(context, FacebookSignUpScreen.route,
-            arguments: facebookUser);
+        Navigator.pushNamed(context, FacebookSignUpScreen.route, arguments: facebookUser);
       }
     }
   }
@@ -44,25 +40,21 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
             controller: userController,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Utilizator'),
+            decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Utilizator'),
           ),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: TextField(
             controller: passwordController,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(), hintText: 'Parola'),
+            decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Parola'),
           ),
         ),
         Padding(padding: EdgeInsets.all(16.0)),
         Text('Not signed'),
         ElevatedButton(
             onPressed: () {
-              context.read<AuthenticationService>().signIn(
-                  email: userController.text,
-                  password: passwordController.text);
+              context.read<AuthenticationService>().signIn(email: userController.text, password: passwordController.text);
             },
             child: Text('Sign In')),
         ElevatedButton(

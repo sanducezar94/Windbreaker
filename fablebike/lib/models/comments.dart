@@ -1,5 +1,6 @@
 class Comment {
   int id;
+  int userId;
   String text;
   String user;
   String icon;
@@ -8,6 +9,7 @@ class Comment {
 
   Comment.fromJson(Map<String, dynamic> json)
       : id = json['id'],
+        userId = json['user_id'],
         text = json['text'],
         user = json['user'],
         icon = json['icon'];
