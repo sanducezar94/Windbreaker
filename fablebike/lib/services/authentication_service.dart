@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:fablebike/models/service_response.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'storage_service.dart';
@@ -16,7 +17,7 @@ class AuthenticationService {
   StreamController sc = new StreamController<AuthenticatedUser>();
   Stream<AuthenticatedUser> get authUser => sc.stream;
 
-  Future<bool> signIn({String email, String password}) async {
+  Future<ServiceResponse> signIn({String email, String password}) async {
     try {
       var client = http.Client();
       String authToken = base64Encode(utf8.encode(email + ':' + password));
@@ -34,18 +35,18 @@ class AuthenticationService {
         loggedUser.ratedComments = body["rated_comments"].cast<int>();
         loggedUser.ratedRoutes = body["rated_routes"].cast<int>();
         sc.add(new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"]));
-        return true;
+        return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
-      return false;
-    } on SocketException catch (e) {
-      return false;
-    } on Exception catch (e) {
-      return false;
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
     }
   }
 
-  Future<bool> signUp({String user, String email, String password}) async {
+  Future<ServiceResponse> signUp({String user, String email, String password}) async {
     try {
       var client = http.Client();
       var response = await client.post(
@@ -61,18 +62,18 @@ class AuthenticationService {
 
         storage.writeValue('token', body["token"]);
         sc.add(new AuthenticatedUser(body["user_id"], user, email, response.body, "none"));
-        return true;
+        return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
-      return false;
-    } on SocketException catch (e) {
-      return false;
-    } on Exception catch (e) {
-      return false;
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
     }
   }
 
-  Future<bool> facebookSignUp({String user, String email}) async {
+  Future<ServiceResponse> facebookSignUp({String user, String email}) async {
     try {
       var client = http.Client();
       var response = await client.post(
@@ -87,14 +88,14 @@ class AuthenticationService {
         var body = jsonDecode(response.body);
         storage.writeValue('token', response.body);
         sc.add(new AuthenticatedUser(body["user_id"], user, email, body["token"], "none"));
-        return true;
+        return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
-      return false;
-    } on SocketException catch (e) {
-      return false;
-    } on Exception catch (e) {
-      return false;
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
     }
   }
 

@@ -36,19 +36,20 @@ class CommentService {
         });
         commentsJson = jsonDecode(response.body);
 
-        var obj = page == 0
-            ? {'page_0': response.body}
-            : page == 1
-                ? {'page_1': response.body}
-                : {'page_2': response.body};
-        await DatabaseService().update('route', obj, where: 'id = ?', args: [route]);
+        if (page <= 2) {
+          var obj = page == 0
+              ? {'page_0': response.body}
+              : page == 1
+                  ? {'page_1': response.body}
+                  : {'page_2': response.body};
+          await DatabaseService().update('route', obj, where: 'id = ?', args: [route]);
+        }
       }
 
       List<Comment> comments = [];
       for (var comment in commentsJson["comments"]) {
         comments.add(Comment.fromJson(comment));
       }
-
       return CommentsPlate(comments: comments, page: page);
     } on SocketException {
       return null;

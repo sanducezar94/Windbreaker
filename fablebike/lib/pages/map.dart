@@ -131,7 +131,10 @@ class _MapWidgetState extends State<MapWidget> {
                                   ),
                                 ],
                               ),
-                              CommentSection(route_id: widget.bikeRoute.id),
+                              CommentSection(
+                                route_id: widget.bikeRoute.id,
+                                connectionStatus: _connectionStatus,
+                              ),
                             ])),
                       ],
                     ),

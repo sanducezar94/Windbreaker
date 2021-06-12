@@ -1,7 +1,9 @@
+import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/widgets/filter_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
@@ -20,46 +22,100 @@ class RoutesScreen extends StatefulWidget {
 
 class _RoutesScreenState extends State<RoutesScreen> {
   Future<bool> getRoutes;
+  TextEditingController searchController = TextEditingController();
+  Future<List<BikeRoute>> getBikeRoutes;
 
   @override
   void initState() {
     super.initState();
+    getBikeRoutes = _getRoutes();
+  }
+
+  Future<List<BikeRoute>> _getRoutes() async {
+    var database = await DatabaseService().database;
+    var routes = await database.query('route');
+
+    List<BikeRoute> bikeRoutes = List.generate(routes.length, (i) {
+      return BikeRoute.fromJson(routes[i]);
+    });
+
+    for (var i = 0; i < bikeRoutes.length; i++) {
+      var pois = await database.query('pointofinterest', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id], columns: ['name', 'latitude', 'longitude']);
+      bikeRoutes[i].pois = List.generate(pois.length, (i) {
+        return PointOfInterest.fromJson(pois[i]);
+      });
+    }
+
+    return bikeRoutes;
   }
 
   @override
   Widget build(BuildContext context) {
-    Future<List<BikeRoute>> getRoutes() async {
-      var db = Provider.of<DatabaseService>(context);
-      var database = await db.database;
-      var routes = await database.query('route');
-
-      return List.generate(routes.length, (i) {
-        return BikeRoute.fromJson(routes[i]);
-      });
-    }
-
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
             appBar: AppBar(title: Text('Map')),
             drawer: buildDrawer(context, '/routes'),
-            body: FutureBuilder<List<BikeRoute>>(
-                builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
-                  List<Widget> children = [];
-                  if (snapshot.hasData) {
-                    for (var i = 0; i < snapshot.data.length; i++) {
-                      children.add(_buildRoute(context, snapshot.data[i]));
-                    }
-                    return Container(
-                      color: Colors.white70,
-                      child: ListView(children: children, scrollDirection: Axis.vertical),
-                    );
-                  } else {
-                    return Text('Loading...');
-                  }
-                },
-                future: getRoutes())));
+            floatingActionButton: FloatingActionButton(
+              child: const Icon(Icons.filter_list),
+              backgroundColor: Colors.blue,
+              onPressed: () async {
+                var filters = await showDialog(context: context, builder: (_) => FilterDialog());
+              },
+            ),
+            body: SingleChildScrollView(
+                child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: TextField(
+                    onChanged: (context) {
+                      setState(() {});
+                    },
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(24.0))),
+                      prefixIcon: Icon(Icons.search),
+                      suffixIcon: this.searchController != null && this.searchController.text.length > 0
+                          ? IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  this.searchController.text = '';
+                                });
+                              },
+                              icon: Icon(Icons.cancel))
+                          : null,
+                      hintText: 'Cauta',
+                    ),
+                  ),
+                ),
+                FutureBuilder<List<BikeRoute>>(
+                    builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
+                      List<Widget> children = [];
+                      if (snapshot.hasData) {
+                        var filteredList = snapshot.data;
+                        var filterQuery = this.searchController.text?.toLowerCase();
+                        if (filterQuery.isNotEmpty) {
+                          filteredList = snapshot.data
+                              .where((c) =>
+                                  c.name.toLowerCase().contains(filterQuery) ||
+                                  c.description.toLowerCase().contains(filterQuery) ||
+                                  c.pois.where((p) => p.name.toLowerCase().contains(filterQuery)).isNotEmpty)
+                              .toList();
+                        }
+
+                        for (var i = 0; i < filteredList.length; i++) {
+                          children.add(_buildRoute(context, filteredList[i]));
+                        }
+                        return Column(children: children);
+                      } else {
+                        return Text('Loading...');
+                      }
+                    },
+                    future: this.getBikeRoutes),
+              ],
+            ))));
   }
 }
 

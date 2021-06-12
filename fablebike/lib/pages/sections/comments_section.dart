@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/user_service.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +10,9 @@ const PAGE_SIZE = 10;
 
 class CommentSection extends StatefulWidget {
   final int route_id;
+  final ConnectivityResult connectionStatus;
 
-  CommentSection({Key key, this.route_id}) : super(key: key);
+  CommentSection({Key key, this.route_id, this.connectionStatus}) : super(key: key);
 
   @override
   _CommentSectionState createState() => _CommentSectionState();
@@ -21,6 +23,8 @@ class _CommentSectionState extends State<CommentSection> {
   final TextEditingController commentController = TextEditingController();
   Future<CommentsPlate> getComments;
   List<Comment> comments = [];
+  List<Widget> commentWidgets = [];
+  bool loadingComments = false;
 
   @override
   void initState() {
@@ -50,6 +54,8 @@ class _CommentSectionState extends State<CommentSection> {
                   var postedComment = await commentAPI.addComment(message: commentController.text, route: widget.route_id);
                   if (postedComment != null) {
                     this.setState(() {
+                      this.commentController.text = "";
+                      this.commentWidgets.insert(0, _buildComment(postedComment));
                       this.comments.insert(0, postedComment);
                     });
                   }
@@ -61,36 +67,30 @@ class _CommentSectionState extends State<CommentSection> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     if (snapshot.data.page == this.page) {
-                      this.comments.insertAll(0, snapshot.data.comments);
+                      this.comments.addAll(snapshot.data.comments);
                       this.page++;
+                    } else if (snapshot.data.page < this.page) return Column(children: commentWidgets);
+
+                    for (var i = (page - 1) * 6; i < this.comments.length; i++) {
+                      commentWidgets.add(_buildComment(this.comments[i]));
                     }
-
-                    List<Widget> widgets = [];
-                    List<Comment> newComments = snapshot.data.comments;
-
-                    for (var i = 0; i < newComments.length; i++) {
-                      widgets.add(_buildComment(newComments[i]));
-                    }
-
-                    widgets.insert(
-                        0,
-                        ElevatedButton(
-                            onPressed: () async {
-                              this.setState(() {
-                                getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
-                              });
-                            },
-                            child: Text("Load Comments")));
-
-                    return Column(children: widgets);
+                    return Column(children: commentWidgets);
                   } else {
-                    return CircularProgressIndicator();
+                    return commentWidgets.length == 0 ? CircularProgressIndicator() : Column(children: commentWidgets);
                   }
                 } else {
-                  return CircularProgressIndicator();
+                  return commentWidgets.length == 0 ? CircularProgressIndicator() : Column(children: commentWidgets);
                 }
               },
               future: this.getComments),
+          ElevatedButton(
+              onPressed: () async {
+                this.setState(() {
+                  loadingComments = true;
+                  getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
+                });
+              },
+              child: Text("Load Comments"))
         ],
       ),
     );
