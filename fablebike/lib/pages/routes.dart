@@ -24,6 +24,8 @@ class _RoutesScreenState extends State<RoutesScreen> {
   Future<bool> getRoutes;
   TextEditingController searchController = TextEditingController();
   Future<List<BikeRoute>> getBikeRoutes;
+  RouteFilter initialFilter = new RouteFilter();
+  RouteFilter routeFilter = new RouteFilter();
 
   @override
   void initState() {
@@ -61,7 +63,11 @@ class _RoutesScreenState extends State<RoutesScreen> {
               child: const Icon(Icons.filter_list),
               backgroundColor: Colors.blue,
               onPressed: () async {
-                var filters = await showDialog(context: context, builder: (_) => FilterDialog());
+                var filter = await showDialog(context: context, builder: (_) => FilterDialog(filter: routeFilter));
+                if (filter == null) return;
+                setState(() {
+                  routeFilter = filter;
+                });
               },
             ),
             body: SingleChildScrollView(
@@ -96,14 +102,16 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       if (snapshot.hasData) {
                         var filteredList = snapshot.data;
                         var filterQuery = this.searchController.text?.toLowerCase();
-                        if (filterQuery.isNotEmpty) {
-                          filteredList = snapshot.data
-                              .where((c) =>
-                                  c.name.toLowerCase().contains(filterQuery) ||
-                                  c.description.toLowerCase().contains(filterQuery) ||
-                                  c.pois.where((p) => p.name.toLowerCase().contains(filterQuery)).isNotEmpty)
-                              .toList();
-                        }
+                        filteredList = snapshot.data
+                            .where((c) =>
+                                ((c.difficulty >= routeFilter.difficulty.start && c.difficulty <= routeFilter.difficulty.end) &&
+                                    (c.rating >= routeFilter.rating.start && c.rating <= routeFilter.rating.end) &&
+                                    (c.distance >= routeFilter.distance.start && c.distance <= routeFilter.distance.end) &&
+                                    (c.pois.length >= routeFilter.poiCount.start && c.pois.length <= routeFilter.poiCount.end)) &&
+                                (c.name.toLowerCase().contains(filterQuery) ||
+                                    c.description.toLowerCase().contains(filterQuery) ||
+                                    c.pois.where((p) => p.name.toLowerCase().contains(filterQuery)).isNotEmpty))
+                            .toList();
 
                         for (var i = 0; i < filteredList.length; i++) {
                           children.add(_buildRoute(context, filteredList[i]));

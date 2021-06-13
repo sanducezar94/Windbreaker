@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
 
@@ -6,6 +8,7 @@ class BikeRoute {
   String name;
   String description;
   double rating;
+  double distance;
   double ascent;
   double descent;
   double difficulty;
@@ -28,9 +31,10 @@ class BikeRoute {
         name = json['name'],
         description = json['description'],
         rating = json["rating"] == null ? 0.0 : json["rating"],
+        distance = json["distance"],
         //descent = json['descent'],
         //ascent = json['ascent'],
-        //difficulty = json['difficulty'],
+        difficulty = 0.0,
         ratingCount = json["rating_count"];
 }
 
@@ -59,6 +63,7 @@ class Coords {
 }
 
 class PointOfInterest {
+  int id;
   double latitude;
   double longitude;
   String name;
@@ -66,6 +71,7 @@ class PointOfInterest {
   String icon;
   int routeId;
   LatLng coords;
+  bool is_bookmarked;
 
   Map<String, dynamic> toMap() {
     return {'latitude': latitude, 'longitude': longitude, 'name': name, 'description': description, 'route_id': routeId};
@@ -73,9 +79,25 @@ class PointOfInterest {
 
   PointOfInterest.fromJson(Map<String, dynamic> json)
       : latitude = json['latitude'],
+        id = json['id'],
+        is_bookmarked = json['is_bookmarked'] == 1,
         longitude = json['longitude'],
         name = json['name'],
         description = json['description'],
         icon = json['photos'],
         coords = LatLng(json['latitude'], json['longitude']);
+}
+
+class RouteFilter {
+  RangeValues distance;
+  RangeValues rating;
+  RangeValues difficulty;
+  RangeValues poiCount;
+
+  RouteFilter() {
+    distance = RangeValues(0.0, 500.0);
+    rating = RangeValues(0.0, 5.0);
+    difficulty = RangeValues(0.0, 5.0);
+    poiCount = RangeValues(0.0, 30.0);
+  }
 }

@@ -1,29 +1,28 @@
+import 'package:fablebike/models/route.dart';
 import 'package:flutter/material.dart';
-import 'package:numberpicker/numberpicker.dart';
 
 class FilterDialog extends StatefulWidget {
-  FilterDialog({Key key}) : super(key: key);
+  final RouteFilter filter;
+  FilterDialog({Key key, @required this.filter}) : super(key: key);
 
   @override
   _FilterDialogState createState() => _FilterDialogState();
 }
 
 class _FilterDialogState extends State<FilterDialog> {
-  int difficulty = 0;
-  var selectedRange = RangeValues(0, 500);
   @override
   Widget build(BuildContext context) {
     return Container(
       child: AlertDialog(
         actions: <Widget>[
-          ElevatedButton(
+          OutlinedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
               child: Text('Anuleaza')),
           ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(widget.filter);
               },
               child: Text('Ok')),
         ],
@@ -33,37 +32,80 @@ class _FilterDialogState extends State<FilterDialog> {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('Dificultate'), flex: 2),
+                  Expanded(child: Text('Dificultate'), flex: 1),
                   Expanded(
-                      child: NumberPicker(
-                          itemHeight: 48,
-                          itemWidth: 64,
-                          itemCount: 0,
-                          minValue: 0,
-                          maxValue: 5,
-                          axis: Axis.horizontal,
-                          value: difficulty,
-                          onChanged: (value) {
-                            setState(() {
-                              difficulty = value;
-                            });
-                          }))
+                    flex: 2,
+                    child: RangeSlider(
+                        labels: RangeLabels(widget.filter.difficulty.start.toString(), widget.filter.difficulty.end.toString()),
+                        values: widget.filter.difficulty,
+                        min: 0.0,
+                        max: 5.0,
+                        divisions: 5,
+                        onChanged: (RangeValues newRange) {
+                          setState(() {
+                            widget.filter.difficulty = newRange;
+                          });
+                        }),
+                  )
                 ],
               ),
-              Row(children: [
-                Text('Distanta'),
-                RangeSlider(
-                    labels: RangeLabels(selectedRange.start.toString(), selectedRange.end.toString()),
-                    values: selectedRange,
-                    min: 0.0,
-                    max: 500.0,
-                    divisions: 10,
-                    onChanged: (RangeValues newRange) {
-                      setState(() {
-                        selectedRange = newRange;
-                      });
-                    }),
-              ])
+              Row(
+                children: [
+                  Expanded(child: Text('Rating'), flex: 1),
+                  Expanded(
+                    flex: 2,
+                    child: RangeSlider(
+                        labels: RangeLabels(widget.filter.rating.start.toString(), widget.filter.rating.end.toString()),
+                        values: widget.filter.rating,
+                        min: 0.0,
+                        max: 5.0,
+                        divisions: 5,
+                        onChanged: (RangeValues newRange) {
+                          setState(() {
+                            widget.filter.rating = newRange;
+                          });
+                        }),
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(child: Text('Distanta'), flex: 1),
+                  Expanded(
+                    flex: 2,
+                    child: RangeSlider(
+                        labels: RangeLabels(widget.filter.distance.start.toString(), widget.filter.distance.end.toString()),
+                        values: widget.filter.distance,
+                        min: 0.0,
+                        max: 500.0,
+                        divisions: 10,
+                        onChanged: (RangeValues newRange) {
+                          setState(() {
+                            widget.filter.distance = newRange;
+                          });
+                        }),
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(child: Text('Obiective'), flex: 1),
+                  Expanded(
+                    flex: 2,
+                    child: RangeSlider(
+                        labels: RangeLabels(widget.filter.poiCount.start.toString(), widget.filter.poiCount.end.toString()),
+                        values: widget.filter.poiCount,
+                        min: 0.0,
+                        max: 30.0,
+                        divisions: 15,
+                        onChanged: (RangeValues newRange) {
+                          setState(() {
+                            widget.filter.poiCount = newRange;
+                          });
+                        }),
+                  )
+                ],
+              ),
             ],
           ),
         ),

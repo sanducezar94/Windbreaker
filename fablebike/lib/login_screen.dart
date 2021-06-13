@@ -84,7 +84,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.pushNamed(context, SignUpScreen.route);
                     },
-                    child: Text('Sign Up'))
+                    child: Text('Sign Up')),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, SignUpScreen.route);
+                    },
+                    child: Text('Continua ca vizitator'))
               ],
             )));
   }

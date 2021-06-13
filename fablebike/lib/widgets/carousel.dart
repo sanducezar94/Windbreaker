@@ -3,10 +3,10 @@ import '../models/route.dart';
 
 class Carousel extends StatefulWidget {
   final Function(int) onItemChanged;
-  final BikeRoute bikeRoute;
+  final List<PointOfInterest> pois;
   final BuildContext context;
 
-  Carousel({Key key, this.onItemChanged, this.context, this.bikeRoute}) : super(key: key);
+  Carousel({Key key, this.onItemChanged, this.context, this.pois}) : super(key: key);
 
   @override
   _Carousel createState() => _Carousel();
@@ -17,17 +17,17 @@ class _Carousel extends State<Carousel> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCarousel(context, widget.onItemChanged, widget.bikeRoute);
+    return _buildCarousel(context, widget.onItemChanged, widget.pois);
   }
 }
 
-Widget _buildCarousel(BuildContext context, onItemChanged, BikeRoute bikeRoute) {
+Widget _buildCarousel(BuildContext context, onItemChanged, List<PointOfInterest> pois) {
   Function(int) callBack = onItemChanged;
 
   List<Widget> carouselItems = [];
 
-  for (var i = 0; i < bikeRoute.pois.length; i++) {
-    carouselItems.add(_buildCarouselItem(context, bikeRoute.pois[i]));
+  for (var i = 0; i < pois.length; i++) {
+    carouselItems.add(_buildCarouselItem(context, pois[i]));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -52,7 +52,7 @@ Widget _buildCarouselItem(BuildContext context, PointOfInterest poi) {
           ),
           ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, 'poi');
+                Navigator.pushNamed(context, 'poi', arguments: poi);
               },
               child: Text('Detalii'))
         ],

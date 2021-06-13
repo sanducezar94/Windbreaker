@@ -57,9 +57,15 @@ class MyApp extends StatelessWidget {
           SignUpScreen.route: (context) => SignUpScreen(),
           RoutesScreen.route: (context) => RoutesScreen(),
           ImagePickerScreen.route: (context) => ImagePickerScreen(),
-          POIScreen.route: (context) => POIScreen()
         },
         onGenerateRoute: (settings) {
+          if (settings.name == POIScreen.route) {
+            final args = settings.arguments as PointOfInterest;
+
+            return MaterialPageRoute(builder: (context) {
+              return POIScreen(poi: args);
+            });
+          }
           if (settings.name == MapScreen.route) {
             final args = settings.arguments as BikeRoute;
 

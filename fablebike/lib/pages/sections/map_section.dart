@@ -163,9 +163,9 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
       ),
       Container(
           alignment: Alignment.topCenter,
-          padding: EdgeInsets.only(top: 16, right: 0, left: 0, bottom: 16),
+          padding: EdgeInsets.only(top: 24, right: 0, left: 0, bottom: 24),
           child: Carousel(
-              bikeRoute: widget.bikeRoute,
+              pois: widget.bikeRoute.pois,
               context: context,
               onItemChanged: (int index) {
                 goToPoint(widget.bikeRoute.pois[index].coords);
