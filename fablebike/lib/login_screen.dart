@@ -86,8 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text('Sign Up')),
                 ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, SignUpScreen.route);
+                    onPressed: () async {
+                      var result = await context.read<AuthenticationService>().signInGuest();
                     },
                     child: Text('Continua ca vizitator'))
               ],

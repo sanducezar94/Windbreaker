@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
 import 'package:fablebike/models/service_response.dart';
@@ -31,10 +32,10 @@ class AuthenticationService {
         var body = jsonDecode(response.body);
 
         await storage.writeValue('token', body["token"]);
-        var loggedUser = new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"]);
+        var loggedUser = new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"], body["roles"]);
         loggedUser.ratedComments = body["rated_comments"].cast<int>();
         loggedUser.ratedRoutes = body["rated_routes"].cast<int>();
-        sc.add(new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"]));
+        sc.add(new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"], body["roles"]));
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
@@ -61,7 +62,33 @@ class AuthenticationService {
         var body = jsonDecode(response.body);
 
         storage.writeValue('token', body["token"]);
-        sc.add(new AuthenticatedUser(body["user_id"], user, email, response.body, "none"));
+        sc.add(new AuthenticatedUser(body["user_id"], user, email, response.body, "none", "rw"));
+        return ServiceResponse(true, SUCCESS_MESSAGE);
+      }
+
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
+    }
+  }
+
+  Future<ServiceResponse> signInGuest() async {
+    try {
+      var client = http.Client();
+      String authToken = base64Encode(utf8.encode('GUEST:GUEST'));
+      var response = await client
+          .get(Uri.https(SERVER_IP, AUTH), headers: {HttpHeaders.authorizationHeader: 'Basic ' + authToken}).timeout(const Duration(seconds: 5), onTimeout: () {
+        throw TimeoutException('Connection timed out!');
+      });
+
+      if (response.statusCode == 202) {
+        var storage = new StorageService();
+        var body = jsonDecode(response.body);
+
+        await storage.writeValue('token', body["token"]);
+        sc.add(new AuthenticatedUser(0, 'GUEST', 'GUEST', body['token'], '', 'r'));
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
@@ -87,7 +114,7 @@ class AuthenticationService {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
         storage.writeValue('token', response.body);
-        sc.add(new AuthenticatedUser(body["user_id"], user, email, body["token"], "none"));
+        sc.add(new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw"));
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
@@ -101,12 +128,30 @@ class AuthenticationService {
 
   Future<bool> signOut() async {
     try {
-      sc.add(new AuthenticatedUser(-1, 'none', 'none', 'none', 'none'));
+      sc.add(new AuthenticatedUser(-1, 'none', 'none', 'none', 'none', ""));
       var storage = new StorageService();
       storage.deleteKey('token');
       return true;
     } on Exception catch (e) {
       return false;
     }
+  }
+
+  bool hasReadPermission(AuthenticatedUser user) {
+    if (user == null) return false;
+    if (user.roleTokens.isEmpty) return false;
+    return user.roleTokens.contains("r");
+  }
+
+  bool hasWritePermission(AuthenticatedUser user) {
+    if (user == null) return false;
+    if (user.roleTokens.isEmpty) return false;
+    return user.roleTokens.contains("w");
+  }
+
+  bool hasDeletePermission(AuthenticatedUser user) {
+    if (user == null) return false;
+    if (user.roleTokens.isEmpty) return false;
+    return user.roleTokens.contains("d");
   }
 }

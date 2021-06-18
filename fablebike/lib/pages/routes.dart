@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';

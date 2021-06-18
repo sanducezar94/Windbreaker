@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/image_picker.dart';
+import 'package:fablebike/pages/settings.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/storage_service.dart';
 import 'package:flutter/material.dart';
@@ -44,11 +45,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
                           if (snapshot.hasData && snapshot.data != null) {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(48.0),
-                              child: InkWell(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, ImagePickerScreen.route);
-                                  },
-                                  child: snapshot.data),
+                              child: InkWell(child: snapshot.data),
                             );
                           } else {
                             return CircularProgressIndicator();
@@ -69,12 +66,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         TextButton(
             onPressed: () {
               context.read<AuthenticationService>().signOut();
-              //Navigator.of(context).push((route) => route.isFirst);
               Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
             },
             child: Text('Sign Out')),
         _buildMenuItem(context, const Text('Profile'), HomeScreen.route, currentRoute),
         _buildMenuItem(context, const Text('Rute'), RoutesScreen.route, currentRoute),
+        _buildMenuItem(context, const Text('Setari'), '/settings', currentRoute),
       ],
     ),
   );

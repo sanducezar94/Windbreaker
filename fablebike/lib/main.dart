@@ -1,5 +1,6 @@
 import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/pages/poi_info.dart';
+import 'package:fablebike/pages/settings.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
           AuthenticationWrapper.route: (context) => AuthenticationWrapper(),
           SignUpScreen.route: (context) => SignUpScreen(),
           RoutesScreen.route: (context) => RoutesScreen(),
+          SettingsScreen.route: (context) => SettingsScreen(),
           ImagePickerScreen.route: (context) => ImagePickerScreen(),
         },
         onGenerateRoute: (settings) {

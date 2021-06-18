@@ -5,17 +5,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
-
-import 'dart:math' show cos, sqrt, asin;
+import 'package:fablebike/services/math_service.dart' as mapMath;
 
 LatLng myLocation = LatLng(46.45447, 27.72501);
-
-double calculateDistance(lat1, lon1, lat2, lon2) {
-  var p = 0.017453292519943295;
-  var c = cos;
-  var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-  return 12742 * asin(sqrt(a));
-}
 
 class MapSection extends StatefulWidget {
   const MapSection({
@@ -70,11 +62,11 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
   Future<double> getKmTraveled() async {
     double km = 0;
     for (var i = 0; i < widget.bikeRoute.rtsCoordinates.length - 1; i++) {
-      var distanceToUser = calculateDistance(
+      var distanceToUser = mapMath.calculateDistance(
           widget.bikeRoute.rtsCoordinates[i].latitude, widget.bikeRoute.rtsCoordinates[i].longitude, myLocation.latitude, myLocation.longitude);
 
       if (distanceToUser > 2) {
-        km += calculateDistance(widget.bikeRoute.rtsCoordinates[i].latitude, widget.bikeRoute.rtsCoordinates[i].longitude,
+        km += mapMath.calculateDistance(widget.bikeRoute.rtsCoordinates[i].latitude, widget.bikeRoute.rtsCoordinates[i].longitude,
             widget.bikeRoute.rtsCoordinates[i + 1].latitude, widget.bikeRoute.rtsCoordinates[i + 1].longitude);
       } else {
         i = 9999;
@@ -105,7 +97,7 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
     }
 
     return Column(children: [
-      FutureBuilder<double>(
+      /*FutureBuilder<double>(
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
@@ -115,9 +107,9 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
             } else
               return kmTraveled > 0 ? Text(kmTraveled.toStringAsPrecision(3) + ' km') : Text('Ai iesit de pe ruta.');
           },
-          future: getKmTraveled()),
+          future: getKmTraveled()),*/
       Container(
-        height: height * 0.5,
+        height: height * 0.75,
         child: FlutterMap(
           mapController: mapController,
           options: MapOptions(
@@ -163,7 +155,7 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
       ),
       Container(
           alignment: Alignment.topCenter,
-          padding: EdgeInsets.only(top: 24, right: 0, left: 0, bottom: 24),
+          padding: EdgeInsets.only(top: 12, right: 0, left: 0, bottom: 24),
           child: Carousel(
               pois: widget.bikeRoute.pois,
               context: context,

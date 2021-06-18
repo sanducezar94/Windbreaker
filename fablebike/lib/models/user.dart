@@ -6,11 +6,12 @@ class AuthenticatedUser {
   String email;
   String token;
   String icon;
+  String roleTokens;
 
   List<int> ratedRoutes;
   List<int> ratedComments;
 
-  AuthenticatedUser(int id, String user, String email, String token, String icon) {
+  AuthenticatedUser(int id, String user, String email, String token, String icon, String roles) {
     this.id = id;
     this.username = user;
     this.email = email;
@@ -18,6 +19,7 @@ class AuthenticatedUser {
     this.icon = icon;
     ratedRoutes = [];
     ratedComments = [];
+    roleTokens = roles;
   }
 }
 

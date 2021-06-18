@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fablebike/models/user.dart';
+import 'package:fablebike/services/authentication_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/services/route_service.dart';
@@ -9,6 +11,7 @@ import 'package:fablebike/pages/sections/comments_section.dart';
 import 'package:fablebike/pages/sections/map_section.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../widgets/rating_dialog.dart';
 
 class MapScreen extends StatelessWidget {
@@ -78,6 +81,7 @@ class _MapWidgetState extends State<MapWidget> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height - 80;
+    var user = Provider.of<AuthenticatedUser>(context);
 
     if (widget.bikeRoute == null) {
       Navigator.of(context).pop();
@@ -96,46 +100,51 @@ class _MapWidgetState extends State<MapWidget> {
                       children: [
                         MapSection(bikeRoute: widget.bikeRoute),
                         Container(
-                            height: 0.5 * height,
-                            child: ListView(controller: this.listViewController, scrollDirection: Axis.vertical, children: [
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
+                          height: 0.8 * height,
+                          child: Column(
+                            children: [
+                              AuthenticationService().hasWritePermission(user)
+                                  ? Row(
+                                      children: [
+                                        Text(widget.bikeRoute.rating.toStringAsPrecision(3)),
+                                        Icon(Icons.star, color: Colors.orange),
+                                        Text('(' + widget.bikeRoute.ratingCount.toString() + ')'),
+                                        !isLoading
+                                            ? ElevatedButton(
+                                                onPressed: _connectionStatus == ConnectivityResult.none
+                                                    ? null
+                                                    : () async {
+                                                        var rating = await showDialog(context: context, builder: (_) => RatingDialog());
+                                                        if (rating != null) {
+                                                          this.setState(() {
+                                                            this.isLoading = true;
+                                                          });
+                                                          var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
+                                                          this.setState(() {
+                                                            if (newRating > 0.0) {
+                                                              widget.bikeRoute.rating = newRating;
+                                                              widget.bikeRoute.ratingCount += 1;
+                                                            }
+                                                            this.isLoading = false;
+                                                          });
+                                                        }
+                                                      },
+                                                child: Text('Rate'))
+                                            : CircularProgressIndicator()
+                                      ],
+                                    )
+                                  : Row(children: [
                                       Text(widget.bikeRoute.rating.toStringAsPrecision(3)),
                                       Icon(Icons.star, color: Colors.orange),
                                       Text('(' + widget.bikeRoute.ratingCount.toString() + ')'),
-                                      !isLoading
-                                          ? ElevatedButton(
-                                              onPressed: _connectionStatus == ConnectivityResult.none
-                                                  ? null
-                                                  : () async {
-                                                      var rating = await showDialog(context: context, builder: (_) => RatingDialog());
-                                                      if (rating != null) {
-                                                        this.setState(() {
-                                                          this.isLoading = true;
-                                                        });
-                                                        var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
-                                                        this.setState(() {
-                                                          if (newRating > 0.0) {
-                                                            widget.bikeRoute.rating = newRating;
-                                                            widget.bikeRoute.ratingCount += 1;
-                                                          }
-                                                          this.isLoading = false;
-                                                        });
-                                                      }
-                                                    },
-                                              child: Text('Rate'))
-                                          : CircularProgressIndicator()
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    ]),
                               CommentSection(
-                                route_id: widget.bikeRoute.id,
-                                connectionStatus: _connectionStatus,
-                              ),
-                            ])),
+                                  route_id: widget.bikeRoute.id,
+                                  connectionStatus: _connectionStatus,
+                                  canPost: AuthenticationService().hasWritePermission(user)),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ],

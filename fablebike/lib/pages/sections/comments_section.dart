@@ -11,8 +11,9 @@ const PAGE_SIZE = 10;
 class CommentSection extends StatefulWidget {
   final int route_id;
   final ConnectivityResult connectionStatus;
+  final bool canPost;
 
-  CommentSection({Key key, this.route_id, this.connectionStatus}) : super(key: key);
+  CommentSection({Key key, this.route_id, this.connectionStatus, this.canPost}) : super(key: key);
 
   @override
   _CommentSectionState createState() => _CommentSectionState();
@@ -37,31 +38,33 @@ class _CommentSectionState extends State<CommentSection> {
     return Container(
       child: Column(
         children: [
-          Container(
-            child: Column(
-              children: [
-                TextField(
-                  controller: this.commentController,
-                  decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Comentariu Nou...'),
-                ),
-              ],
-            ),
-          ),
-          Row(children: [
-            ElevatedButton(
-                onPressed: () async {
-                  var commentAPI = new CommentService();
-                  var postedComment = await commentAPI.addComment(message: commentController.text, route: widget.route_id);
-                  if (postedComment != null) {
-                    this.setState(() {
-                      this.commentController.text = "";
-                      this.commentWidgets.insert(0, _buildComment(postedComment));
-                      this.comments.insert(0, postedComment);
-                    });
-                  }
-                },
-                child: Text("Posteaza")),
-          ]),
+          widget.canPost
+              ? Container(
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: this.commentController,
+                        decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Comentariu Nou...'),
+                      ),
+                      Row(children: [
+                        ElevatedButton(
+                            onPressed: () async {
+                              var commentAPI = new CommentService();
+                              var postedComment = await commentAPI.addComment(message: commentController.text, route: widget.route_id);
+                              if (postedComment != null) {
+                                this.setState(() {
+                                  this.commentController.text = "";
+                                  this.commentWidgets.insert(0, _buildComment(postedComment));
+                                  this.comments.insert(0, postedComment);
+                                });
+                              }
+                            },
+                            child: Text("Posteaza")),
+                      ]),
+                    ],
+                  ),
+                )
+              : SizedBox(height: 1),
           FutureBuilder(
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
@@ -71,7 +74,7 @@ class _CommentSectionState extends State<CommentSection> {
                       this.page++;
                     } else if (snapshot.data.page < this.page) return Column(children: commentWidgets);
 
-                    for (var i = (page - 1) * 6; i < this.comments.length; i++) {
+                    for (var i = (page - 1) * 5; i < this.comments.length; i++) {
                       commentWidgets.add(_buildComment(this.comments[i]));
                     }
                     return Column(children: commentWidgets);
@@ -135,5 +138,3 @@ Widget _buildComment(Comment comment) {
     ]),
   );
 }
-
-//FutureBuilder(builder: (context, snapshot) {}, future: null),

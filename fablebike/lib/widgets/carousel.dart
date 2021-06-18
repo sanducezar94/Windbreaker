@@ -3,10 +3,11 @@ import '../models/route.dart';
 
 class Carousel extends StatefulWidget {
   final Function(int) onItemChanged;
+  final Function() onPageClosed;
   final List<PointOfInterest> pois;
   final BuildContext context;
 
-  Carousel({Key key, this.onItemChanged, this.context, this.pois}) : super(key: key);
+  Carousel({Key key, this.onItemChanged, this.onPageClosed, this.context, this.pois}) : super(key: key);
 
   @override
   _Carousel createState() => _Carousel();
@@ -17,27 +18,32 @@ class _Carousel extends State<Carousel> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCarousel(context, widget.onItemChanged, widget.pois);
+    return _buildCarousel(context, widget.onItemChanged, widget.onPageClosed, widget.pois);
   }
 }
 
-Widget _buildCarousel(BuildContext context, onItemChanged, List<PointOfInterest> pois) {
-  Function(int) callBack = onItemChanged;
-
+Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Function() onPageClosed, List<PointOfInterest> pois) {
   List<Widget> carouselItems = [];
 
   for (var i = 0; i < pois.length; i++) {
-    carouselItems.add(_buildCarouselItem(context, pois[i]));
+    carouselItems.add(_buildCarouselItem(context, pois[i], onPageClosed));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
     SizedBox(
-        height: 96,
-        child: PageView(controller: PageController(viewportFraction: 0.5), onPageChanged: (value) => {onItemChanged(value)}, children: carouselItems)),
+        height: 112,
+        child: PageView(
+            controller: PageController(viewportFraction: 0.75),
+            onPageChanged: onItemChanged != null
+                ? (value) {
+                    onItemChanged(value);
+                  }
+                : null,
+            children: carouselItems)),
   ]);
 }
 
-Widget _buildCarouselItem(BuildContext context, PointOfInterest poi) {
+Widget _buildCarouselItem(BuildContext context, PointOfInterest poi, Function() onPageClosed) {
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 4.0),
     child: Container(
@@ -52,7 +58,9 @@ Widget _buildCarouselItem(BuildContext context, PointOfInterest poi) {
           ),
           ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, 'poi', arguments: poi);
+                Navigator.pushNamed(context, 'poi', arguments: poi).then((value) {
+                  onPageClosed();
+                });
               },
               child: Text('Detalii'))
         ],
