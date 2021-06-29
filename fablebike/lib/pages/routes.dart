@@ -1,8 +1,9 @@
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
+import 'package:fablebike/models/filters.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/filter_dialog.dart';
+import 'package:fablebike/widgets/route_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
@@ -62,7 +63,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
               child: const Icon(Icons.filter_list),
               backgroundColor: Colors.blue,
               onPressed: () async {
-                var filter = await showDialog(context: context, builder: (_) => FilterDialog(filter: routeFilter));
+                var filter = await showDialog(context: context, builder: (_) => RouteFilterDialog(filter: routeFilter));
                 if (filter == null) return;
                 setState(() {
                   routeFilter = filter;

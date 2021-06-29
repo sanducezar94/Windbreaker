@@ -4,9 +4,7 @@ import 'dart:ui';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/services/storage_service.dart';
 import 'package:flutter/material.dart';
-import 'package:fablebike/services/authentication_service.dart';
 import 'package:fablebike/services/user_service.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_crop/image_crop.dart';
@@ -97,16 +95,24 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
 
                                 Database db = await DatabaseService().database;
                                 var dateNow = DateTime.now().toUtc().toString();
-                                var filename = user.username + extension(croppedImage.path);
 
-                                await db.delete('usericon', where: 'user_id = ?', whereArgs: [user.id]);
+                                if (user != null && user.username != 'none') {
+                                  var filename = user.username + extension(croppedImage.path);
+                                  await db.delete('usericon', where: 'user_id = ?', whereArgs: [user.id]);
 
-                                await db.insert('usericon', {'user_id': user.id, 'name': user.username, 'created_on': dateNow, 'blob': compressedFile});
+                                  await db.insert('usericon', {'user_id': user.id, 'name': user.username, 'created_on': dateNow, 'blob': compressedFile});
 
-                                await db.insert('usericon',
-                                    {'user_id': user.id, 'name': user.username, 'created_on': dateNow, 'blob': compressedProfilePic, 'is_profile': 1});
+                                  await db.insert('usericon',
+                                      {'user_id': user.id, 'name': user.username, 'created_on': dateNow, 'blob': compressedProfilePic, 'is_profile': 1});
 
-                                await UserService().uploadProfileImage(compressedFile, filename);
+                                  await UserService().uploadProfileImage(compressedFile, filename);
+                                } else {
+                                  await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
+
+                                  await db.insert('usericon', {'name': 'profile_pic_registration', 'blob': compressedFile});
+
+                                  await db.insert('usericon', {'name': 'profile_pic_registration', 'blob': compressedProfilePic, 'is_profile': 1});
+                                }
 
                                 setState(() {
                                   imageCache.clear();

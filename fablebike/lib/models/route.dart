@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
 
@@ -86,18 +84,4 @@ class PointOfInterest {
         description = json['description'],
         icon = json['photos'],
         coords = LatLng(json['latitude'], json['longitude']);
-}
-
-class RouteFilter {
-  RangeValues distance;
-  RangeValues rating;
-  RangeValues difficulty;
-  RangeValues poiCount;
-
-  RouteFilter() {
-    distance = RangeValues(0.0, 500.0);
-    rating = RangeValues(0.0, 5.0);
-    difficulty = RangeValues(0.0, 5.0);
-    poiCount = RangeValues(0.0, 30.0);
-  }
 }

@@ -1,3 +1,5 @@
+import 'package:fablebike/pages/image_picker.dart';
+import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/authentication_service.dart';
@@ -13,97 +15,186 @@ class _SignUpScreen extends State<SignUpScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController passwordDuplicateController = TextEditingController();
+  final Image profileImage = null;
   final formKey = GlobalKey<FormState>();
   bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Form(
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: TextFormField(
-                    validator: (value) {
-                      RegExp emailReg = new RegExp(r"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$");
-                      if (value == null || value.isEmpty) {
-                        return "Campul 'Email' nu poate fi gol.";
-                      } else if (emailReg.firstMatch(value) == null) {
-                        return "Email-ul nu este valid.";
-                      }
-                      return null;
-                    },
-                    controller: emailController,
-                    decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Email'),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Numele de utilizator nu poate fi gol.';
-                      }
-                      if (value.length < 6) {
-                        return 'Numele de utilizator nu poate fi mai mic de 6 caractere.';
-                      }
-                      RegExp userReg = new RegExp("[^A-Za-z0-9]");
-                      if (userReg.firstMatch(value) != null) {
-                        return 'Numele de utilizator nu poate contine caractere speciale.';
-                      }
-                      return null;
-                    },
-                    controller: userController,
-                    decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Utilizator'),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value.length < 6) {
-                        return 'Parola nu poate fi mai scurta de 6 caractere.';
-                      }
-                    },
-                    obscureText: true,
-                    controller: passwordController,
-                    decoration: InputDecoration(border: OutlineInputBorder(), hintText: 'Parola'),
-                  ),
-                ),
-                Padding(padding: EdgeInsets.all(16.0)),
-                ElevatedButton(
-                    onPressed: !_loading
-                        ? () async {
-                            if (formKey.currentState.validate()) {
-                              this.setState(() {
-                                _loading = true;
-                              });
-                              var response = await context
-                                  .read<AuthenticationService>()
-                                  .signUp(user: userController.text, email: emailController.text, password: passwordController.text);
-                              FocusScope.of(context).unfocus();
-                              if (response.success) {
-                                Navigator.pop(context);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.redAccent, content: Text(response.message)));
+        appBar: AppBar(
+          title: Text('Creeaza cont'),
+          backgroundColor: Theme.of(context).primaryColor,
+        ),
+        body: Padding(
+            padding: const EdgeInsets.only(left: 25.0, right: 25.0),
+            child: ListView(children: [
+              SizedBox(height: 45.0),
+              FutureBuilder(
+                builder: (BuildContext context, AsyncSnapshot<Image> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return Center(
+                          child: Column(children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(96.0),
+                          child: InkWell(
+                            child: snapshot.data,
+                          ),
+                        )
+                      ]));
+                    } else {
+                      return Column(
+                        children: [
+                          InkWell(
+                            child: Icon(Icons.camera_alt_outlined, size: 96.0),
+                          )
+                        ],
+                      );
+                    }
+                  } else {
+                    return Column(
+                      children: [
+                        InkWell(
+                          child: Icon(Icons.camera_alt_outlined, size: 96.0),
+                        )
+                      ],
+                    );
+                  }
+                },
+                future: getRegistrationImage(),
+              ),
+              SizedBox(height: 20),
+              Column(children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
+                      setState(() {});
+                    });
+                  },
+                  child: Text('Adauga fotografie!', style: TextStyle(color: Colors.black45)),
+                )
+              ]),
+              SizedBox(height: 20.0),
+              Container(
+                  child: Column(
+                children: [
+                  Form(
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    key: formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campul 'Utilizator' nu poate fi gol.";
                               }
-                              this.setState(() {
-                                _loading = false;
-                              });
-                            }
-                          }
-                        : null,
-                    child: Text('Create')),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Back')),
-              ],
-            )));
+                              return null;
+                            },
+                            controller: userController,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.email_outlined),
+                                border: OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                hintText: 'Introdu e-mail'),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campul 'E-mail' nu poate fi gol.";
+                              }
+                              return null;
+                            },
+                            controller: userController,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.contact_mail_outlined),
+                                border: OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                hintText: 'Introdu nume'),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campul 'Parola' nu poate fi gol.";
+                              }
+                              return null;
+                            },
+                            controller: passwordController,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.lock_outlined),
+                                border: OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                hintText: 'Parola'),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Campul 'Parola' nu poate fi gol.";
+                              }
+                              return null;
+                            },
+                            controller: passwordController,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.lock_outlined),
+                                border: OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                hintText: 'Confirma Parola'),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                            child: Container(
+                                height: 60,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 16),
+                                          minimumSize: Size(10, 54),
+                                          primary: Theme.of(context).primaryColor,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+                                        ),
+                                        onPressed: () async {
+                                          if (formKey.currentState.validate()) {
+                                            context.read<AuthenticationService>().signIn(email: userController.text, password: passwordController.text);
+                                          }
+                                        },
+                                        child: Text('Creeaza cont'))
+                                  ],
+                                ))),
+                      ],
+                    ),
+                  )
+                ],
+              ))
+            ])));
+  }
+}
+
+Future<Image> getRegistrationImage() async {
+  try {
+    imageCache.clear();
+
+    var db = await DatabaseService().database;
+
+    var profilePic = await db.query('usericon', where: 'name = ? and is_profile = ?', whereArgs: ['profile_pic_registration', 1], columns: ['blob']);
+
+    if (profilePic.length == 0) {
+      return Image.asset('assets/icons/user.png', height: 128, width: 128, fit: BoxFit.contain);
+    }
+
+    return Image.memory(profilePic.first["blob"], height: 128, width: 128, fit: BoxFit.contain);
+  } on Exception {
+    return null;
   }
 }

@@ -36,6 +36,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     )
                   ],
                 ),
-                drawer: buildDrawer(context, '/routes'))));
+                drawer: buildDrawer(context, '/settings'))));
   }
 }

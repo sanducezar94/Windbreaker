@@ -1,15 +1,16 @@
+import 'package:fablebike/models/filters.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:flutter/material.dart';
 
-class FilterDialog extends StatefulWidget {
+class RouteFilterDialog extends StatefulWidget {
   final RouteFilter filter;
-  FilterDialog({Key key, @required this.filter}) : super(key: key);
+  RouteFilterDialog({Key key, @required this.filter}) : super(key: key);
 
   @override
-  _FilterDialogState createState() => _FilterDialogState();
+  _RouteFilterDialogState createState() => _RouteFilterDialogState();
 }
 
-class _FilterDialogState extends State<FilterDialog> {
+class _RouteFilterDialogState extends State<RouteFilterDialog> {
   @override
   Widget build(BuildContext context) {
     return Container(

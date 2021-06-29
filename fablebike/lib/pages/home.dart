@@ -38,9 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     var poiRows = await db.query('pointofinterest');
     var pois = List.generate(poiRows.length, (i) => PointOfInterest.fromJson(poiRows[i]));
-    for (var i = 0; i < pois.length; i++) {
-      print(pois[i].name + ': ' + mapMath.calculateDistance(myLocation.latitude, myLocation.longitude, pois[i].latitude, pois[i].longitude).toString());
-    }
     return pois.where((c) => mapMath.calculateDistance(myLocation.latitude, myLocation.longitude, c.latitude, c.longitude) < 10).toList();
   }
 
@@ -51,7 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
-          appBar: AppBar(title: Text('Home')),
+          appBar: AppBar(
+            title: Text('Acasa'),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
           drawer: buildDrawer(context, route),
           body: Padding(
             padding: EdgeInsets.all(8.0),
@@ -59,37 +59,22 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Column(
                   children: [
-                    Row(
-                      verticalDirection: VerticalDirection.up,
-                      children: [Text('Hello ' + user.username)],
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      verticalDirection: VerticalDirection.up,
-                      children: [Text('Puncte de interes marcate')],
-                    ),
-                    SizedBox(height: 20),
-                    Container(
-                      child: FutureBuilder<List<PointOfInterest>>(
-                          builder: (BuildContext context, AsyncSnapshot<List<PointOfInterest>> snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
-                              if (snapshot.hasData) {
-                                return Carousel(
-                                  pois: snapshot.data,
-                                  context: context,
-                                  onPageClosed: () {
-                                    setState(() {});
-                                  },
-                                );
-                              } else {
-                                return Text('Nu ai niciun punct de interes favorit.');
-                              }
+                    SizedBox(height: 15),
+                    _buildStatsRow(context),
+                    SizedBox(height: 15),
+                    FutureBuilder(
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              return _buildAnnouncementBanner(context);
                             } else {
                               return CircularProgressIndicator();
                             }
-                          },
-                          future: this._getBookmarks(user)),
-                    ),
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                        future: _getNearbyPOI(user)),
                     SizedBox(height: 20),
                     Row(
                       verticalDirection: VerticalDirection.up,
@@ -135,4 +120,108 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ));
   }
+}
+
+_buildStatsRow(BuildContext context) {
+  return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                  child: InkWell(
+                      onTap: () async {},
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/user (1).png',
+                            fit: BoxFit.contain,
+                            height: 48,
+                          ),
+                          SizedBox(height: 5),
+                          Text('Distanta parcursa', style: Theme.of(context).textTheme.bodyText2),
+                          SizedBox(height: 3),
+                          Text('2000 Km', style: Theme.of(context).textTheme.bodyText1)
+                        ],
+                      )),
+                  flex: 1),
+              Expanded(
+                  child: InkWell(
+                      onTap: () async {},
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/user (1).png',
+                            fit: BoxFit.contain,
+                            height: 48,
+                          ),
+                          SizedBox(height: 5),
+                          Text('Rute finalizate', style: Theme.of(context).textTheme.bodyText2),
+                          SizedBox(height: 3),
+                          Text('3 Km', style: Theme.of(context).textTheme.bodyText1)
+                        ],
+                      )),
+                  flex: 1),
+              Expanded(
+                  child: InkWell(
+                      onTap: () async {},
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/user (1).png',
+                            fit: BoxFit.contain,
+                            height: 48,
+                          ),
+                          SizedBox(height: 5),
+                          Text('Puncte vizitate', style: Theme.of(context).textTheme.bodyText2),
+                          SizedBox(height: 3),
+                          Text('450', style: Theme.of(context).textTheme.bodyText1)
+                        ],
+                      )),
+                  flex: 1)
+            ],
+          )
+        ],
+      ));
+}
+
+_buildAnnouncementBanner(BuildContext context) {
+  return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            color: Colors.white,
+            boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 5, blurRadius: 7, offset: Offset(0, 9))]),
+        width: 1024,
+        height: 128,
+        child: Column(
+          children: [
+            SizedBox(height: 10.0),
+            Row(
+              children: [
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'Anunt Important',
+                      style: Theme.of(context).textTheme.headline1,
+                    ))
+              ],
+            ),
+            Row(
+              children: [
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6.0),
+                    child: Text(
+                      'Anunt Important',
+                      style: Theme.of(context).textTheme.headline2,
+                    ))
+              ],
+            )
+          ],
+        ),
+      ));
 }
