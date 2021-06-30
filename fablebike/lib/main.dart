@@ -52,12 +52,20 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-            primaryColor: Color.fromRGBO(100, 157, 80, 1),
+            primaryColor: Color.fromRGBO(99, 157, 78, 1),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(fontSize: 16),
+                  primary: Color.fromRGBO(99, 157, 78, 1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+            ),
             textTheme: TextTheme(
                 headline1: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.black54),
                 headline2: TextStyle(fontSize: 18.0, color: Colors.black38),
                 bodyText1: TextStyle(fontSize: 14.0, color: Colors.black87, fontWeight: FontWeight.bold),
-                bodyText2: TextStyle(fontSize: 12.0, color: Colors.black87))),
+                bodyText2: TextStyle(fontSize: 12.0, color: Colors.black54),
+                headline5: TextStyle(fontSize: 16.0, color: Colors.black87, fontWeight: FontWeight.bold),
+                headline4: TextStyle(fontSize: 14.0, color: Colors.black54))),
         home: AuthenticationWrapper(),
         routes: <String, WidgetBuilder>{
           HomeScreen.route: (context) => HomeScreen(),
@@ -70,10 +78,10 @@ class MyApp extends StatelessWidget {
         },
         onGenerateRoute: (settings) {
           if (settings.name == POIScreen.route) {
-            final args = settings.arguments as PointOfInterest;
+            final args = settings.arguments as POIInfo;
 
             return MaterialPageRoute(builder: (context) {
-              return POIScreen(poi: args);
+              return POIScreen(poi: args.poi, fromRoute: args.fromRoute);
             });
           }
           if (settings.name == MapScreen.route) {

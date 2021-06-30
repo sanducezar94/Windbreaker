@@ -3,13 +3,13 @@ import 'dart:ui';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
-import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/carousel.dart';
+import 'package:fablebike/widgets/drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
+import 'package:fablebike/widgets/card_builders.dart';
 
 import 'package:fablebike/services/math_service.dart' as mapMath;
 
@@ -36,8 +36,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<PointOfInterest>> _getNearbyPOI(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
 
+    var bookmarkRows =
+        await db.rawQuery('SELECT * FROM pointofinterestbookmark pb INNER JOIN pointofinterest p ON p.id = pb.poi_id WHERE pb.user_id = ${user.id}');
+    var bookmarks = List.generate(bookmarkRows.length, (i) => PointOfInterest.fromJson(bookmarkRows[i]));
+
     var poiRows = await db.query('pointofinterest');
     var pois = List.generate(poiRows.length, (i) => PointOfInterest.fromJson(poiRows[i]));
+
+    if (bookmarks.length > 0) {
+      pois.forEach((element) {
+        element.is_bookmarked = bookmarks.where((el) => el.id == element.id).isNotEmpty;
+      });
+    }
     return pois.where((c) => mapMath.calculateDistance(myLocation.latitude, myLocation.longitude, c.latitude, c.longitude) < 10).toList();
   }
 
@@ -48,74 +58,107 @@ class _HomeScreenState extends State<HomeScreen> {
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
+          bottomNavigationBar: buildBottomBar(context, route),
           appBar: AppBar(
-            title: Text('Acasa'),
-            backgroundColor: Theme.of(context).primaryColor,
+            title: Center(child: Text('Acasa')),
+            //backgroundColor: Colors.white,
+            //textTheme: Theme.of(context).textTheme,
           ),
-          drawer: buildDrawer(context, route),
-          body: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Column(
-                  children: [
-                    SizedBox(height: 15),
-                    _buildStatsRow(context),
-                    SizedBox(height: 15),
-                    FutureBuilder(
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            if (snapshot.hasData && snapshot.data != null) {
-                              return _buildAnnouncementBanner(context);
-                            } else {
-                              return CircularProgressIndicator();
-                            }
-                          } else {
-                            return CircularProgressIndicator();
-                          }
-                        },
-                        future: _getNearbyPOI(user)),
-                    SizedBox(height: 20),
-                    Row(
-                      verticalDirection: VerticalDirection.up,
-                      children: [Text('Puncte de interes aflate in apropiere. ' + user.username)],
-                    ),
-                    SizedBox(height: 20),
-                    Container(
-                      child: FutureBuilder<List<PointOfInterest>>(
-                          builder: (BuildContext context, AsyncSnapshot<List<PointOfInterest>> snapshot) {
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Column(
+                    children: [
+                      SizedBox(height: 25),
+                      _buildStatsRow(context),
+                      SizedBox(height: 25),
+                      FutureBuilder(
+                          builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.done) {
-                              if (snapshot.hasData) {
-                                return Carousel(
-                                  pois: snapshot.data,
-                                  context: context,
-                                  onPageClosed: () {
-                                    setState(() {});
-                                  },
-                                );
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return CardBuilder.buildAnnouncementBanner(context);
                               } else {
-                                return Text('Nu este niciun punct de interes in apropiere.');
+                                return CircularProgressIndicator();
                               }
                             } else {
                               return CircularProgressIndicator();
                             }
                           },
-                          future: this._getNearbyPOI(user)),
-                    ),
-                    Row(
-                      children: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
-                                setState(() {});
-                              });
-                            },
-                            child: Icon(Icons.add_a_photo))
-                      ],
-                    )
-                  ],
-                ),
-              ],
+                          future: _getNearbyPOI(user)),
+                      SizedBox(height: 25),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+                        child: Row(children: [
+                          Icon(Icons.bookmark_border_outlined),
+                          Text(
+                            'Puncte de interes marcate',
+                            style: Theme.of(context).textTheme.headline2,
+                            textAlign: TextAlign.start,
+                          )
+                        ]),
+                      ),
+                      SizedBox(height: 25),
+                      FutureBuilder<List<PointOfInterest>>(
+                          builder: (context, AsyncSnapshot<List<PointOfInterest>> snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: snapshot.data.length == 0
+                                        ? [Text('Nu aveti niciun punct de interes salvat.')]
+                                        : List.generate(snapshot.data.length, (index) {
+                                            return CardBuilder.buildSmallPOICard(context, snapshot.data[index]);
+                                          }),
+                                  ),
+                                );
+                              } else {
+                                return CircularProgressIndicator();
+                              }
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          },
+                          future: _getBookmarks(user)),
+                      SizedBox(height: 25),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+                        child: Row(children: [
+                          Icon(Icons.fmd_good),
+                          Text(
+                            'Puncte de interes aflate in apropiere',
+                            style: Theme.of(context).textTheme.headline2,
+                            textAlign: TextAlign.start,
+                          )
+                        ]),
+                      ),
+                      SizedBox(height: 25),
+                      FutureBuilder<List<PointOfInterest>>(
+                          builder: (context, AsyncSnapshot<List<PointOfInterest>> snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                List<Widget> widgets = List.generate(snapshot.data.length > 5 ? 5 : snapshot.data.length, (index) {
+                                  return CardBuilder.buildLargePOICard(context, snapshot.data[index]);
+                                });
+                                widgets.add(CardBuilder.buildNearestPoiButton(context));
+                                return SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: Column(children: widgets),
+                                );
+                              } else {
+                                return CircularProgressIndicator();
+                              }
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          },
+                          future: _getNearbyPOI(user)),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ));
@@ -137,7 +180,7 @@ _buildStatsRow(BuildContext context) {
                       child: Column(
                         children: [
                           Image.asset(
-                            'assets/images/user (1).png',
+                            'assets/icons/dt.png',
                             fit: BoxFit.contain,
                             height: 48,
                           ),
@@ -154,7 +197,7 @@ _buildStatsRow(BuildContext context) {
                       child: Column(
                         children: [
                           Image.asset(
-                            'assets/images/user (1).png',
+                            'assets/icons/rf.png',
                             fit: BoxFit.contain,
                             height: 48,
                           ),
@@ -171,7 +214,7 @@ _buildStatsRow(BuildContext context) {
                       child: Column(
                         children: [
                           Image.asset(
-                            'assets/images/user (1).png',
+                            'assets/icons/pv.png',
                             fit: BoxFit.contain,
                             height: 48,
                           ),
@@ -185,43 +228,5 @@ _buildStatsRow(BuildContext context) {
             ],
           )
         ],
-      ));
-}
-
-_buildAnnouncementBanner(BuildContext context) {
-  return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            color: Colors.white,
-            boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 5, blurRadius: 7, offset: Offset(0, 9))]),
-        width: 1024,
-        height: 128,
-        child: Column(
-          children: [
-            SizedBox(height: 10.0),
-            Row(
-              children: [
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      'Anunt Important',
-                      style: Theme.of(context).textTheme.headline1,
-                    ))
-              ],
-            ),
-            Row(
-              children: [
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6.0),
-                    child: Text(
-                      'Anunt Important',
-                      style: Theme.of(context).textTheme.headline2,
-                    ))
-              ],
-            )
-          ],
-        ),
       ));
 }

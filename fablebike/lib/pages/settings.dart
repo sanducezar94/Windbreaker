@@ -20,22 +20,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             overflowRules: OverflowRules.all(true),
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Scaffold(
-                appBar: AppBar(title: Text('Setari')),
-                body: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(child: Text('Filtre prestabilite'), flex: 2),
-                        Expanded(
-                            child: ElevatedButton(
-                              child: Text('tet'),
-                              onPressed: () {},
-                            ),
-                            flex: 1)
-                      ],
-                    )
-                  ],
-                ),
-                drawer: buildDrawer(context, '/settings'))));
+              bottomNavigationBar: buildBottomBar(context, SettingsScreen.route),
+              appBar: AppBar(title: Text('Setari')),
+              body: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: Text('Filtre prestabilite'), flex: 2),
+                      Expanded(
+                          child: ElevatedButton(
+                            child: Text('tet'),
+                            onPressed: () {},
+                          ),
+                          flex: 1)
+                    ],
+                  )
+                ],
+              ),
+            )));
   }
 }

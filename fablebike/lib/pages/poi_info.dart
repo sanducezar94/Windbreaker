@@ -4,6 +4,7 @@ import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:provider/provider.dart';
@@ -11,9 +12,10 @@ import 'package:share_plus/share_plus.dart';
 
 class POIScreen extends StatefulWidget {
   static const route = 'poi';
+  final String fromRoute;
 
   final PointOfInterest poi;
-  POIScreen({Key key, @required this.poi}) : super(key: key);
+  POIScreen({Key key, @required this.poi, this.fromRoute}) : super(key: key);
 
   @override
   _POIScreenState createState() => _POIScreenState();
@@ -36,6 +38,7 @@ class _POIScreenState extends State<POIScreen> {
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
+          bottomNavigationBar: buildBottomBar(context, widget.fromRoute),
           resizeToAvoidBottomInset: true,
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),

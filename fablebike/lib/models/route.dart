@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
+import 'package:proj4dart/proj4dart.dart';
 
 class BikeRoute {
   int id;
@@ -84,4 +88,13 @@ class PointOfInterest {
         description = json['description'],
         icon = json['photos'],
         coords = LatLng(json['latitude'], json['longitude']);
+}
+
+class POIInfo {
+  PointOfInterest poi;
+  String fromRoute;
+  POIInfo({
+    this.poi,
+    this.fromRoute,
+  });
 }

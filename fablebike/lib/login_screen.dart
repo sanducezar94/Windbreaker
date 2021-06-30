@@ -114,10 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   children: [
                                     ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          textStyle: TextStyle(fontSize: 16),
                                           minimumSize: Size(10, 54),
-                                          primary: Theme.of(context).primaryColor,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
                                         ),
                                         onPressed: () async {
                                           if (formKey.currentState.validate()) {

@@ -70,7 +70,6 @@ class _BookmarksScreen extends State<BookmarksScreen> {
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
             appBar: AppBar(title: Text('Map')),
-            drawer: buildDrawer(context, '/bookmarks'),
             body: SingleChildScrollView(
                 child: Column(
               children: [

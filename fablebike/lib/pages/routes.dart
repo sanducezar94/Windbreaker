@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/models/filters.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/widgets/card_builders.dart';
 import 'package:fablebike/widgets/route_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -58,7 +59,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
             appBar: AppBar(title: Text('Map')),
-            drawer: buildDrawer(context, '/routes'),
+            bottomNavigationBar: buildBottomBar(context, RoutesScreen.route),
             floatingActionButton: FloatingActionButton(
               child: const Icon(Icons.filter_list),
               backgroundColor: Colors.blue,
@@ -114,7 +115,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                             .toList();
 
                         for (var i = 0; i < filteredList.length; i++) {
-                          children.add(_buildRoute(context, filteredList[i]));
+                          children.add(CardBuilder.buildRouteCard(context, filteredList[i]));
                         }
                         return Column(children: children);
                       } else {
