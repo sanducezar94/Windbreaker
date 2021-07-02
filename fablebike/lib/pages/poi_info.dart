@@ -4,7 +4,7 @@ import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/drawer.dart';
+import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:provider/provider.dart';

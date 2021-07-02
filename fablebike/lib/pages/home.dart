@@ -4,7 +4,7 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/drawer.dart';
+import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -60,9 +60,13 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Scaffold(
           bottomNavigationBar: buildBottomBar(context, route),
           appBar: AppBar(
-            title: Center(child: Text('Acasa')),
-            //backgroundColor: Colors.white,
-            //textTheme: Theme.of(context).textTheme,
+            title: Center(
+                child: Text(
+              'Acasa',
+              style: Theme.of(context).textTheme.headline3,
+            )),
+            shadowColor: Colors.white54,
+            backgroundColor: Colors.white,
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -92,9 +96,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
                         child: Row(children: [
                           Icon(Icons.bookmark_border_outlined),
+                          SizedBox(width: 5),
                           Text(
                             'Puncte de interes marcate',
-                            style: Theme.of(context).textTheme.headline2,
+                            style: Theme.of(context).textTheme.headline5,
                             textAlign: TextAlign.start,
                           )
                         ]),
@@ -127,9 +132,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
                         child: Row(children: [
                           Icon(Icons.fmd_good),
+                          SizedBox(width: 5),
                           Text(
                             'Puncte de interes aflate in apropiere',
-                            style: Theme.of(context).textTheme.headline2,
+                            style: Theme.of(context).textTheme.headline5,
                             textAlign: TextAlign.start,
                           )
                         ]),

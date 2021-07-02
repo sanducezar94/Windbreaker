@@ -93,6 +93,7 @@ class PointOfInterest {
 class POIInfo {
   PointOfInterest poi;
   String fromRoute;
+
   POIInfo({
     this.poi,
     this.fromRoute,

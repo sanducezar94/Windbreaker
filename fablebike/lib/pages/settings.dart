@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
-import 'package:fablebike/widgets/drawer.dart';
+import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatefulWidget {

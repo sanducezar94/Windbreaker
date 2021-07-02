@@ -10,7 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/services/route_service.dart';
-import 'package:fablebike/widgets/drawer.dart';
+import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
 class RoutesScreen extends StatefulWidget {
@@ -57,46 +57,81 @@ class _RoutesScreenState extends State<RoutesScreen> {
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        color: Colors.white,
         child: Scaffold(
-            appBar: AppBar(title: Text('Map')),
-            bottomNavigationBar: buildBottomBar(context, RoutesScreen.route),
-            floatingActionButton: FloatingActionButton(
-              child: const Icon(Icons.filter_list),
-              backgroundColor: Colors.blue,
-              onPressed: () async {
-                var filter = await showDialog(context: context, builder: (_) => RouteFilterDialog(filter: routeFilter));
-                if (filter == null) return;
-                setState(() {
-                  routeFilter = filter;
-                });
-              },
+            appBar: AppBar(
+              shadowColor: Colors.white54,
+              backgroundColor: Colors.white,
+              title: Row(
+                children: [
+                  Expanded(
+                      child: TextField(
+                        onChanged: (context) {
+                          setState(() {});
+                        },
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          suffixIcon: this.searchController != null && this.searchController.text.length > 0
+                              ? IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      this.searchController.text = '';
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.cancel,
+                                    color: Theme.of(context).primaryColor,
+                                  ))
+                              : null,
+                          hintText: 'Cauta',
+                        ),
+                      ),
+                      flex: 7),
+                  Expanded(
+                      child: InkWell(
+                        child:
+                            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [Icon(Icons.filter_list, color: Theme.of(context).primaryColor)]),
+                        onTap: () async {
+                          var filter = await showDialog(context: context, builder: (_) => RouteFilterDialog(filter: routeFilter));
+                          if (filter == null) return;
+                          setState(() {
+                            routeFilter = filter;
+                          });
+                        },
+                      ),
+                      flex: 1),
+                ],
+              ),
             ),
+            bottomNavigationBar: buildBottomBar(context, RoutesScreen.route),
             body: SingleChildScrollView(
                 child: Column(
               children: [
+                SizedBox(height: 25),
                 Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: TextField(
-                    onChanged: (context) {
-                      setState(() {});
-                    },
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(24.0))),
-                      prefixIcon: Icon(Icons.search),
-                      suffixIcon: this.searchController != null && this.searchController.text.length > 0
-                          ? IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  this.searchController.text = '';
-                                });
-                              },
-                              icon: Icon(Icons.cancel))
-                          : null,
-                      hintText: 'Cauta',
-                    ),
-                  ),
+                  padding: EdgeInsets.fromLTRB(20.0, 0, 0, 0),
+                  child: Row(children: [
+                    Icon(Icons.map_outlined),
+                    SizedBox(width: 5),
+                    Text(
+                      'Lista rutelor disponibile',
+                      style: Theme.of(context).textTheme.headline5,
+                      textAlign: TextAlign.start,
+                    )
+                  ]),
                 ),
+                SizedBox(height: 15),
                 FutureBuilder<List<BikeRoute>>(
                     builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
                       List<Widget> children = [];

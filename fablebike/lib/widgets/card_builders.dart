@@ -1,7 +1,11 @@
 import 'package:fablebike/models/route.dart';
+import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/pages/poi_info.dart';
+import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/route_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CardBuilder {
   static Widget buildAnnouncementBanner(BuildContext context) {
@@ -103,8 +107,8 @@ class CardBuilder {
                     Container(
                         height: 1 / 10 * height,
                         child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
-                            child: Text('fasfafasfasfasfasfasfafasfasfafasfafasfasfasfasfasfafasfasfa', style: Theme.of(context).textTheme.bodyText2)))
+                            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                            child: Text(poi.name, style: Theme.of(context).textTheme.headline4)))
                   ],
                 ))));
   }
@@ -222,11 +226,11 @@ class CardBuilder {
                 borderRadius: BorderRadius.all(Radius.circular(18.0)),
                 color: Colors.white,
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
-            height: height * 0.3,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            height: height * 0.35,
+            child: Column(children: [
               Expanded(
                   child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
                       child: Column(
                         children: [
                           Expanded(
@@ -255,17 +259,104 @@ class CardBuilder {
                                                 style: Theme.of(context).textTheme.bodyText2,
                                               )
                                             ])),
-                                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0)),
+                                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0)),
                                   ),
                                 ],
                               )),
                           Expanded(
-                            flex: 1,
-                            child: Text(''),
-                          )
+                              flex: 1,
+                              child: Container(
+                                child: buildRouteStats(context, route),
+                              ))
                         ],
                       )),
                   flex: 1)
             ])));
+  }
+
+  static buildRouteStats(BuildContext context, BikeRoute route) {
+    return Padding(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                    child: InkWell(
+                        onTap: () async {},
+                        child: Column(
+                          children: [
+                            SizedBox(height: 5),
+                            Text('Distanta', style: Theme.of(context).textTheme.bodyText2),
+                            SizedBox(height: 3),
+                            Text(route.distance.toString() + ' KM', style: Theme.of(context).textTheme.bodyText1)
+                          ],
+                        )),
+                    flex: 1),
+                Expanded(
+                    child: InkWell(
+                        onTap: () async {},
+                        child: Column(
+                          children: [
+                            SizedBox(height: 5),
+                            Text('Puncte Interes', style: Theme.of(context).textTheme.bodyText2),
+                            SizedBox(height: 3),
+                            Text(route.pois.length.toString(), style: Theme.of(context).textTheme.bodyText1)
+                          ],
+                        )),
+                    flex: 1),
+                Expanded(
+                    child: InkWell(
+                        onTap: () async {},
+                        child: Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                try {
+                                  var db = context.read<DatabaseService>();
+                                  var database = await db.database;
+                                  var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
+
+                                  var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
+                                  var pois = await database.query('pointofinterest', where: 'route_id = ?', whereArgs: [route.id]);
+
+                                  var bikeRoute = new BikeRoute.fromJson(routes.first);
+                                  bikeRoute.coordinates = List.generate(coords.length, (i) {
+                                    return Coords.fromJson(coords[i]);
+                                  });
+                                  bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
+                                  bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
+                                  bikeRoute.pois = List.generate(pois.length, (i) {
+                                    return PointOfInterest.fromJson(pois[i]);
+                                  });
+
+                                  var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
+
+                                  if (serverRoute != null) {
+                                    database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount},
+                                        where: 'id = ?', whereArgs: [bikeRoute.id]);
+                                    bikeRoute.rating = serverRoute.rating;
+                                    bikeRoute.ratingCount = serverRoute.ratingCount;
+                                  }
+
+                                  Navigator.pushNamed(context, MapScreen.route, arguments: bikeRoute);
+                                } on Exception catch (e) {
+                                  print(e);
+                                }
+                              },
+                              child: Text('Detalii'),
+                              style: ElevatedButton.styleFrom(
+                                  textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                            ),
+                          ],
+                        )),
+                    flex: 1)
+              ],
+            )
+          ],
+        ));
   }
 }

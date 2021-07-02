@@ -3,23 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fablebike/pages/routes.dart';
 import '../pages/home.dart';
 
-Widget _buildMenuItem(BuildContext context, Widget title, String routeName, String currentRoute) {
-  var isSelected = routeName == currentRoute;
-
-  return ListTile(
-    title: title,
-    selected: isSelected,
-    onTap: () {
-      if (isSelected) {
-        Navigator.pop(context);
-      } else {
-        Navigator.pop(context);
-        Navigator.pushReplacementNamed(context, routeName);
-      }
-    },
-  );
-}
-
 BottomNavigationBar buildBottomBar(BuildContext context, String currentRoute) {
   double w = 40;
   double h = 40;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/route.dart';
+import 'card_builders.dart';
 
 class Carousel extends StatefulWidget {
   final Function(int) onItemChanged;
@@ -24,16 +25,17 @@ class _Carousel extends State<Carousel> {
 
 Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Function() onPageClosed, List<PointOfInterest> pois) {
   List<Widget> carouselItems = [];
+  double height = MediaQuery.of(context).size.height - 80;
 
   for (var i = 0; i < pois.length; i++) {
-    carouselItems.add(_buildCarouselItem(context, pois[i], onPageClosed));
+    carouselItems.add(CardBuilder.buildSmallPOICard(context, pois[i]));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
     SizedBox(
-        height: 112,
+        height: 0.275 * height,
         child: PageView(
-            controller: PageController(viewportFraction: 0.75),
+            controller: PageController(viewportFraction: 0.35),
             onPageChanged: onItemChanged != null
                 ? (value) {
                     onItemChanged(value);
