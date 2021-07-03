@@ -25,30 +25,29 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const String route = '/home';
-  Future<List<PointOfInterest>> _getBookmarks(AuthenticatedUser user) async {
+  Future<List<Objective>> _getBookmarks(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
 
-    var poiRows = await db.rawQuery('SELECT * FROM pointofinterestbookmark pb INNER JOIN pointofinterest p ON p.id = pb.poi_id WHERE pb.user_id = ${user.id}');
-    var pois = List.generate(poiRows.length, (i) => PointOfInterest.fromJson(poiRows[i]));
-    return pois;
+    var objectiveRows = await db.rawQuery('SELECT * FROM objective pb INNER JOIN objective p ON p.id = pb.objective_id WHERE pb.user_id = ${user.id}');
+    var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
+    return objectives;
   }
 
-  Future<List<PointOfInterest>> _getNearbyPOI(AuthenticatedUser user) async {
+  Future<List<Objective>> _getNearbyObjectives(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
 
-    var bookmarkRows =
-        await db.rawQuery('SELECT * FROM pointofinterestbookmark pb INNER JOIN pointofinterest p ON p.id = pb.poi_id WHERE pb.user_id = ${user.id}');
-    var bookmarks = List.generate(bookmarkRows.length, (i) => PointOfInterest.fromJson(bookmarkRows[i]));
+    var bookmarkRows = await db.rawQuery('SELECT * FROM objectivebookmark pb INNER JOIN objective p ON p.id = pb.objective_id WHERE pb.user_id = ${user.id}');
+    var bookmarks = List.generate(bookmarkRows.length, (i) => Objective.fromJson(bookmarkRows[i]));
 
-    var poiRows = await db.query('pointofinterest');
-    var pois = List.generate(poiRows.length, (i) => PointOfInterest.fromJson(poiRows[i]));
+    var objectiveRows = await db.query('Objective');
+    var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
 
     if (bookmarks.length > 0) {
-      pois.forEach((element) {
+      objectives.forEach((element) {
         element.is_bookmarked = bookmarks.where((el) => el.id == element.id).isNotEmpty;
       });
     }
-    return pois.where((c) => mapMath.calculateDistance(myLocation.latitude, myLocation.longitude, c.latitude, c.longitude) < 10).toList();
+    return objectives.where((c) => mapMath.calculateDistance(myLocation.latitude, myLocation.longitude, c.latitude, c.longitude) < 10).toList();
   }
 
   @override
@@ -90,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               return CircularProgressIndicator();
                             }
                           },
-                          future: _getNearbyPOI(user)),
+                          future: _getNearbyObjectives(user)),
                       SizedBox(height: 25),
                       Padding(
                         padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
@@ -105,8 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ]),
                       ),
                       SizedBox(height: 25),
-                      FutureBuilder<List<PointOfInterest>>(
-                          builder: (context, AsyncSnapshot<List<PointOfInterest>> snapshot) {
+                      FutureBuilder<List<Objective>>(
+                          builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
                             if (snapshot.connectionState == ConnectionState.done) {
                               if (snapshot.hasData && snapshot.data != null) {
                                 return SingleChildScrollView(
@@ -115,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: snapshot.data.length == 0
                                         ? [Text('Nu aveti niciun punct de interes salvat.')]
                                         : List.generate(snapshot.data.length, (index) {
-                                            return CardBuilder.buildSmallPOICard(context, snapshot.data[index]);
+                                            return CardBuilder.buildSmallObjectiveCard(context, snapshot.data[index]);
                                           }),
                                   ),
                                 );
@@ -141,14 +140,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ]),
                       ),
                       SizedBox(height: 25),
-                      FutureBuilder<List<PointOfInterest>>(
-                          builder: (context, AsyncSnapshot<List<PointOfInterest>> snapshot) {
+                      FutureBuilder<List<Objective>>(
+                          builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
                             if (snapshot.connectionState == ConnectionState.done) {
                               if (snapshot.hasData && snapshot.data != null) {
                                 List<Widget> widgets = List.generate(snapshot.data.length > 5 ? 5 : snapshot.data.length, (index) {
-                                  return CardBuilder.buildLargePOICard(context, snapshot.data[index]);
+                                  return CardBuilder.buildLargeObjectiveCard(context, snapshot.data[index]);
                                 });
-                                widgets.add(CardBuilder.buildNearestPoiButton(context));
+                                widgets.add(CardBuilder.buildNearestObjectiveButton(context));
                                 return SingleChildScrollView(
                                   scrollDirection: Axis.vertical,
                                   child: Column(children: widgets),
@@ -160,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               return CircularProgressIndicator();
                             }
                           },
-                          future: _getNearbyPOI(user)),
+                          future: _getNearbyObjectives(user)),
                     ],
                   ),
                 ],

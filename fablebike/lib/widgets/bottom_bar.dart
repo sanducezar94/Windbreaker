@@ -1,3 +1,4 @@
+import 'package:fablebike/pages/explore.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/pages/routes.dart';
@@ -20,13 +21,13 @@ BottomNavigationBar buildBottomBar(BuildContext context, String currentRoute) {
             Navigator.pushReplacementNamed(context, HomeScreen.route);
             break;
           case 1:
-            if (currentRoute == RoutesScreen.route) {
+            if (currentRoute == ExploreScreen.route) {
               if (currentRoute != ModalRoute.of(context).settings.name) {
                 Navigator.pop(context);
               }
               return;
             }
-            Navigator.pushReplacementNamed(context, RoutesScreen.route);
+            Navigator.pushReplacementNamed(context, ExploreScreen.route);
             break;
           case 2:
             if (currentRoute == SettingsScreen.route) {
@@ -44,7 +45,7 @@ BottomNavigationBar buildBottomBar(BuildContext context, String currentRoute) {
       selectedItemColor: Theme.of(context).primaryColor,
       currentIndex: currentRoute == HomeScreen.route
           ? 0
-          : currentRoute == RoutesScreen.route
+          : currentRoute == ExploreScreen.route
               ? 1
               : 2,
       items: <BottomNavigationBarItem>[
@@ -55,7 +56,7 @@ BottomNavigationBar buildBottomBar(BuildContext context, String currentRoute) {
           label: 'Acasa',
         ),
         BottomNavigationBarItem(
-          icon: currentRoute != RoutesScreen.route
+          icon: currentRoute != ExploreScreen.route
               ? Image.asset('assets/icons/explore.png', width: w, height: h)
               : Image.asset('assets/icons/explore_h.png', width: w, height: h),
           label: 'Exploreaza',

@@ -38,7 +38,7 @@ class _BookmarksScreen extends State<BookmarksScreen> {
   Widget build(BuildContext context) {
     var user = Provider.of<AuthenticatedUser>(context);
 
-    Widget _buildRoute(BuildContext context, PointOfInterest bookmark) {
+    Widget _buildRoute(BuildContext context, Objective bookmark) {
       return Card(
         clipBehavior: Clip.antiAlias,
         child: Column(children: [
@@ -51,7 +51,7 @@ class _BookmarksScreen extends State<BookmarksScreen> {
             ElevatedButton(
                 child: Text('Mai multe...'),
                 onPressed: () async {
-                  Navigator.pushNamed(context, 'poi', arguments: bookmark).then((value) {
+                  Navigator.pushNamed(context, 'objective', arguments: bookmark).then((value) {
                     _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
                   });
                 })

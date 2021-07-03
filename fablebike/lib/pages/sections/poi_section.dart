@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class POISection extends StatefulWidget {
   POISection({Key key}) : super(key: key);
 

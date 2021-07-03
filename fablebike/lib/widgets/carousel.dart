@@ -1,3 +1,4 @@
+import 'package:fablebike/pages/objective.dart';
 import 'package:flutter/material.dart';
 import '../models/route.dart';
 import 'card_builders.dart';
@@ -5,10 +6,10 @@ import 'card_builders.dart';
 class Carousel extends StatefulWidget {
   final Function(int) onItemChanged;
   final Function() onPageClosed;
-  final List<PointOfInterest> pois;
+  final List<Objective> objectives;
   final BuildContext context;
 
-  Carousel({Key key, this.onItemChanged, this.onPageClosed, this.context, this.pois}) : super(key: key);
+  Carousel({Key key, this.onItemChanged, this.onPageClosed, this.context, this.objectives}) : super(key: key);
 
   @override
   _Carousel createState() => _Carousel();
@@ -19,16 +20,16 @@ class _Carousel extends State<Carousel> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildCarousel(context, widget.onItemChanged, widget.onPageClosed, widget.pois);
+    return _buildCarousel(context, widget.onItemChanged, widget.onPageClosed, widget.objectives);
   }
 }
 
-Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Function() onPageClosed, List<PointOfInterest> pois) {
+Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Function() onPageClosed, List<Objective> objectives) {
   List<Widget> carouselItems = [];
   double height = MediaQuery.of(context).size.height - 80;
 
-  for (var i = 0; i < pois.length; i++) {
-    carouselItems.add(CardBuilder.buildSmallPOICard(context, pois[i]));
+  for (var i = 0; i < objectives.length; i++) {
+    carouselItems.add(CardBuilder.buildSmallObjectiveCard(context, objectives[i]));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -45,7 +46,7 @@ Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Functio
   ]);
 }
 
-Widget _buildCarouselItem(BuildContext context, PointOfInterest poi, Function() onPageClosed) {
+Widget _buildCarouselItem(BuildContext context, Objective objective, Function() onPageClosed) {
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 4.0),
     child: Container(
@@ -56,11 +57,11 @@ Widget _buildCarouselItem(BuildContext context, PointOfInterest poi, Function() 
       child: Column(
         children: [
           Row(
-            children: [Text(poi.name)],
+            children: [Text(objective.name)],
           ),
           ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, 'poi', arguments: poi).then((value) {
+                Navigator.pushNamed(context, ObjectiveScreen.route, arguments: objective).then((value) {
                   onPageClosed();
                 });
               },

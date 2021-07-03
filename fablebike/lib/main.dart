@@ -1,4 +1,5 @@
 import 'package:fablebike/bloc/bookmarks_bloc.dart';
+import 'package:fablebike/pages/explore.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fablebike/services/authentication_service.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/pages/bookmarks.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fablebike/pages/poi_info.dart';
+import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext) {
+  Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<AuthenticationService>(
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
             primaryColor: Color.fromRGBO(99, 157, 78, 1),
+            accentColor: Color.fromRGBO(37, 14, 19, 1),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(fontSize: 16),
@@ -61,12 +63,13 @@ class MyApp extends StatelessWidget {
             ),
             textTheme: TextTheme(
               headline1: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.black54),
-              headline2: TextStyle(fontSize: 18.0, color: Colors.black38),
-              bodyText1: TextStyle(fontSize: 14.0, color: Colors.black87, fontWeight: FontWeight.bold),
-              bodyText2: TextStyle(fontSize: 12.0, color: Colors.black54),
-              headline5: TextStyle(fontSize: 16.0, color: Colors.black87, fontWeight: FontWeight.bold),
-              headline4: TextStyle(fontSize: 14.0, color: Colors.black54),
-              headline3: TextStyle(fontSize: 20.0, color: Colors.black87),
+              headline2: TextStyle(fontSize: 18.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.36)),
+              bodyText1: TextStyle(fontSize: 14.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.87), fontWeight: FontWeight.bold),
+              bodyText2: TextStyle(fontSize: 12.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.65)),
+              headline5: TextStyle(fontSize: 16.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.87), fontWeight: FontWeight.bold),
+              headline4: TextStyle(fontSize: 14.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.54)),
+              headline3: TextStyle(fontSize: 20.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.87)),
+              headline6: TextStyle(fontSize: 22.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.87), fontWeight: FontWeight.bold),
             )),
         home: AuthenticationWrapper(),
         routes: <String, WidgetBuilder>{
@@ -74,16 +77,17 @@ class MyApp extends StatelessWidget {
           AuthenticationWrapper.route: (context) => AuthenticationWrapper(),
           SignUpScreen.route: (context) => SignUpScreen(),
           RoutesScreen.route: (context) => RoutesScreen(),
+          ExploreScreen.route: (context) => ExploreScreen(),
           SettingsScreen.route: (context) => SettingsScreen(),
           ImagePickerScreen.route: (context) => ImagePickerScreen(),
           BookmarksScreen.route: (context) => BookmarksScreen(),
         },
         onGenerateRoute: (settings) {
-          if (settings.name == POIScreen.route) {
-            final args = settings.arguments as POIInfo;
+          if (settings.name == ObjectiveScreen.route) {
+            final args = settings.arguments as ObjectiveInfo;
 
             return MaterialPageRoute(builder: (context) {
-              return POIScreen(poi: args.poi, fromRoute: args.fromRoute);
+              return ObjectiveScreen(objective: args.objective, fromRoute: args.fromRoute);
             });
           }
           if (settings.name == MapScreen.route) {

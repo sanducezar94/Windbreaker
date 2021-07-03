@@ -43,9 +43,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
     });
 
     for (var i = 0; i < bikeRoutes.length; i++) {
-      var pois = await database.query('pointofinterest', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id], columns: ['name', 'latitude', 'longitude']);
-      bikeRoutes[i].pois = List.generate(pois.length, (i) {
-        return PointOfInterest.fromJson(pois[i]);
+      var objectives = await database.query('objective', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id], columns: ['name', 'latitude', 'longitude']);
+      bikeRoutes[i].objectives = List.generate(objectives.length, (i) {
+        return Objective.fromJson(objectives[i]);
       });
     }
 
@@ -143,10 +143,10 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                 ((c.difficulty >= routeFilter.difficulty.start && c.difficulty <= routeFilter.difficulty.end) &&
                                     (c.rating >= routeFilter.rating.start && c.rating <= routeFilter.rating.end) &&
                                     (c.distance >= routeFilter.distance.start && c.distance <= routeFilter.distance.end) &&
-                                    (c.pois.length >= routeFilter.poiCount.start && c.pois.length <= routeFilter.poiCount.end)) &&
+                                    (c.objectives.length >= routeFilter.poiCount.start && c.objectives.length <= routeFilter.poiCount.end)) &&
                                 (c.name.toLowerCase().contains(filterQuery) ||
                                     c.description.toLowerCase().contains(filterQuery) ||
-                                    c.pois.where((p) => p.name.toLowerCase().contains(filterQuery)).isNotEmpty))
+                                    c.objectives.where((p) => p.name.toLowerCase().contains(filterQuery)).isNotEmpty))
                             .toList();
 
                         for (var i = 0; i < filteredList.length; i++) {
@@ -182,7 +182,7 @@ Widget _buildRoute(BuildContext context, BikeRoute route) {
                 var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
 
                 var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
-                var pois = await database.query('pointofinterest', where: 'route_id = ?', whereArgs: [route.id]);
+                var objectives = await database.query('objective', where: 'route_id = ?', whereArgs: [route.id]);
 
                 var bikeRoute = new BikeRoute.fromJson(routes.first);
                 bikeRoute.coordinates = List.generate(coords.length, (i) {
@@ -190,8 +190,8 @@ Widget _buildRoute(BuildContext context, BikeRoute route) {
                 });
                 bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
                 bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
-                bikeRoute.pois = List.generate(pois.length, (i) {
-                  return PointOfInterest.fromJson(pois[i]);
+                bikeRoute.objectives = List.generate(objectives.length, (i) {
+                  return Objective.fromJson(objectives[i]);
                 });
 
                 var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);

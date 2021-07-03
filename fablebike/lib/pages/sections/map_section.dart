@@ -90,13 +90,13 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
         height: 16,
         builder: (ctx) => Transform.rotate(angle: -this.rotation * 3.14159 / 180, child: Container(child: Image(image: AssetImage('assets/icons/church.png')))),
         point: hoverPoint));
-    for (var i = 0; i < widget.bikeRoute.pois.length; i++) {
+    for (var i = 0; i < widget.bikeRoute.objectives.length; i++) {
       markers.add(Marker(
           width: this.size,
           height: this.size,
           builder: (ctx) =>
               Transform.rotate(angle: -this.rotation * 3.14159 / 180, child: Container(child: Image(image: AssetImage('assets/icons/church.png')))),
-          point: widget.bikeRoute.pois[i].coords));
+          point: widget.bikeRoute.objectives[i].coords));
     }
 
     return Column(children: [
@@ -206,10 +206,10 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
       Padding(
         padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
         child: Row(children: [
-          Icon(Icons.graphic_eq),
+          currentTab == 'poi' ? Icon(Icons.place) : Icon(Icons.settings_system_daydream),
           SizedBox(width: 5),
           Text(
-            currentTab == 'poi' ? 'Punctele de interes de pe aceasta ruta' : 'Graficul de elevatie al rutei',
+            currentTab == 'poi' ? 'Obiectivele de pe aceasta ruta' : 'Graficul de elevatie al rutei',
             style: Theme.of(context).textTheme.headline5,
             textAlign: TextAlign.start,
           )
@@ -222,10 +222,10 @@ class _MapSectionState extends State<MapSection> with TickerProviderStateMixin {
                     alignment: Alignment.topCenter,
                     padding: EdgeInsets.only(top: 0, right: 0, left: 0, bottom: 0),
                     child: Carousel(
-                        pois: widget.bikeRoute.pois,
+                        objectives: widget.bikeRoute.objectives,
                         context: context,
                         onItemChanged: (int index) {
-                          goToPoint(widget.bikeRoute.pois[index].coords);
+                          goToPoint(widget.bikeRoute.objectives[index].coords);
                         }))
               ],
             )

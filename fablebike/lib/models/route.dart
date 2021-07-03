@@ -20,7 +20,7 @@ class BikeRoute {
   List<LatLng> rtsCoordinates;
   List<ElevationPoint> elevationPoints;
   List<Coords> coordinates;
-  List<PointOfInterest> pois;
+  List<Objective> objectives;
 
   BikeRoute(this.id, this.name, this.description, this.rating, this.ascent, this.descent, this.difficulty, this.rtsCoordinates);
 
@@ -64,13 +64,14 @@ class Coords {
         elevation = json['elevation'];
 }
 
-class PointOfInterest {
+class Objective {
   int id;
   double latitude;
   double longitude;
   String name;
   String description;
   String icon;
+  String image;
   int routeId;
   LatLng coords;
   bool is_bookmarked;
@@ -79,7 +80,7 @@ class PointOfInterest {
     return {'latitude': latitude, 'longitude': longitude, 'name': name, 'description': description, 'route_id': routeId};
   }
 
-  PointOfInterest.fromJson(Map<String, dynamic> json)
+  Objective.fromJson(Map<String, dynamic> json)
       : latitude = json['latitude'],
         id = json['id'],
         is_bookmarked = json['is_bookmarked'] == 1,
@@ -90,12 +91,12 @@ class PointOfInterest {
         coords = LatLng(json['latitude'], json['longitude']);
 }
 
-class POIInfo {
-  PointOfInterest poi;
+class ObjectiveInfo {
+  Objective objective;
   String fromRoute;
 
-  POIInfo({
-    this.poi,
+  ObjectiveInfo({
+    this.objective,
     this.fromRoute,
   });
 }

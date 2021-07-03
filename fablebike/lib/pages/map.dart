@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fablebike/models/user.dart';
-import 'package:fablebike/widgets/route_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/sections/map_section.dart';
@@ -96,6 +95,8 @@ class _MapWidgetState extends State<MapWidget> {
                   widget.bikeRoute.name,
                   style: Theme.of(context).textTheme.headline3,
                 ),
+                centerTitle: true,
+                iconTheme: IconThemeData(color: Colors.black),
                 shadowColor: Colors.white54,
                 backgroundColor: Colors.white,
               ),
