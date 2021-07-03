@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fablebike/bloc/poi_bloc.dart';
 import 'package:fablebike/models/user.dart';
-import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/sections/map_section.dart';
@@ -29,8 +28,9 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   final _bloc = ObjectiveBloc();
   bool _blocInitialized = false;
   double rotation = 0;
-  double size = 12.0;
+  double size = 36.0;
   bool init = false;
+  TextEditingController searchController = TextEditingController();
   MapController mapController;
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -93,8 +93,8 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     double height = MediaQuery.of(context).size.height - 80;
     var user = Provider.of<AuthenticatedUser>(context);
 
-    if (!this._blocInitialized) {
-      _bloc.bookmarkEventSync.add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveInitializeEvent, args: {}));
+    if (!_blocInitialized) {
+      _bloc.objectiveEventSync.add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveInitializeEvent, args: {}));
       this._blocInitialized = true;
     }
 
@@ -102,60 +102,79 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          bottomNavigationBar: buildBottomBar(context, ExploreScreen.route),
-          body: Container(
+            resizeToAvoidBottomInset: false,
+            body: Container(
               height: height,
-              child: StreamBuilder(
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    List<Widget> children = [];
-                    var filteredList = snapshot.data;
+              child: Stack(
+                fit: StackFit.loose,
+                children: [
+                  StreamBuilder<List<Objective>>(
+                    builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
+                      if (snapshot.hasData) {
+                        List<Widget> children = [];
+                        var filteredList = snapshot.data;
 
-                    return FlutterMap(
-                      mapController: mapController,
-                      options: MapOptions(
-                          center: myLocation,
-                          minZoom: 10.0,
-                          maxZoom: 13.0,
-                          zoom: 10.0,
-                          onPositionChanged: (mapPosition, _) {
-                            if (this.mapController.ready && !init) {
-                              init = true;
-                              return;
-                            }
-                            if (!init) return;
-                            setState(() {
-                              this.rotation = this.mapController.rotation;
-                              if (this.mapController.zoom > 12.5) {
-                                this.size = 64;
-                              } else if (this.mapController.zoom > 11.5) {
-                                this.size = 64;
-                              } else {
-                                this.size = 24;
-                              }
-                            });
-                          },
-                          swPanBoundary: LatLng(46.2318, 27.3077),
-                          nePanBoundary: LatLng(46.9708, 28.1942),
-                          plugins: [LocationMarkerPlugin()]),
-                      layers: [
-                        TileLayerOptions(
-                          tileProvider: AssetTileProvider(),
-                          maxZoom: 13.0,
-                          urlTemplate: 'assets/map/{z}/{x}/{y}.png',
-                        ),
-                        LocationMarkerLayerOptions(),
-                        MarkerLayerOptions(markers: []),
-                      ],
-                    );
-                  } else {
-                    return Text('Loading...');
-                  }
-                },
-                initialData: [],
-                stream: _bloc.output,
-              )),
-        ));
+                        var markers = <Marker>[];
+                        for (var i = 0; i < filteredList.length; i++) {
+                          markers.add(Marker(
+                              width: this.size,
+                              height: this.size,
+                              builder: (ctx) => Transform.rotate(
+                                  angle: -this.rotation * 3.14159 / 180,
+                                  child: Container(child: Image(image: AssetImage('assets/icons/' + filteredList[i].icon + '_pin.png')))),
+                              point: filteredList[i].coords));
+                        }
+
+                        return FlutterMap(
+                          mapController: mapController,
+                          options: MapOptions(
+                              center: myLocation,
+                              minZoom: 10.0,
+                              maxZoom: 13.0,
+                              zoom: 10.0,
+                              onPositionChanged: (mapPosition, _) {
+                                if (!init) return;
+                                setState(() {
+                                  this.rotation = this.mapController.rotation;
+                                });
+                              },
+                              swPanBoundary: LatLng(46.2318, 27.3077),
+                              nePanBoundary: LatLng(46.9708, 28.1942),
+                              plugins: [LocationMarkerPlugin()]),
+                          layers: [
+                            TileLayerOptions(
+                              tileProvider: AssetTileProvider(),
+                              maxZoom: 13.0,
+                              urlTemplate: 'assets/map/{z}/{x}/{y}.png',
+                            ),
+                            LocationMarkerLayerOptions(),
+                            MarkerLayerOptions(markers: markers),
+                          ],
+                        );
+                      } else {
+                        return Text('Loading...');
+                      }
+                    },
+                    initialData: [],
+                    stream: _bloc.output,
+                  ),
+                  Positioned(
+                      height: height * 0.1,
+                      width: width,
+                      child: Padding(
+                          child: TextField(
+                            decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                filled: true,
+                                contentPadding: EdgeInsets.symmetric(vertical: 0.0),
+                                prefixIcon: Icon(Icons.search),
+                                border: OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(8.0))),
+                                hintText: 'Cauta obiectiv...'),
+                          ),
+                          padding: EdgeInsets.all(10.0)),
+                      top: 70),
+                ],
+              ),
+            )));
   }
 }

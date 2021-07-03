@@ -85,9 +85,10 @@ class Objective {
         id = json['id'],
         is_bookmarked = json['is_bookmarked'] == 1,
         longitude = json['longitude'],
+        icon = json['icon'],
+        image = json['image'],
         name = json['name'],
         description = json['description'],
-        icon = json['photos'],
         coords = LatLng(json['latitude'], json['longitude']);
 }
 

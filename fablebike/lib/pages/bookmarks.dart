@@ -7,7 +7,6 @@ import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
-import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
 class BookmarksScreen extends StatefulWidget {

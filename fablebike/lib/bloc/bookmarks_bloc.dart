@@ -12,8 +12,8 @@ class BookmarkBlocEvent {
 }
 
 class BookmarkBloc {
-  List<Objective> _bookmarks;
-  List<Objective> _initialBookmarks;
+  List<Objective> _objectives;
+  List<Objective> _initialObjectives;
   final _bookmarkStateController = StreamController<List<Objective>>();
 
   StreamSink<List<Objective>> get _input => _bookmarkStateController.sink;
@@ -33,16 +33,16 @@ class BookmarkBloc {
     switch (event.eventType) {
       case BookmarkEventType.BookmarkInitializeEvent:
         _returnList = await _getBookmarks(event.args['user_id']);
-        _initialBookmarks = _returnList.toList();
+        _initialObjectives = _returnList.toList();
         break;
       case BookmarkEventType.BookmarkDeleteEvent:
-        _returnList = _bookmarks.where((element) => element.id != event.args['index']).toList();
-        _initialBookmarks = _returnList.toList();
+        _returnList = _objectives.where((element) => element.id != event.args['index']).toList();
+        _initialObjectives = _returnList.toList();
         break;
       case BookmarkEventType.BookmarkSearchEvent:
-        if (_initialBookmarks == null || _initialBookmarks.isEmpty) break;
+        if (_initialObjectives == null || _initialObjectives.isEmpty) break;
         var searchQuery = event.args['search_query'].toString().toLowerCase();
-        _returnList = _initialBookmarks.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
+        _returnList = _initialObjectives.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
         break;
     }
     _input.add(_returnList);

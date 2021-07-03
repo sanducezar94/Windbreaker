@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
-import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -20,7 +19,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             overflowRules: OverflowRules.all(true),
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Scaffold(
-              bottomNavigationBar: buildBottomBar(context, SettingsScreen.route),
               appBar: AppBar(title: Text('Setari')),
               body: Column(
                 children: [

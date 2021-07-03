@@ -10,7 +10,6 @@ import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/services/route_service.dart';
-import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:provider/provider.dart';
 
 class RoutesScreen extends StatefulWidget {
@@ -42,12 +41,12 @@ class _RoutesScreenState extends State<RoutesScreen> {
       return BikeRoute.fromJson(routes[i]);
     });
 
-    for (var i = 0; i < bikeRoutes.length; i++) {
+    /*for (var i = 0; i < bikeRoutes.length; i++) {
       var objectives = await database.query('objective', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id], columns: ['name', 'latitude', 'longitude']);
       bikeRoutes[i].objectives = List.generate(objectives.length, (i) {
         return Objective.fromJson(objectives[i]);
       });
-    }
+    }*/
 
     return bikeRoutes;
   }
@@ -114,7 +113,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
                 ],
               ),
             ),
-            bottomNavigationBar: buildBottomBar(context, RoutesScreen.route),
             body: SingleChildScrollView(
                 child: Column(
               children: [
@@ -142,11 +140,8 @@ class _RoutesScreenState extends State<RoutesScreen> {
                             .where((c) =>
                                 ((c.difficulty >= routeFilter.difficulty.start && c.difficulty <= routeFilter.difficulty.end) &&
                                     (c.rating >= routeFilter.rating.start && c.rating <= routeFilter.rating.end) &&
-                                    (c.distance >= routeFilter.distance.start && c.distance <= routeFilter.distance.end) &&
-                                    (c.objectives.length >= routeFilter.poiCount.start && c.objectives.length <= routeFilter.poiCount.end)) &&
-                                (c.name.toLowerCase().contains(filterQuery) ||
-                                    c.description.toLowerCase().contains(filterQuery) ||
-                                    c.objectives.where((p) => p.name.toLowerCase().contains(filterQuery)).isNotEmpty))
+                                    (c.distance >= routeFilter.distance.start && c.distance <= routeFilter.distance.end)) &&
+                                (c.name.toLowerCase().contains(filterQuery) || c.description.toLowerCase().contains(filterQuery)))
                             .toList();
 
                         for (var i = 0; i < filteredList.length; i++) {

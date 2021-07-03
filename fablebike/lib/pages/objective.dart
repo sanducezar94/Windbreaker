@@ -34,6 +34,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height - 80;
     var user = Provider.of<AuthenticatedUser>(context);
+
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),

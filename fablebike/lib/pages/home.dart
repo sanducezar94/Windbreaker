@@ -4,7 +4,6 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<Objective>> _getBookmarks(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
 
-    var objectiveRows = await db.rawQuery('SELECT * FROM objective pb INNER JOIN objective p ON p.id = pb.objective_id WHERE pb.user_id = ${user.id}');
+    var objectiveRows = await db.rawQuery('SELECT * FROM objectivebookmark pb INNER JOIN objective p ON p.id = pb.objective_id WHERE pb.user_id = ${user.id}');
     var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
     return objectives;
   }
@@ -57,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
-          bottomNavigationBar: buildBottomBar(context, route),
+          //bottomNavigationBar: buildBottomBar(context, route),
           appBar: AppBar(
             title: Center(
                 child: Text(
