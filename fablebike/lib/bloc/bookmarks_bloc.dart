@@ -49,11 +49,16 @@ class BookmarkBloc {
   }
 
   Future<List<Objective>> _getBookmarks(int userId) async {
-    var db = await DatabaseService().database;
+    try {
+      var db = await DatabaseService().database;
 
-    var objectiveRows = await db.rawQuery('SELECT * FROM objectivebookmark pb INNER JOIN objective p ON p.id = pb.poi_id WHERE pb.user_id = ${userId}');
-    var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
-    return objectives;
+      var objectiveRows = await db.rawQuery('SELECT * FROM objectivebookmark pb INNER JOIN objective p ON p.id = pb.objective_id WHERE pb.user_id = ${userId}');
+      var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
+
+      return objectives;
+    } on Exception {
+      return [];
+    }
   }
 
   void dispose() {

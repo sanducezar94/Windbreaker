@@ -13,8 +13,8 @@ class ObjectiveBlocEvent {
 
 class ObjectiveBloc {
   List<Objective> _objectives;
-  List<Objective> _initialBookmarks;
-  final _objectiveStateController = StreamController<List<Objective>>();
+  List<Objective> _initialObjectives;
+  final _objectiveStateController = StreamController<List<Objective>>.broadcast();
 
   StreamSink<List<Objective>> get _input => _objectiveStateController.sink;
   Stream<List<Objective>> get output => _objectiveStateController.stream;
@@ -33,11 +33,12 @@ class ObjectiveBloc {
     switch (event.eventType) {
       case ObjectiveEventType.ObjectiveInitializeEvent:
         _returnList = await _getAllObjectives();
-        _initialBookmarks = _returnList.toList();
+        _initialObjectives = _returnList.toList();
         break;
       case ObjectiveEventType.ObjectiveSearchEvent:
-        _returnList = _objectives.where((element) => element.id != event.args['index']).toList();
-        _initialBookmarks = _returnList.toList();
+        if (_initialObjectives == null || _initialObjectives.isEmpty) break;
+        var searchQuery = event.args['search_query'].toString().toLowerCase();
+        _returnList = _initialObjectives.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
         break;
     }
     _input.add(_returnList);

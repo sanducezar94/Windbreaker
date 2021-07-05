@@ -181,7 +181,7 @@ Widget _buildRoute(BuildContext context, BikeRoute route) {
 
                 var bikeRoute = new BikeRoute.fromJson(routes.first);
                 bikeRoute.coordinates = List.generate(coords.length, (i) {
-                  return Coords.fromJson(coords[i]);
+                  return Coordinates.fromJson(coords[i]);
                 });
                 bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
                 bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());

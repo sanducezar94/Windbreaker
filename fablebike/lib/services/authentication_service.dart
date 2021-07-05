@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:fablebike/models/service_response.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/services/database_service.dart';
 import 'package:http/http.dart' as http;
 import 'storage_service.dart';
 

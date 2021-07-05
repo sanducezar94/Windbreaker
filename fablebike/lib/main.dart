@@ -54,8 +54,10 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
+            scaffoldBackgroundColor: const Color.fromRGBO(249, 249, 249, 1),
             primaryColor: Color.fromRGBO(99, 157, 78, 1),
             accentColor: Color.fromRGBO(37, 14, 19, 1),
+            errorColor: Color.fromRGBO(157, 78, 78, 1),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(fontSize: 16),

@@ -1,4 +1,5 @@
 import 'package:fablebike/models/route.dart';
+import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -133,6 +134,7 @@ class CardBuilder {
   static buildLargeObjectiveCard(BuildContext context, Objective objective) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height - 80;
+    var user = Provider.of<AuthenticatedUser>(context);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: InkWell(
@@ -172,11 +174,27 @@ class CardBuilder {
                                           padding: EdgeInsets.symmetric(horizontal: 3),
                                           child: Container(
                                               child: OutlinedButton(
-                                            onPressed: () {},
+                                            onPressed: () async {
+                                              try {
+                                                var db = await DatabaseService().database;
+                                                if (objective.is_bookmarked) {
+                                                  await db.delete('objectivebookmark',
+                                                      where: 'user_id = ? and objective_id = ?', whereArgs: [user.id, objective.id]);
+                                                } else {
+                                                  var test = await db.insert('objectivebookmark', {'user_id': user.id, 'objective_id': objective.id});
+                                                }
+                                                var objectiveRows = await db.query('objectivebookmark');
+                                                objective.is_bookmarked = !objective.is_bookmarked;
+                                              } on Exception {}
+                                            },
                                             style: OutlinedButton.styleFrom(
+                                                backgroundColor: !objective.is_bookmarked ? Colors.white : Theme.of(context).errorColor,
                                                 textStyle: TextStyle(fontSize: 14),
-                                                primary: Theme.of(context).primaryColor,
-                                                side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
+                                                primary: !objective.is_bookmarked ? Theme.of(context).primaryColor : Colors.white,
+                                                side: BorderSide(
+                                                    style: BorderStyle.solid,
+                                                    color: !objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).errorColor,
+                                                    width: 1),
                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
                                             child: !objective.is_bookmarked ? Text('Salveaza') : Text('Sterge'),
                                           ))))
@@ -227,7 +245,7 @@ class CardBuilder {
                       backgroundColor: Colors.white,
                       side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                  child: Text('Salveaza'),
+                  child: Text('Vezi toate obiectivele pe harta'),
                 )
               ],
             )));
@@ -340,7 +358,7 @@ class CardBuilder {
 
                                   var bikeRoute = new BikeRoute.fromJson(routes.first);
                                   bikeRoute.coordinates = List.generate(coords.length, (i) {
-                                    return Coords.fromJson(coords[i]);
+                                    return Coordinates.fromJson(coords[i]);
                                   });
                                   bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
                                   bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());

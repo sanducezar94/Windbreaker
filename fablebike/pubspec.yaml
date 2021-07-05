@@ -52,12 +52,12 @@ dependencies:
   map_elevation: ^1.1.0
   colorful_safe_area: ^0.3.0
   connectivity_plus: ^1.0.2
-  numberpicker: ^2.1.1
   flutter_number_picker: ^1.0.1
   share_plus: ^2.1.2
   flutter_bloc: ^7.0.1
   flutter_image_slideshow: ^0.1.0
-  persistent_bottom_nav_bar: ^4.0.2
+  expandable: ^5.0.1
+  focus_widget: ^1.0.5+2
 
 dev_dependencies:
   flutter_test:

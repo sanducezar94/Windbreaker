@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
+import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -11,6 +12,7 @@ import 'package:latlong/latlong.dart';
 import 'package:fablebike/widgets/card_builders.dart';
 
 import 'package:fablebike/services/math_service.dart' as mapMath;
+import 'package:sqflite/sqflite.dart';
 
 LatLng myLocation = LatLng(46.45447, 27.72501);
 
@@ -24,6 +26,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const String route = '/home';
+  bool initialized = false;
+
+  final _bloc = BookmarkBloc();
+
   Future<List<Objective>> _getBookmarks(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
 
@@ -52,11 +58,28 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<AuthenticatedUser>(context);
+
+    Future<bool> saveUser() async {
+      var db = await DatabaseService().database;
+      await db.insert(
+          'user',
+          {
+            'id': user.id,
+            'name': user.username,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+
+    if (!initialized) {
+      //saveUser();
+      _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
+      initialized = true;
+    }
+
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
-          //bottomNavigationBar: buildBottomBar(context, route),
           appBar: AppBar(
             title: Center(
                 child: Text(
@@ -103,28 +126,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         ]),
                       ),
                       SizedBox(height: 25),
-                      FutureBuilder<List<Objective>>(
-                          builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                return SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: snapshot.data.length == 0
-                                        ? [Text('Nu aveti niciun punct de interes salvat.')]
-                                        : List.generate(snapshot.data.length, (index) {
-                                            return CardBuilder.buildSmallObjectiveCard(context, snapshot.data[index]);
-                                          }),
-                                  ),
-                                );
-                              } else {
-                                return CircularProgressIndicator();
-                              }
-                            } else {
-                              return CircularProgressIndicator();
+                      StreamBuilder(
+                        builder: (BuildContext context, AsyncSnapshot snapshot) {
+                          if (snapshot.hasData) {
+                            List<Widget> children = [];
+                            for (var i = 0; i < snapshot.data.length; i++) {
+                              children.add(CardBuilder.buildSmallObjectiveCard(context, snapshot.data[i]));
                             }
-                          },
-                          future: _getBookmarks(user)),
+                            return SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(children: snapshot.data.length == 0 ? [Text('Nu aveti niciun punct de interes salvat.')] : children));
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                        initialData: [],
+                        stream: _bloc.output,
+                      ),
                       SizedBox(height: 25),
                       Padding(
                         padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
@@ -146,7 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 List<Widget> widgets = List.generate(snapshot.data.length > 5 ? 5 : snapshot.data.length, (index) {
                                   return CardBuilder.buildLargeObjectiveCard(context, snapshot.data[index]);
                                 });
-                                widgets.add(CardBuilder.buildNearestObjectiveButton(context));
                                 return SingleChildScrollView(
                                   scrollDirection: Axis.vertical,
                                   child: Column(children: widgets),

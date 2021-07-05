@@ -19,7 +19,7 @@ class BikeRoute {
 
   List<LatLng> rtsCoordinates;
   List<ElevationPoint> elevationPoints;
-  List<Coords> coordinates;
+  List<Coordinates> coordinates;
   List<Objective> objectives;
 
   BikeRoute(this.id, this.name, this.description, this.rating, this.ascent, this.descent, this.difficulty, this.rtsCoordinates);
@@ -40,7 +40,7 @@ class BikeRoute {
         ratingCount = json["rating_count"];
 }
 
-class Coords {
+class Coordinates {
   double latitude;
   double longitude;
   double elevation;
@@ -58,7 +58,7 @@ class Coords {
     return {'latitude': latitude, 'longitude': longitude, 'elevation': elevation, 'route_id': routeId};
   }
 
-  Coords.fromJson(Map<String, dynamic> json)
+  Coordinates.fromJson(Map<String, dynamic> json)
       : latitude = json['latitude'],
         longitude = json['longitude'],
         elevation = json['elevation'];

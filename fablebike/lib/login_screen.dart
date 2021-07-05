@@ -34,173 +34,202 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height - 80;
+
+    double smallPadding = height * 0.0125;
+    double bigPadding = height * 0.05;
     return Scaffold(
         body: Padding(
-            padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-            child: ListView(children: [
-              SizedBox(height: 35.0),
-              Container(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      'assets/images/logo.png',
-                      fit: BoxFit.contain,
-                      width: 180,
-                      height: 180,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 40.0),
-              Container(
-                  child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                    child: Row(children: [
-                      Text(
-                        'Logare',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        textAlign: TextAlign.start,
+            padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                  physics: NeverScrollableScrollPhysics(),
+                  child: Container(
+                    height: height + 80,
+                    child: Column(children: [
+                      SizedBox(
+                        height: bigPadding > 30 ? 10 : bigPadding,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              )
+                            ],
+                          ),
+                          padding: EdgeInsets.all(smallPadding),
+                        ),
+                        flex: 1,
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Padding(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(10.0, 0, 0, 10.0),
+                                  child: Row(children: [
+                                    Text(
+                                      'Logare',
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).accentColor),
+                                      textAlign: TextAlign.start,
+                                    )
+                                  ]),
+                                ),
+                                Form(
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  key: formKey,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
+                                        child: Material(
+                                          shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                          elevation: 10.0,
+                                          borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                          child: TextFormField(
+                                            controller: userController,
+                                            decoration: InputDecoration(
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                prefixIcon: Icon(Icons.email_outlined),
+                                                border: OutlineInputBorder(
+                                                    borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                                hintText: 'Introdu e-mail'),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
+                                          child: Material(
+                                            child: TextFormField(
+                                              controller: passwordController,
+                                              obscureText: true,
+                                              decoration: InputDecoration(
+                                                  prefixIcon: Icon(Icons.lock_outlined),
+                                                  fillColor: Colors.white,
+                                                  filled: true,
+                                                  border: OutlineInputBorder(
+                                                      borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                                  hintText: 'Parola'),
+                                            ),
+                                            shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                            borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                            elevation: 10.0,
+                                          )),
+                                      SizedBox(height: smallPadding * 2),
+                                      Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: smallPadding),
+                                          child: Container(
+                                              child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                                            children: [
+                                              ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    minimumSize: Size(10, 54),
+                                                    shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                                    elevation: 10.0,
+                                                  ),
+                                                  onPressed: () async {
+                                                    if (formKey.currentState.validate()) {
+                                                      context
+                                                          .read<AuthenticationService>()
+                                                          .signIn(email: userController.text, password: passwordController.text);
+                                                    }
+                                                  },
+                                                  child: Text('Logare'))
+                                            ],
+                                          ))),
+                                      Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: smallPadding * 2),
+                                          child: Text(
+                                            'Sau logheaza-te cu',
+                                            style: TextStyle(color: Colors.black26, fontSize: 16),
+                                          )),
+                                      SizedBox(height: 15),
+                                      Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: smallPadding),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  Expanded(
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          loginWithFB(context);
+                                                        },
+                                                        child: Image.asset(
+                                                          'assets/images/facebook.png',
+                                                          fit: BoxFit.contain,
+                                                          height: bigPadding * 1.2,
+                                                        ),
+                                                      ),
+                                                      flex: 1),
+                                                  Expanded(
+                                                      child: InkWell(
+                                                          onTap: () {},
+                                                          child: Image.asset(
+                                                            'assets/images/search.png',
+                                                            fit: BoxFit.contain,
+                                                            height: bigPadding * 1.2,
+                                                          )),
+                                                      flex: 1),
+                                                  Expanded(
+                                                      child: InkWell(
+                                                        onTap: () async {
+                                                          await context.read<AuthenticationService>().signInGuest();
+                                                        },
+                                                        child: Image.asset(
+                                                          'assets/images/user (1).png',
+                                                          fit: BoxFit.contain,
+                                                          height: bigPadding * 1.2,
+                                                        ),
+                                                      ),
+                                                      flex: 1)
+                                                ],
+                                              )
+                                            ],
+                                          )),
+                                      Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+                                          child: Container(
+                                              child: Column(
+                                            children: [
+                                              InkWell(
+                                                onTap: () async {
+                                                  try {
+                                                    var db = await DatabaseService().database;
+                                                    await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
+                                                  } on Exception {
+                                                    Navigator.pushNamed(context, SignUpScreen.route);
+                                                  }
+
+                                                  Navigator.pushNamed(context, SignUpScreen.route);
+                                                },
+                                                child: Text('Creeaza-ti Contul!', style: TextStyle(color: Colors.green)),
+                                              )
+                                            ],
+                                          ))),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 25.0)),
                       )
                     ]),
-                  ),
-                  SizedBox(height: 10.0),
-                  Form(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    key: formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Campul 'Utilizator' nu poate fi gol.";
-                              }
-                              return null;
-                            },
-                            controller: userController,
-                            decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.email_outlined),
-                                border: OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                hintText: 'Introdu e-mail'),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Campul 'Parola' nu poate fi gol.";
-                              }
-                              return null;
-                            },
-                            controller: passwordController,
-                            decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.lock_outlined),
-                                border: OutlineInputBorder(borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                hintText: 'Parola'),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                            child: Container(
-                                height: 60,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          minimumSize: Size(10, 54),
-                                        ),
-                                        onPressed: () async {
-                                          if (formKey.currentState.validate()) {
-                                            context.read<AuthenticationService>().signIn(email: userController.text, password: passwordController.text);
-                                          }
-                                        },
-                                        child: Text('Logare'))
-                                  ],
-                                ))),
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                            child: Text(
-                              'Sau logheaza-te cu',
-                              style: TextStyle(color: Colors.black26, fontSize: 16),
-                            )),
-                        SizedBox(height: 15),
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                        child: InkWell(
-                                          onTap: () {
-                                            loginWithFB(context);
-                                          },
-                                          child: Image.asset(
-                                            'assets/images/facebook.png',
-                                            fit: BoxFit.contain,
-                                            height: 36,
-                                          ),
-                                        ),
-                                        flex: 1),
-                                    Expanded(
-                                        child: InkWell(
-                                            onTap: () {},
-                                            child: Image.asset(
-                                              'assets/images/search.png',
-                                              fit: BoxFit.contain,
-                                              height: 36,
-                                            )),
-                                        flex: 1),
-                                    Expanded(
-                                        child: InkWell(
-                                          onTap: () async {
-                                            await context.read<AuthenticationService>().signInGuest();
-                                          },
-                                          child: Image.asset(
-                                            'assets/images/user (1).png',
-                                            fit: BoxFit.contain,
-                                            height: 36,
-                                          ),
-                                        ),
-                                        flex: 1)
-                                  ],
-                                )
-                              ],
-                            )),
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-                            child: Container(
-                                child: Column(
-                              children: [
-                                InkWell(
-                                  onTap: () async {
-                                    try {
-                                      var db = await DatabaseService().database;
-                                      await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
-                                    } on Exception {
-                                      Navigator.pushNamed(context, SignUpScreen.route);
-                                    }
-
-                                    Navigator.pushNamed(context, SignUpScreen.route);
-                                  },
-                                  child: Text('Creeaza-ti Contul!', style: TextStyle(color: Colors.green)),
-                                )
-                              ],
-                            ))),
-                      ],
-                    ),
-                  )
-                ],
-              ))
-            ])));
+                  )),
+            )));
   }
 }

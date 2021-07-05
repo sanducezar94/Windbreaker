@@ -14,7 +14,7 @@ class HomeWrapper extends StatefulWidget {
 
 class _HomeWrapperState extends State<HomeWrapper> {
   PageController _pageController = PageController();
-  List<Widget> _screens = [HomeScreen(), RoutesScreen(), ExploreScreen(), SettingsScreen()];
+  List<Widget> _screens = [HomeScreen(), ExploreScreen(), RoutesScreen(), SettingsScreen()];
   int _selectedIndex = 0;
 
   _onItemTapped(int selectedIndex) {
