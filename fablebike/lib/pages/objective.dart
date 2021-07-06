@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:fablebike/bloc/event_constants.dart';
+import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -7,6 +9,7 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ObjectiveScreen extends StatefulWidget {
   static const route = 'objective';
@@ -49,9 +52,41 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         style: Theme.of(context).textTheme.headline3,
                       )),
                   Expanded(
-                      child: InkWell(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [Icon(Icons.bookmark_add_outlined, color: Colors.black)]),
-                        onTap: () async {},
+                      child: FutureBuilder(
+                        builder: (BuildContext context, AsyncSnapshot snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            widget.objective.is_bookmarked = snapshot.data;
+                            return InkWell(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                                Icon(widget.objective.is_bookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
+                                    color: widget.objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).accentColor)
+                              ]),
+                              onTap: () async {
+                                try {
+                                  var db = await DatabaseService().database;
+                                  if (widget.objective.is_bookmarked) {
+                                    await db.delete('objectivebookmark', where: 'user_id = ? and objective_id = ?', whereArgs: [user.id, widget.objective.id]);
+                                  } else {
+                                    await db.insert('objectivebookmark', {'user_id': user.id, 'objective_id': widget.objective.id},
+                                        conflictAlgorithm: ConflictAlgorithm.replace);
+                                  }
+
+                                  Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.HomeRefreshBookmarks);
+                                  widget.objective.is_bookmarked = !widget.objective.is_bookmarked;
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                      duration: const Duration(milliseconds: 800),
+                                      backgroundColor: widget.objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).errorColor,
+                                      content: widget.objective.is_bookmarked ? Text('Obiectivul a fost salvat.') : Text('Obiectivul a fost sters.')));
+                                  setState(() {});
+                                } on Exception {}
+                              },
+                            );
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                        future: _getObjectiveData(user.id, widget.objective.id),
                       ),
                       flex: 1),
                 ],

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/bloc/bookmarks_bloc.dart';
+import 'package:fablebike/bloc/event_constants.dart';
+import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -26,17 +29,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const String route = '/home';
-  bool initialized = false;
-
+  StreamSubscription<String> subscription;
+  AuthenticatedUser user;
   final _bloc = BookmarkBloc();
-
-  Future<List<Objective>> _getBookmarks(AuthenticatedUser user) async {
-    var db = await DatabaseService().database;
-
-    var objectiveRows = await db.rawQuery('SELECT * FROM objectivebookmark pb INNER JOIN objective p ON p.id = pb.objective_id WHERE pb.user_id = ${user.id}');
-    var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
-    return objectives;
-  }
 
   Future<List<Objective>> _getNearbyObjectives(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
@@ -56,26 +51,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  initState() {
+    super.initState();
+    user = context.read<AuthenticatedUser>();
+    subscription = context.read<MainBloc>().output.listen((event) {
+      if (event == Constants.HomeRefreshBookmarks) {
+        _bloc.bookmarkEventSync..add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
+      }
+    });
+
+    _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
+    if (subscription != null) subscription.cancel();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (subscription != null) subscription.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var user = Provider.of<AuthenticatedUser>(context);
-
-    Future<bool> saveUser() async {
-      var db = await DatabaseService().database;
-      await db.insert(
-          'user',
-          {
-            'id': user.id,
-            'name': user.username,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
-    }
-
-    if (!initialized) {
-      //saveUser();
-      _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
-      initialized = true;
-    }
-
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -116,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
                         child: Row(children: [
-                          Icon(Icons.bookmark_border_outlined),
+                          Icon(Icons.bookmarks_outlined),
                           SizedBox(width: 5),
                           Text(
                             'Puncte de interes marcate',

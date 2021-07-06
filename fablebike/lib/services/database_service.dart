@@ -17,10 +17,6 @@ class DatabaseService {
     }
   }
 
-  _onConfigure(Database db) async {
-    await db.execute('PRAGMA foreign_keys = ON');
-  }
-
   initDatabase() async {
     var dbDir = await getDatabasesPath();
     var dbPath = join(dbDir, "fablebike.db");
@@ -35,7 +31,7 @@ class DatabaseService {
       await File(dbPath).writeAsBytes(bytes);
     }
 
-    _database = await openDatabase(dbPath, onConfigure: _onConfigure);
+    _database = await openDatabase(dbPath);
   }
 
   insert({String table, Map<String, dynamic> values}) async {

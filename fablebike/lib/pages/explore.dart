@@ -258,8 +258,12 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                                       title: InkWell(
                                                         child: Text(list[index].name),
                                                         onTap: () {
+                                                          currentObjective = list[index];
+                                                          expandAnimation(height * 0.675);
                                                           searchController.text = list[index].name;
+                                                          goToPoint(list[index].coords);
                                                           FocusScope.of(context).requestFocus(new FocusNode());
+                                                          setState(() {});
                                                         },
                                                       )));
                                             }

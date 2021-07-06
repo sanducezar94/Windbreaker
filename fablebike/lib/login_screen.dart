@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: height + 80,
                     child: Column(children: [
                       SizedBox(
-                        height: bigPadding > 30 ? 10 : bigPadding,
+                        height: bigPadding > 35 ? 10 : bigPadding,
                       ),
                       Expanded(
                         child: Padding(

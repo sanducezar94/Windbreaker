@@ -174,36 +174,20 @@ class CardBuilder {
                                           padding: EdgeInsets.symmetric(horizontal: 3),
                                           child: Container(
                                               child: OutlinedButton(
-                                            onPressed: () async {
-                                              try {
-                                                var db = await DatabaseService().database;
-                                                if (objective.is_bookmarked) {
-                                                  await db.delete('objectivebookmark',
-                                                      where: 'user_id = ? and objective_id = ?', whereArgs: [user.id, objective.id]);
-                                                } else {
-                                                  var test = await db.insert('objectivebookmark', {'user_id': user.id, 'objective_id': objective.id});
-                                                }
-                                                var objectiveRows = await db.query('objectivebookmark');
-                                                objective.is_bookmarked = !objective.is_bookmarked;
-                                              } on Exception {}
-                                            },
-                                            style: OutlinedButton.styleFrom(
-                                                backgroundColor: !objective.is_bookmarked ? Colors.white : Theme.of(context).errorColor,
-                                                textStyle: TextStyle(fontSize: 14),
-                                                primary: !objective.is_bookmarked ? Theme.of(context).primaryColor : Colors.white,
-                                                side: BorderSide(
-                                                    style: BorderStyle.solid,
-                                                    color: !objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).errorColor,
-                                                    width: 1),
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                            child: !objective.is_bookmarked ? Text('Salveaza') : Text('Sterge'),
-                                          ))))
+                                                  onPressed: () async {},
+                                                  style: OutlinedButton.styleFrom(
+                                                      backgroundColor: Colors.white,
+                                                      textStyle: TextStyle(fontSize: 14),
+                                                      primary: Theme.of(context).primaryColor,
+                                                      side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
+                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                                                  child: Text('Rute')))))
                                 ]),
                                 Row(children: [
                                   Expanded(
                                       flex: 2,
                                       child: Text(
-                                        "Lorem ipsum dolor sit amet, onsectetur adipiscing elit. Curabitur risus ligula",
+                                        "Loredsadasdasm ipsum dolor sit amet, onsectetur adipiscing elit. Curabitur risus ligula",
                                         style: Theme.of(context).textTheme.bodyText2,
                                       )),
                                   Expanded(
@@ -354,7 +338,15 @@ class CardBuilder {
                                   var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
 
                                   var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
-                                  var objectives = await database.query('objectiventofinterest', where: 'route_id = ?', whereArgs: [route.id]);
+
+                                  var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [route.id]);
+
+                                  List<Objective> objectives = [];
+                                  for (var i = 0; i < objToRoutes.length; i++) {
+                                    var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
+                                    if (objRow.length > 1 || objRow.length == 0) continue;
+                                    objectives.add(Objective.fromJson(objRow.first));
+                                  }
 
                                   var bikeRoute = new BikeRoute.fromJson(routes.first);
                                   bikeRoute.coordinates = List.generate(coords.length, (i) {
@@ -362,9 +354,7 @@ class CardBuilder {
                                   });
                                   bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
                                   bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
-                                  bikeRoute.objectives = List.generate(objectives.length, (i) {
-                                    return Objective.fromJson(objectives[i]);
-                                  });
+                                  bikeRoute.objectives = objectives;
 
                                   var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
 

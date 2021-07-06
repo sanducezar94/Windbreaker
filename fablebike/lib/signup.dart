@@ -97,11 +97,11 @@ class _SignUpScreen extends State<SignUpScreen> {
                                   child: TextFormField(
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return "Campul 'Utilizator' nu poate fi gol.";
+                                        return "Campul 'E-mail' nu poate fi gol.";
                                       }
                                       return null;
                                     },
-                                    controller: userController,
+                                    controller: emailController,
                                     decoration: InputDecoration(
                                         prefixIcon: Icon(Icons.email_outlined),
                                         fillColor: Colors.white,
@@ -199,7 +199,9 @@ class _SignUpScreen extends State<SignUpScreen> {
                                             ),
                                             onPressed: () async {
                                               if (formKey.currentState.validate()) {
-                                                context.read<AuthenticationService>().signIn(email: userController.text, password: passwordController.text);
+                                                context
+                                                    .read<AuthenticationService>()
+                                                    .signUp(user: userController.text, email: userController.text, password: passwordController.text);
                                               }
                                             },
                                             child: Text('Creeaza cont'))

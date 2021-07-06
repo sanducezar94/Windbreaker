@@ -1,4 +1,5 @@
 import 'package:fablebike/bloc/bookmarks_bloc.dart';
+import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/pages/explore.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -49,7 +50,12 @@ class MyApp extends StatelessWidget {
           create: (_) => AuthenticationService(),
         ),
         Provider<DatabaseService>(create: (_) => DatabaseService()),
-        StreamProvider(create: (context) => context.read<AuthenticationService>().authUser)
+        Provider<MainBloc>(create: (_) => MainBloc()),
+        StreamProvider(create: (context) => context.read<AuthenticationService>().authUser, initialData: null),
+        StreamProvider(
+          create: (context) => context.read<MainBloc>().output,
+          initialData: null,
+        )
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
