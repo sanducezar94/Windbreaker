@@ -17,6 +17,7 @@ class BikeRoute {
   int ratingCount;
   String file;
 
+  LatLng center;
   List<LatLng> rtsCoordinates;
   List<ElevationPoint> elevationPoints;
   List<Coordinates> coordinates;
@@ -37,6 +38,7 @@ class BikeRoute {
         //descent = json['descent'],
         //ascent = json['ascent'],
         difficulty = 0.0,
+        center = json['center_lat'] != null ? LatLng(json['center_lat'], json['center_lng']) : LatLng(0, 0),
         ratingCount = json["rating_count"];
 }
 

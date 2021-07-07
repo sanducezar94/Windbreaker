@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 
 class SnapScrollPhysics extends ScrollPhysics {
   final double itemDimension;
@@ -19,11 +20,11 @@ class SnapScrollPhysics extends ScrollPhysics {
   }
 
   double _getTargetPixels(ScrollPosition position, Tolerance tolerance, double velocity) {
-    double page = _getPage(position);
+    int page = _getPage(position).floor();
     if (velocity < -tolerance.velocity) {
-      page -= 0.5;
+      page -= 1;
     } else if (velocity > tolerance.velocity) {
-      page += 0.5;
+      page += 1;
     }
     return _getPixels(page.roundToDouble());
   }
@@ -35,7 +36,7 @@ class SnapScrollPhysics extends ScrollPhysics {
     if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) || (velocity >= 0.0 && position.pixels >= position.maxScrollExtent))
       return super.createBallisticSimulation(position, velocity);
     final Tolerance tolerance = this.tolerance;
-    final double target = _getTargetPixels(position, tolerance, velocity);
+    double target = _getTargetPixels(position, tolerance, velocity);
     if (target != position.pixels) return ScrollSpringSimulation(spring, position.pixels, target, velocity, tolerance: tolerance);
     return null;
   }

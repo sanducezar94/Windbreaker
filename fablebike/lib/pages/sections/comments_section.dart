@@ -71,17 +71,16 @@ class _CommentSectionState extends State<CommentSection> {
                       child: TextFormField(
                         controller: commentController,
                         decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.pivot_table_chart),
-                            suffixIcon: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                    child: Text('Ok', style: TextStyle(color: Theme.of(context).primaryColor)), padding: EdgeInsets.symmetric(horizontal: 4.0)),
-                                SizedBox(
-                                  width: 10,
-                                )
-                              ],
+                            prefixIcon: Container(
+                              child: Image(
+                                image: AssetImage('assets/icons/user.png'),
+                                width: 16,
+                                height: 16,
+                              ),
+                            ),
+                            suffixIcon: InkWell(
+                              child: Icon(Icons.send),
+                              onTap: () {},
                             ),
                             fillColor: Colors.white,
                             filled: true,

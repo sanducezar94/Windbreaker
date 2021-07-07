@@ -7,6 +7,7 @@ import 'package:expandable/expandable.dart';
 import 'package:fablebike/bloc/objective_bloc.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/objective.dart';
+import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
@@ -385,7 +386,9 @@ class _ObjectiveContainerState extends State<ObjectiveContainer> with TickerProv
                                       padding: EdgeInsets.symmetric(horizontal: 3),
                                       child: Container(
                                           child: OutlinedButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.pushNamed(context, RoutesScreen.route, arguments: widget.objective);
+                                        },
                                         style: OutlinedButton.styleFrom(
                                             textStyle: TextStyle(fontSize: 14),
                                             primary: Theme.of(context).primaryColor,

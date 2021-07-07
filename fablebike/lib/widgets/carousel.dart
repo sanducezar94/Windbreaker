@@ -38,11 +38,12 @@ Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Functio
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
     SizedBox(
         height: 0.3 * height,
-        child: ListView.separated(
-            itemBuilder: (context, index) => carouselItems[index],
-            separatorBuilder: (context, index) => Divider(indent: 10),
-            itemCount: carouselItems.length,
-            scrollDirection: Axis.horizontal,
-            physics: SnapScrollPhysics(itemDimension: width * 0.3 - 40))),
+        width: 1 * width,
+        child: PageView(
+          children: carouselItems,
+          pageSnapping: true,
+          scrollDirection: Axis.horizontal,
+          controller: PageController(viewportFraction: 0.45),
+        ))
   ]);
 }

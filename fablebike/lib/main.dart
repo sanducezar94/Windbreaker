@@ -1,4 +1,3 @@
-import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/pages/explore.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
@@ -35,7 +34,6 @@ Future<void> main() async {
       version: "v9.0",
     );
   }
-
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(MyApp());
@@ -68,6 +66,7 @@ class MyApp extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(fontSize: 16),
                   primary: Color.fromRGBO(99, 157, 78, 1),
+                  //primary: Color.fromRGBO(49, 112, 181, 1),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
             ),
             textTheme: TextTheme(
@@ -85,7 +84,6 @@ class MyApp extends StatelessWidget {
           HomeScreen.route: (context) => HomeScreen(),
           AuthenticationWrapper.route: (context) => AuthenticationWrapper(),
           SignUpScreen.route: (context) => SignUpScreen(),
-          RoutesScreen.route: (context) => RoutesScreen(),
           ExploreScreen.route: (context) => ExploreScreen(),
           SettingsScreen.route: (context) => SettingsScreen(),
           ImagePickerScreen.route: (context) => ImagePickerScreen(),
@@ -97,6 +95,13 @@ class MyApp extends StatelessWidget {
 
             return MaterialPageRoute(builder: (context) {
               return ObjectiveScreen(objective: args.objective, fromRoute: args.fromRoute);
+            });
+          }
+          if (settings.name == RoutesScreen.route) {
+            final args = settings.arguments as Objective;
+
+            return MaterialPageRoute(builder: (context) {
+              return RoutesScreen(objective: args);
             });
           }
           if (settings.name == MapScreen.route) {

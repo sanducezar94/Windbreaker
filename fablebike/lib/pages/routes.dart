@@ -14,7 +14,9 @@ import 'package:provider/provider.dart';
 
 class RoutesScreen extends StatefulWidget {
   static const route = '/routes';
-  RoutesScreen({Key key}) : super(key: key);
+
+  final Objective objective;
+  RoutesScreen({Key key, this.objective = null}) : super(key: key);
 
   @override
   _RoutesScreenState createState() => _RoutesScreenState();
@@ -23,6 +25,7 @@ class RoutesScreen extends StatefulWidget {
 class _RoutesScreenState extends State<RoutesScreen> {
   Future<bool> getRoutes;
   TextEditingController searchController = TextEditingController();
+  bool sensibleSearch = false;
   Future<List<BikeRoute>> getBikeRoutes;
   RouteFilter initialFilter = new RouteFilter();
   RouteFilter routeFilter = new RouteFilter();
@@ -31,6 +34,11 @@ class _RoutesScreenState extends State<RoutesScreen> {
   void initState() {
     super.initState();
     getBikeRoutes = _getRoutes();
+
+    if (widget.objective != null) {
+      searchController.text = 'obiective:' + widget.objective.name;
+      sensibleSearch = true;
+    }
   }
 
   Future<List<BikeRoute>> _getRoutes() async {
@@ -41,12 +49,17 @@ class _RoutesScreenState extends State<RoutesScreen> {
       return BikeRoute.fromJson(routes[i]);
     });
 
-    /*for (var i = 0; i < bikeRoutes.length; i++) {
-      var objectives = await database.query('objective', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id], columns: ['name', 'latitude', 'longitude']);
-      bikeRoutes[i].objectives = List.generate(objectives.length, (i) {
-        return Objective.fromJson(objectives[i]);
-      });
-    }*/
+    for (var i = 0; i < bikeRoutes.length; i++) {
+      var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id]);
+
+      List<Objective> objectives = [];
+      for (var i = 0; i < objToRoutes.length; i++) {
+        var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
+        if (objRow.length > 1 || objRow.length == 0) continue;
+        objectives.add(Objective.fromJson(objRow.first));
+      }
+      bikeRoutes[i].objectives = objectives;
+    }
 
     return bikeRoutes;
   }
@@ -67,6 +80,12 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       child: TextField(
                         onChanged: (context) {
                           setState(() {});
+                        },
+                        onTap: () {
+                          if (sensibleSearch) {
+                            searchController.text = '';
+                            sensibleSearch = false;
+                          }
                         },
                         controller: searchController,
                         decoration: InputDecoration(
@@ -136,13 +155,17 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       if (snapshot.hasData) {
                         var filteredList = snapshot.data;
                         var filterQuery = this.searchController.text?.toLowerCase();
-                        filteredList = snapshot.data
-                            .where((c) =>
-                                ((c.difficulty >= routeFilter.difficulty.start && c.difficulty <= routeFilter.difficulty.end) &&
-                                    (c.rating >= routeFilter.rating.start && c.rating <= routeFilter.rating.end) &&
-                                    (c.distance >= routeFilter.distance.start && c.distance <= routeFilter.distance.end)) &&
-                                (c.name.toLowerCase().contains(filterQuery) || c.description.toLowerCase().contains(filterQuery)))
-                            .toList();
+                        if (filterQuery.indexOf('obiective:') > -1) {
+                          filteredList = snapshot.data.where((element) => element.objectives.where((obj) => obj.id == widget.objective.id).length > 0).toList();
+                        } else {
+                          filteredList = snapshot.data
+                              .where((c) =>
+                                  ((c.difficulty >= routeFilter.difficulty.start && c.difficulty <= routeFilter.difficulty.end) &&
+                                      (c.rating >= routeFilter.rating.start && c.rating <= routeFilter.rating.end) &&
+                                      (c.distance >= routeFilter.distance.start && c.distance <= routeFilter.distance.end)) &&
+                                  (c.name.toLowerCase().contains(filterQuery) || c.description.toLowerCase().contains(filterQuery)))
+                              .toList();
+                        }
 
                         for (var i = 0; i < filteredList.length; i++) {
                           children.add(CardBuilder.buildRouteCard(context, filteredList[i]));
@@ -156,53 +179,4 @@ class _RoutesScreenState extends State<RoutesScreen> {
               ],
             ))));
   }
-}
-
-Widget _buildRoute(BuildContext context, BikeRoute route) {
-  return Card(
-    clipBehavior: Clip.antiAlias,
-    child: Column(children: [
-      ListTile(
-        leading: Icon(Icons.map),
-        title: Text(route.name),
-        subtitle: Text(route.description),
-      ),
-      ButtonBar(alignment: MainAxisAlignment.start, children: [
-        ElevatedButton(
-            child: Text('Mai multe...'),
-            onPressed: () async {
-              try {
-                var db = context.read<DatabaseService>();
-                var database = await db.database;
-                var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
-
-                var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
-                var objectives = await database.query('objective', where: 'route_id = ?', whereArgs: [route.id]);
-
-                var bikeRoute = new BikeRoute.fromJson(routes.first);
-                bikeRoute.coordinates = List.generate(coords.length, (i) {
-                  return Coordinates.fromJson(coords[i]);
-                });
-                bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
-                bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
-                bikeRoute.objectives = List.generate(objectives.length, (i) {
-                  return Objective.fromJson(objectives[i]);
-                });
-
-                var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
-
-                if (serverRoute != null) {
-                  database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount}, where: 'id = ?', whereArgs: [bikeRoute.id]);
-                  bikeRoute.rating = serverRoute.rating;
-                  bikeRoute.ratingCount = serverRoute.ratingCount;
-                }
-
-                Navigator.pushNamed(context, MapScreen.route, arguments: bikeRoute);
-              } on Exception catch (e) {
-                print(e);
-              }
-            })
-      ]),
-    ]),
-  );
 }

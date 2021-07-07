@@ -131,13 +131,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       StreamBuilder(
                         builder: (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasData) {
-                            List<Widget> children = [];
-                            for (var i = 0; i < snapshot.data.length; i++) {
-                              children.add(CardBuilder.buildSmallObjectiveCard(context, snapshot.data[i]));
-                            }
-                            return SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(children: snapshot.data.length == 0 ? [Text('Nu aveti niciun punct de interes salvat.')] : children));
+                            return Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height * 0.275,
+                              child: ListView.separated(
+                                  itemBuilder: (context, index) => CardBuilder.buildSmallObjectiveCard(context, snapshot.data[index]),
+                                  padding: EdgeInsets.all(0),
+                                  separatorBuilder: (context, index) => Divider(
+                                        indent: 0,
+                                        thickness: 0,
+                                        endIndent: 0,
+                                      ),
+                                  itemCount: snapshot.data.length,
+                                  scrollDirection: Axis.horizontal),
+                            );
                           } else {
                             return CircularProgressIndicator();
                           }

@@ -2,6 +2,7 @@ import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/pages/objective.dart';
+import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -93,7 +94,7 @@ class CardBuilder {
                     borderRadius: BorderRadius.all(Radius.circular(18.0)),
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
-                width: 0.3 * width,
+                width: 0.35 * width,
                 height: 0.275 * height,
                 child: Stack(
                   children: [
@@ -115,18 +116,24 @@ class CardBuilder {
                             height: 1 / 10 * height,
                             child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                child: Text(objective.name, style: Theme.of(context).textTheme.headline4)))
+                                child: Text(objective.name, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline4)))
                       ],
                     ),
                     Positioned(
-                        child: Image.asset(
-                          'assets/icons/church_marker.png',
-                          height: 40,
-                          width: 40,
-                          fit: BoxFit.contain,
-                        ),
-                        top: height * 0.1375,
-                        left: width * 0.1),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/icons/church_marker.png',
+                            height: 40,
+                            width: 40,
+                            fit: BoxFit.contain,
+                          )
+                        ],
+                      ),
+                      width: width * 0.35,
+                      top: height * 0.1375,
+                    ),
                   ],
                 ))));
   }
@@ -174,7 +181,9 @@ class CardBuilder {
                                           padding: EdgeInsets.symmetric(horizontal: 3),
                                           child: Container(
                                               child: OutlinedButton(
-                                                  onPressed: () async {},
+                                                  onPressed: () async {
+                                                    Navigator.pushNamed(context, RoutesScreen.route, arguments: objective);
+                                                  },
                                                   style: OutlinedButton.styleFrom(
                                                       backgroundColor: Colors.white,
                                                       textStyle: TextStyle(fontSize: 14),

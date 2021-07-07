@@ -52,21 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: bigPadding > 35 ? 10 : bigPadding,
                       ),
                       Expanded(
-                        child: Padding(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  fit: BoxFit.contain,
-                                ),
-                              )
-                            ],
-                          ),
-                          padding: EdgeInsets.all(smallPadding),
-                        ),
                         flex: 1,
+                        child: Image.asset('assets/images/logo.png', width: 300, height: 300, fit: BoxFit.contain),
                       ),
                       Expanded(
                         flex: 3,
@@ -217,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                                   Navigator.pushNamed(context, SignUpScreen.route);
                                                 },
-                                                child: Text('Creeaza-ti Contul!', style: TextStyle(color: Colors.green)),
+                                                child: Text('Creeaza-ti Contul!', style: TextStyle(color: Color.fromRGBO(99, 157, 78, 1))),
                                               )
                                             ],
                                           ))),

@@ -4,7 +4,9 @@ import 'dart:ui';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/sections/comments_section.dart';
+import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/carousel.dart';
+import 'package:fablebike/widgets/rating_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/sections/map_section.dart';
@@ -57,6 +59,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   double kmTraveled = 0;
   var hoverPoint = LatLng(0, 0);
   var currentTab = 'poi';
+  LatLng center = LatLng(0, 0);
 
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -113,6 +116,16 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     controller.forward();
   }
 
+  LatLng getcenter() {
+    var l = widget.bikeRoute.rtsCoordinates.length;
+    LatLng value = LatLng(0, 0);
+    for (var i = 0; i < widget.bikeRoute.rtsCoordinates.length; i++) {
+      value.latitude += widget.bikeRoute.rtsCoordinates[i].latitude / l;
+      value.longitude += widget.bikeRoute.rtsCoordinates[i].longitude / l;
+    }
+    return value;
+  }
+
   /* Future<double> getKmTraveled() async {
     double km = 0;
     for (var i = 0; i < widget.bikeRoute.rtsCoordinates.length - 1; i++) {
@@ -144,6 +157,12 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
 
     var markers = <Marker>[];
+    markers.add(Marker(
+        width: 36,
+        height: 36,
+        builder: (ctx) =>
+            Transform.rotate(angle: -this.rotation * 3.14159 / 180, child: Container(child: Image(image: AssetImage('assets/icons/ruin_ppin.png')))),
+        point: hoverPoint));
     for (var i = 0; i < widget.bikeRoute.objectives.length; i++) {
       markers.add(Marker(
           width: 24,
@@ -167,29 +186,18 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   width: width,
                   child: Center(
                     child: Container(
-                      width: width / 3,
-                      height: height * 0.0125,
+                      width: width / 2,
+                      height: height * 0.01,
                       decoration: BoxDecoration(
-                          color: Colors.black38,
+                          color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.all(Radius.circular(18.0)),
                           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
                     ),
                   )),
               onVerticalDragEnd: (v) {
-                showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    backgroundColor: Colors.white.withOpacity(0),
-                    builder: (context) {
-                      return CommentSection(
-                        canPost: true,
-                        connectionStatus: _connectionStatus,
-                        route_id: widget.bikeRoute.id,
-                      );
-                    });
+                _buildBottomSheet(context, widget.bikeRoute);
               },
             ),
-            //bottomNavigationBar: routeBottomBar(context, currentRoute),
             appBar: AppBar(
               title: Text(
                 widget.bikeRoute.name,
@@ -205,17 +213,6 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               child: Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Column(children: [
-                    /*FutureBuilder<double>(
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                return Text(snapshot.data.toStringAsPrecision(3) + ' km');
-              }
-              return kmTraveled > 0 ? Text(kmTraveled.toStringAsPrecision(3) + ' km') : Text('Ai iesit de pe ruta.');
-            } else
-              return kmTraveled > 0 ? Text(kmTraveled.toStringAsPrecision(3) + ' km') : Text('Ai iesit de pe ruta.');
-          },
-          future: getKmTraveled()),*/
                     Expanded(
                         child: Container(
                           decoration: BoxDecoration(
@@ -227,27 +224,10 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                 FlutterMap(
                                   mapController: mapController,
                                   options: MapOptions(
-                                      center: myLocation,
+                                      center: widget.bikeRoute.center,
                                       minZoom: 10.0,
                                       maxZoom: 13.0,
                                       zoom: 10.0,
-                                      onPositionChanged: (mapPosition, _) {
-                                        if (this.mapController.ready && !init) {
-                                          init = true;
-                                          return;
-                                        }
-                                        if (!init) return;
-                                        setState(() {
-                                          this.rotation = this.mapController.rotation;
-                                          if (this.mapController.zoom > 12.5) {
-                                            this.size = 64;
-                                          } else if (this.mapController.zoom > 11.5) {
-                                            this.size = 64;
-                                          } else {
-                                            this.size = 24;
-                                          }
-                                        });
-                                      },
                                       swPanBoundary: LatLng(46.2318, 27.3077),
                                       nePanBoundary: LatLng(46.9708, 28.1942),
                                       plugins: [LocationMarkerPlugin()]),
@@ -259,7 +239,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     ),
                                     PolylineLayerOptions(
                                       polylines: [
-                                        Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 4, color: Colors.blue),
+                                        Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Colors.blue),
                                       ],
                                     ),
                                     LocationMarkerLayerOptions(),
@@ -270,9 +250,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     left: 15,
                                     bottom: 15,
                                     child: Container(
-                                      height: height * 0.15,
-                                      width: width * 0.2,
-                                      child: Column(
+                                      height: height * 0.075,
+                                      width: width * 0.4,
+                                      child: Row(
                                         children: [
                                           Expanded(
                                               flex: 1,
@@ -291,7 +271,45 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                                           crossAxisAlignment: CrossAxisAlignment.center,
                                                           mainAxisAlignment: MainAxisAlignment.center,
                                                           children: [
-                                                            Icon(Icons.chat_bubble_outline),
+                                                            Icon(Icons.star),
+                                                            SizedBox(
+                                                              width: 3,
+                                                            ),
+                                                            Text(widget.bikeRoute.rating.toStringAsPrecision(2), style: Theme.of(context).textTheme.headline5),
+                                                          ],
+                                                        ),
+                                                      )),
+                                                  onTap: () async {
+                                                    var rating = await showDialog(context: context, builder: (_) => RatingDialog());
+                                                    var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
+                                                    setState(() {
+                                                      widget.bikeRoute.rating = newRating;
+                                                    });
+                                                  },
+                                                ),
+                                                padding: EdgeInsets.symmetric(vertical: 5),
+                                              )),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Expanded(
+                                              flex: 1,
+                                              child: Padding(
+                                                child: InkWell(
+                                                  child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                                                          color: Colors.white70,
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                                color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 1, offset: Offset(0, 6))
+                                                          ]),
+                                                      child: Center(
+                                                        child: Row(
+                                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            Icon(Icons.forum),
                                                             SizedBox(
                                                               width: 3,
                                                             ),
@@ -301,44 +319,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                                         ),
                                                       )),
                                                   onTap: () {
-                                                    showModalBottomSheet(
-                                                        isScrollControlled: true,
-                                                        context: context,
-                                                        backgroundColor: Colors.white.withOpacity(0),
-                                                        builder: (context) {
-                                                          return CommentSection(
-                                                            canPost: true,
-                                                            connectionStatus: _connectionStatus,
-                                                            route_id: widget.bikeRoute.id,
-                                                          );
-                                                        });
+                                                    _buildBottomSheet(context, widget.bikeRoute);
                                                   },
                                                 ),
-                                                padding: EdgeInsets.symmetric(vertical: 5),
-                                              )),
-                                          Expanded(
-                                              flex: 1,
-                                              child: Padding(
-                                                child: Container(
-                                                    decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.all(Radius.circular(18.0)),
-                                                        color: Colors.white70,
-                                                        boxShadow: [
-                                                          BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 1, offset: Offset(0, 6))
-                                                        ]),
-                                                    child: Center(
-                                                      child: Row(
-                                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          Icon(Icons.star),
-                                                          SizedBox(
-                                                            width: 3,
-                                                          ),
-                                                          Text(widget.bikeRoute.rating.toStringAsPrecision(2), style: Theme.of(context).textTheme.headline5),
-                                                        ],
-                                                      ),
-                                                    )),
                                                 padding: EdgeInsets.symmetric(vertical: 5),
                                               )),
                                         ],
@@ -460,6 +443,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                 )
                               : Column(
                                   children: [
+                                    SizedBox(
+                                      height: 10,
+                                    ),
                                     ClipRRect(
                                         child: Container(
                                             decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(18.0)), color: Colors.white, boxShadow: [
@@ -470,7 +456,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                               child: NotificationListener<ElevationHoverNotification>(
                                                 onNotification: (ElevationHoverNotification notification) {
                                                   setState(() {
-                                                    //hoverPoint = notification.position;
+                                                    hoverPoint = notification.position;
                                                   });
                                                   return true;
                                                 },
@@ -495,4 +481,17 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   ])),
             )));
   }
+}
+
+_buildBottomSheet(BuildContext context, BikeRoute bikeRoute) {
+  showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      backgroundColor: Colors.white.withOpacity(0),
+      builder: (context) {
+        return CommentSection(
+          canPost: true,
+          route_id: bikeRoute.id,
+        );
+      });
 }
