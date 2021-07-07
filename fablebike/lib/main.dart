@@ -60,6 +60,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
             scaffoldBackgroundColor: const Color.fromRGBO(249, 249, 249, 1),
             primaryColor: Color.fromRGBO(99, 157, 78, 1),
+            primaryColorDark: Color.fromRGBO(43, 127, 61, 1),
             accentColor: Color.fromRGBO(37, 14, 19, 1),
             errorColor: Color.fromRGBO(157, 78, 78, 1),
             elevatedButtonTheme: ElevatedButtonThemeData(

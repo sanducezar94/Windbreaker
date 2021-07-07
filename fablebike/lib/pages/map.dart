@@ -9,7 +9,6 @@ import 'package:fablebike/widgets/carousel.dart';
 import 'package:fablebike/widgets/rating_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
-import 'package:fablebike/pages/sections/map_section.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -204,7 +203,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                 style: Theme.of(context).textTheme.headline3,
               ),
               centerTitle: true,
-              iconTheme: IconThemeData(color: Colors.black),
+              iconTheme: IconThemeData(color: Theme.of(context).accentColor),
               shadowColor: Colors.white54,
               backgroundColor: Colors.white,
             ),
@@ -283,7 +282,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                                     var rating = await showDialog(context: context, builder: (_) => RatingDialog());
                                                     var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
                                                     setState(() {
-                                                      widget.bikeRoute.rating = newRating;
+                                                      if (newRating != null && newRating != 0.0) widget.bikeRoute.rating = newRating;
                                                     });
                                                   },
                                                 ),

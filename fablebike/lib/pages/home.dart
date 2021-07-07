@@ -107,10 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               if (snapshot.hasData && snapshot.data != null) {
                                 return CardBuilder.buildAnnouncementBanner(context);
                               } else {
-                                return CircularProgressIndicator();
+                                return CardBuilder.buildAnnouncementBannerShimmer(context);
                               }
                             } else {
-                              return CircularProgressIndicator();
+                              return CardBuilder.buildAnnouncementBannerShimmer(context);
                             }
                           },
                           future: _getNearbyObjectives(user)),
@@ -146,10 +146,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                   scrollDirection: Axis.horizontal),
                             );
                           } else {
-                            return CircularProgressIndicator();
+                            return Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height * 0.275,
+                              child: ListView.separated(
+                                  itemBuilder: (context, index) => CardBuilder.buildSmallObjectiveShimmerCard(context),
+                                  padding: EdgeInsets.all(0),
+                                  separatorBuilder: (context, index) => Divider(
+                                        indent: 0,
+                                        thickness: 0,
+                                        endIndent: 0,
+                                      ),
+                                  itemCount: 5,
+                                  scrollDirection: Axis.horizontal),
+                            );
                           }
                         },
-                        initialData: [],
+                        initialData: null,
                         stream: _bloc.output,
                       ),
                       SizedBox(height: 25),

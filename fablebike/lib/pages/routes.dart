@@ -8,9 +8,6 @@ import 'package:fablebike/widgets/route_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
-import 'package:fablebike/pages/map.dart';
-import 'package:fablebike/services/route_service.dart';
-import 'package:provider/provider.dart';
 
 class RoutesScreen extends StatefulWidget {
   static const route = '/routes';
@@ -74,6 +71,8 @@ class _RoutesScreenState extends State<RoutesScreen> {
             appBar: AppBar(
               shadowColor: Colors.white54,
               backgroundColor: Colors.white,
+              centerTitle: true,
+              iconTheme: IconThemeData(color: Theme.of(context).accentColor),
               title: Row(
                 children: [
                   Expanded(
@@ -96,9 +95,10 @@ class _RoutesScreenState extends State<RoutesScreen> {
                           enabledBorder: InputBorder.none,
                           errorBorder: InputBorder.none,
                           disabledBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.all(20.0),
                           prefixIcon: Icon(
                             Icons.search,
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).accentColor,
                           ),
                           suffixIcon: this.searchController != null && this.searchController.text.length > 0
                               ? IconButton(
@@ -108,18 +108,17 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                     });
                                   },
                                   icon: Icon(
-                                    Icons.cancel,
-                                    color: Theme.of(context).primaryColor,
+                                    Icons.cancel_outlined,
+                                    color: Theme.of(context).accentColor,
                                   ))
                               : null,
                           hintText: 'Cauta',
                         ),
                       ),
-                      flex: 7),
+                      flex: 9),
                   Expanded(
                       child: InkWell(
-                        child:
-                            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [Icon(Icons.filter_list, color: Theme.of(context).primaryColor)]),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [Icon(Icons.filter_list, color: Theme.of(context).accentColor)]),
                         onTap: () async {
                           var filter = await showDialog(context: context, builder: (_) => RouteFilterDialog(filter: routeFilter));
                           if (filter == null) return;
@@ -172,7 +171,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                         }
                         return Column(children: children);
                       } else {
-                        return Text('Loading...');
+                        return Column(children: List.generate(3, (index) => CardBuilder.buildShimmerRouteCard(context)));
                       }
                     },
                     future: this.getBikeRoutes),

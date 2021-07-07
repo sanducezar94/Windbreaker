@@ -58,6 +58,7 @@ dependencies:
   flutter_image_slideshow: ^0.1.0
   expandable: ^5.0.1
   focus_widget: ^1.0.5+2
+  shimmer: ^2.0.0
 
 dev_dependencies:
   flutter_test:

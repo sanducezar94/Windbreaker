@@ -8,6 +8,7 @@ import 'package:fablebike/services/route_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CardBuilder {
   static Widget buildAnnouncementBanner(BuildContext context) {
@@ -77,6 +78,95 @@ class CardBuilder {
             ],
           ),
         ));
+  }
+
+  static Widget buildAnnouncementBannerShimmer(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height - 80;
+    return Shimmer.fromColors(
+        highlightColor: Colors.white,
+        baseColor: Colors.black.withOpacity(0.01),
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                color: Colors.white,
+              ),
+              height: 0.2 * height,
+            )));
+  }
+
+  static Widget buildSmallObjectiveShimmerCard(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height - 80;
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: InkWell(
+            onTap: () {},
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    color: Colors.white,
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                width: 0.35 * width,
+                height: 0.275 * height,
+                child: Stack(
+                  children: [
+                    Shimmer.fromColors(
+                      highlightColor: Colors.white,
+                      baseColor: Colors.black54,
+                      child: Column(
+                        children: [
+                          Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                child: Shimmer.fromColors(
+                                    highlightColor: Colors.white,
+                                    baseColor: Colors.black26,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black26,
+                                        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                      ),
+                                    )),
+                              ),
+                              flex: 2),
+                          Container(
+                              height: 1 / 10 * height,
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                  child: Column(children: [
+                                    Expanded(
+                                      child: Container(
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black12,
+                                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                        ),
+                                      ),
+                                    ),
+                                    Spacer(
+                                      flex: 1,
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black12,
+                                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                        ),
+                                      ),
+                                    ),
+                                    Spacer(
+                                      flex: 2,
+                                    ),
+                                  ])))
+                        ],
+                      ),
+                    ),
+                  ],
+                ))));
   }
 
   static Widget buildSmallObjectiveCard(BuildContext context, Objective objective) {
@@ -242,6 +332,141 @@ class CardBuilder {
                 )
               ],
             )));
+  }
+
+  static buildShimmerRouteCard(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height - 80;
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+        child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                color: Colors.white,
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+            height: height * 0.3,
+            child: Column(children: [
+              Expanded(
+                  child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                      child: Column(
+                        children: [
+                          Expanded(
+                              flex: 3,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      child: ClipRRect(
+                                        child: Padding(
+                                          child: Shimmer.fromColors(
+                                              highlightColor: Colors.white,
+                                              baseColor: Colors.black26,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black26,
+                                                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                                ),
+                                              )),
+                                          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 5),
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      flex: 1),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Padding(
+                                        child: Container(
+                                            width: 3,
+                                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                              Expanded(
+                                                flex: 1,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black12,
+                                                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                                  ),
+                                                  height: 10,
+                                                ),
+                                              ),
+                                              Spacer(
+                                                flex: 1,
+                                              ),
+                                              Expanded(
+                                                flex: 1,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black12,
+                                                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                                  ),
+                                                  height: 10,
+                                                ),
+                                              ),
+                                              Spacer(
+                                                flex: 1,
+                                              ),
+                                              Expanded(
+                                                flex: 1,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black12,
+                                                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                                  ),
+                                                  height: 10,
+                                                ),
+                                              ),
+                                              Spacer(
+                                                flex: 5,
+                                              ),
+                                            ])),
+                                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 20.0)),
+                                  ),
+                                ],
+                              )),
+                          Expanded(
+                              flex: 1,
+                              child: Container(
+                                child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 10),
+                                    child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                              flex: 2,
+                                              child: Container(
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black12,
+                                                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                                ),
+                                              )),
+                                          Spacer(flex: 1),
+                                          Expanded(
+                                              flex: 2,
+                                              child: Container(
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black12,
+                                                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                                ),
+                                              )),
+                                          Spacer(flex: 1),
+                                          Expanded(
+                                              flex: 2,
+                                              child: Container(
+                                                height: 32,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black12,
+                                                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                                ),
+                                              ))
+                                        ],
+                                      )
+                                    ])),
+                              ))
+                        ],
+                      )),
+                  flex: 1)
+            ])));
   }
 
   static buildRouteCard(BuildContext context, BikeRoute route) {

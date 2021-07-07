@@ -74,8 +74,8 @@ class _CommentSectionState extends State<CommentSection> {
                             prefixIcon: Container(
                               child: Image(
                                 image: AssetImage('assets/icons/user.png'),
-                                width: 16,
-                                height: 16,
+                                width: 8,
+                                height: 8,
                               ),
                             ),
                             suffixIcon: InkWell(
