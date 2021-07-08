@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  final flexer = 5;
 
   loginWithFB(BuildContext context) async {
     final result = await FacebookAuth.instance.login(loginBehavior: LoginBehavior.nativeWithFallback);
@@ -40,45 +41,49 @@ class _LoginScreenState extends State<LoginScreen> {
     double smallPadding = height * 0.0125;
     double bigPadding = height * 0.05;
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Padding(
             padding: const EdgeInsets.only(left: 15.0, right: 15.0),
             child: SafeArea(
-              child: SingleChildScrollView(
-                  physics: NeverScrollableScrollPhysics(),
-                  child: Container(
-                    height: height + 80,
-                    child: Column(children: [
-                      SizedBox(
-                        height: bigPadding > 35 ? 10 : bigPadding,
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Image.asset('assets/images/logo.png', width: 300, height: 300, fit: BoxFit.contain),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Padding(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(10.0, 0, 0, 10.0),
-                                  child: Row(children: [
-                                    Text(
-                                      'Logare',
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).accentColor),
-                                      textAlign: TextAlign.start,
-                                    )
-                                  ]),
-                                ),
-                                Form(
-                                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                                  key: formKey,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
+                child: Container(
+              height: height + 80,
+              child: Column(children: [
+                Spacer(flex: 1),
+                Expanded(
+                  flex: 5,
+                  child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+                ),
+                Spacer(
+                  flex: 1,
+                ),
+                Expanded(
+                  flex: 13,
+                  child: Padding(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(10.0, 0, 0, 10.0),
+                                child: Row(children: [
+                                  Text(
+                                    'Logare',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).accentColor),
+                                    textAlign: TextAlign.start,
+                                  )
+                                ]),
+                              ),
+                              flex: 1),
+                          Expanded(
+                            child: Form(
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              key: formKey,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: smallPadding),
                                         child: Material(
                                           shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
                                           elevation: 10.0,
@@ -86,7 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                           child: TextFormField(
                                             controller: userController,
                                             decoration: InputDecoration(
+                                                contentPadding: EdgeInsets.symmetric(vertical: 1.0),
                                                 fillColor: Colors.white,
+                                                hintStyle: Theme.of(context).textTheme.headline2,
                                                 filled: true,
                                                 prefixIcon: Icon(Icons.email_outlined),
                                                 border: OutlineInputBorder(
@@ -95,13 +102,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         ),
                                       ),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
+                                      flex: flexer),
+                                  Spacer(
+                                    flex: 2,
+                                  ),
+                                  Expanded(
+                                      child: Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: smallPadding),
                                           child: Material(
                                             child: TextFormField(
                                               controller: passwordController,
                                               obscureText: true,
                                               decoration: InputDecoration(
+                                                  contentPadding: EdgeInsets.symmetric(vertical: 1.0),
+                                                  hintStyle: Theme.of(context).textTheme.headline2,
                                                   prefixIcon: Icon(Icons.lock_outlined),
                                                   fillColor: Colors.white,
                                                   filled: true,
@@ -113,16 +127,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                             borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
                                             elevation: 10.0,
                                           )),
-                                      SizedBox(height: smallPadding * 2),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: smallPadding),
-                                          child: Container(
-                                              child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                                            children: [
-                                              ElevatedButton(
+                                      flex: flexer),
+                                  Spacer(
+                                    flex: 3,
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
+                                        child: Container(
+                                            child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          children: [
+                                            Expanded(
+                                              child: ElevatedButton(
                                                   style: ElevatedButton.styleFrom(
-                                                    minimumSize: Size(10, 54),
                                                     shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
                                                     elevation: 10.0,
                                                   ),
@@ -133,18 +151,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                                           .signIn(email: userController.text, password: passwordController.text);
                                                     }
                                                   },
-                                                  child: Text('Logare'))
-                                            ],
-                                          ))),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: smallPadding * 2),
+                                                  child: Text(
+                                                    'Logare',
+                                                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                                  )),
+                                              flex: 1,
+                                            )
+                                          ],
+                                        ))),
+                                    flex: (flexer * 1.1).toInt(),
+                                  ),
+                                  Spacer(
+                                    flex: 2,
+                                  ),
+                                  Expanded(
+                                      child: Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 8),
                                           child: Text(
                                             'Sau logheaza-te cu',
-                                            style: TextStyle(color: Colors.black26, fontSize: 16),
+                                            style: Theme.of(context).textTheme.headline2,
                                           )),
-                                      SizedBox(height: 15),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: smallPadding),
+                                      flex: flexer),
+                                  Spacer(
+                                    flex: 1,
+                                  ),
+                                  Expanded(
+                                      child: Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 8),
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
@@ -188,35 +221,51 @@ class _LoginScreenState extends State<LoginScreen> {
                                               )
                                             ],
                                           )),
-                                      Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-                                          child: Container(
-                                              child: Column(
-                                            children: [
-                                              InkWell(
-                                                onTap: () async {
-                                                  try {
-                                                    var db = await DatabaseService().database;
-                                                    await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
-                                                  } on Exception {
-                                                    Navigator.pushNamed(context, SignUpScreen.route);
-                                                  }
+                                      flex: flexer),
+                                  Spacer(flex: 2),
+                                  Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                                flex: 1,
+                                                child: Wrap(
+                                                  alignment: WrapAlignment.center,
+                                                  children: [
+                                                    Text('Nu am cont.', style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.56))),
+                                                    InkWell(
+                                                      child: Text(' Creeaza unul!', style: TextStyle(fontSize: 14, color: Theme.of(context).primaryColor)),
+                                                      onTap: () async {
+                                                        try {
+                                                          var db = await DatabaseService().database;
+                                                          await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
+                                                        } on Exception {
+                                                          Navigator.pushNamed(context, SignUpScreen.route);
+                                                        }
 
-                                                  Navigator.pushNamed(context, SignUpScreen.route);
-                                                },
-                                                child: Text('Creeaza-ti Contul!', style: TextStyle(color: Color.fromRGBO(99, 157, 78, 1))),
-                                              )
-                                            ],
-                                          ))),
-                                    ],
-                                  ),
-                                )
-                              ],
+                                                        Navigator.pushNamed(context, SignUpScreen.route);
+                                                      },
+                                                    )
+                                                  ],
+                                                ))
+                                          ],
+                                        ),
+                                      ),
+                                      flex: 5),
+                                  Spacer(
+                                    flex: 1,
+                                  )
+                                ],
+                              ),
                             ),
-                            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 25.0)),
-                      )
-                    ]),
-                  )),
-            )));
+                            flex: 10,
+                          )
+                        ],
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 5.0)),
+                )
+              ]),
+            ))));
   }
 }

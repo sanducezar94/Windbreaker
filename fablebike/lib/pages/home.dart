@@ -131,6 +131,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       StreamBuilder(
                         builder: (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasData) {
+                            if (snapshot.data.length == 0)
+                              return Padding(
+                                child: Row(
+                                  children: [Text('Nu aveti puncte de interest salvate.', style: Theme.of(context).textTheme.headline4)],
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                              );
                             return Container(
                               width: MediaQuery.of(context).size.width,
                               height: MediaQuery.of(context).size.height * 0.275,

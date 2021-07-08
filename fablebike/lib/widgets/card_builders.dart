@@ -555,7 +555,7 @@ class CardBuilder {
                           children: [
                             Text('Puncte Interes', style: Theme.of(context).textTheme.bodyText2),
                             SizedBox(height: 3),
-                            Text('0', style: Theme.of(context).textTheme.bodyText1)
+                            Text(route.objectives.length.toString(), style: Theme.of(context).textTheme.bodyText1)
                           ],
                         )),
                     flex: 1),

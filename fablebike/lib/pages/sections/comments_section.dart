@@ -71,13 +71,6 @@ class _CommentSectionState extends State<CommentSection> {
                       child: TextFormField(
                         controller: commentController,
                         decoration: InputDecoration(
-                            prefixIcon: Container(
-                              child: Image(
-                                image: AssetImage('assets/icons/user.png'),
-                                width: 8,
-                                height: 8,
-                              ),
-                            ),
                             suffixIcon: InkWell(
                               child: Icon(Icons.send),
                               onTap: () {},
@@ -87,11 +80,11 @@ class _CommentSectionState extends State<CommentSection> {
                             border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
                             hintText: 'Comentariu nou...'),
                       ),
-                      shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                      shadowColor: Theme.of(context).accentColor.withOpacity(0.35),
                       borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
                       elevation: 10.0,
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 14),
                   )
                 ],
               ),
@@ -107,15 +100,18 @@ class _CommentSectionState extends State<CommentSection> {
 
                       return Container(
                           height: height * 0.6,
-                          child: ListView.separated(
-                              itemBuilder: (context, index) => _buildComment(context, this.comments[index]),
-                              separatorBuilder: (context, index) {
-                                return Divider(
-                                  indent: 0,
-                                  thickness: 0,
-                                );
-                              },
-                              itemCount: this.comments.length));
+                          child: Padding(
+                            child: ListView.separated(
+                                itemBuilder: (context, index) => _buildComment(context, this.comments[index]),
+                                separatorBuilder: (context, index) {
+                                  return Divider(
+                                    indent: 0,
+                                    thickness: 0,
+                                  );
+                                },
+                                itemCount: this.comments.length),
+                            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                          ));
                     } else {
                       return commentWidgets.length == 0 ? CircularProgressIndicator() : Column(children: commentWidgets);
                     }
