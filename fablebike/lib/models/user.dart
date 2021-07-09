@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:typed_data';
+
+import 'package:collection/collection.dart';
 
 class AuthenticatedUser {
   int id;
@@ -10,6 +13,9 @@ class AuthenticatedUser {
 
   List<int> ratedRoutes;
   List<int> ratedComments;
+
+  bool normalDataUsage;
+  bool isRomanianLanguage;
 
   AuthenticatedUser(int id, String user, String email, String token, String icon, String roles) {
     this.id = id;
@@ -48,4 +54,27 @@ class FacebookUser {
         //photo = json["picture"],
         displayName = json["name"],
         id = json["id"];
+}
+
+class SystemValue {
+  String key;
+  String value;
+  int userId;
+  SystemValue({this.key, this.value, this.userId});
+
+  Map<String, dynamic> toMap() {
+    return {'key': key, 'value': value, 'userId': userId};
+  }
+
+  factory SystemValue.fromMap(Map<String, dynamic> map) {
+    return SystemValue(
+      key: map['key'] ?? '',
+      value: map['value'] ?? '',
+      userId: map['userId'] ?? '',
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory SystemValue.fromJson(String source) => SystemValue.fromMap(json.decode(source));
 }

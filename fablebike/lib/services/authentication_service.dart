@@ -3,7 +3,9 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:fablebike/models/service_response.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/services/database_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 import 'storage_service.dart';
 
 //const SERVER_IP = '192.168.100.24:8080';
@@ -16,6 +18,26 @@ const FILE_UPLOAD = '/auth/upload';
 class AuthenticationService {
   StreamController sc = new StreamController<AuthenticatedUser>();
   Stream<AuthenticatedUser> get authUser => sc.stream;
+
+  Future<void> setUserData(AuthenticatedUser loggedUser) async {
+    var db = await DatabaseService().database;
+    var dataUsageRow = await db.query('SystemValue', where: 'user_id = ? and key = ?', whereArgs: [loggedUser.id, 'datausage']);
+    var languageRow = await db.query('SystemValue', where: 'user_id = ? and key = ?', whereArgs: [loggedUser.id, 'language']);
+
+    var dataUsage = false;
+    var language = true;
+
+    if (dataUsageRow.length == 0 || languageRow.length == 0) {
+      await db.insert('SystemValue', {'key': 'datausage', 'value': '0', 'user_id': loggedUser.id.toString()}, conflictAlgorithm: ConflictAlgorithm.replace);
+      await db.insert('SystemValue', {'key': 'language', 'value': 'RO', 'user_id': loggedUser.id.toString()}, conflictAlgorithm: ConflictAlgorithm.replace);
+    } else {
+      var dataUsage = dataUsageRow.first['value'] == '0' ? false : true;
+      var language = languageRow.first['value'] == 'RO' ? true : false;
+    }
+
+    loggedUser.normalDataUsage = dataUsage;
+    loggedUser.isRomanianLanguage = language;
+  }
 
   Future<ServiceResponse> signIn({String email, String password}) async {
     try {
@@ -34,7 +56,9 @@ class AuthenticationService {
         var loggedUser = new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"], body["roles"]);
         loggedUser.ratedComments = body["rated_comments"].cast<int>();
         loggedUser.ratedRoutes = body["rated_routes"].cast<int>();
-        sc.add(new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"], body["roles"]));
+
+        await setUserData(loggedUser);
+        sc.add(loggedUser);
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
@@ -60,8 +84,11 @@ class AuthenticationService {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
 
+        var newUser = new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw");
+        await setUserData(newUser);
+
         storage.writeValue('token', body["token"]);
-        sc.add(new AuthenticatedUser(body["user_id"], user, email, response.body, "none", "rw"));
+        sc.add(newUser);
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
@@ -112,8 +139,10 @@ class AuthenticationService {
       if (response.statusCode == 200) {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
+        var newUser = new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw");
         storage.writeValue('token', response.body);
-        sc.add(new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw"));
+        await setUserData(newUser);
+        sc.add(newUser);
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 

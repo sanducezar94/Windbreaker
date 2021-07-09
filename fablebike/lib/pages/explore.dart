@@ -40,6 +40,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   ExpandableController expandableController = ExpandableController();
   FocusNode _node = FocusNode();
   Objective currentObjective;
+  bool loadResults = false;
 
   double top = 999;
   bool _blocInitialized = false;
@@ -87,6 +88,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
 
     animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
+        this.loadResults = false;
         _searchBlock.objectiveEventSync
             .add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
         controller.dispose();
@@ -153,7 +155,9 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                   getRoutes(filteredList[i]);
                                   goToPoint(LatLng(filteredList[i].latitude, filteredList[i].longitude));
                                   expandAnimation(height * 0.675);
-                                  setState(() {});
+                                  setState(() {
+                                    loadResults = true;
+                                  });
                                 },
                               ))),
                           point: filteredList[i].coords));
@@ -201,10 +205,15 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                   top: top,
                   child: ClipRRect(
                       borderRadius: BorderRadius.circular(16.0),
-                      child: ObjectiveContainer(
-                        objective: currentObjective,
-                        closeModal: expandAnimation,
-                      ))),
+                      child: loadResults
+                          ? Container(
+                              height: height * 0.4,
+                              child: CircularProgressIndicator(),
+                            )
+                          : ObjectiveContainer(
+                              objective: currentObjective,
+                              closeModal: expandAnimation,
+                            ))),
               Positioned(
                   height: height * 0.5,
                   width: width,

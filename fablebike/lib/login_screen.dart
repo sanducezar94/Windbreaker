@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  final flexer = 5;
+  final flexer = 6;
 
   loginWithFB(BuildContext context) async {
     final result = await FacebookAuth.instance.login(loginBehavior: LoginBehavior.nativeWithFallback);

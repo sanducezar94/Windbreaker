@@ -2,7 +2,10 @@ import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/login_screen.dart';
+import 'package:fablebike/models/user.dart';
+import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/services/authentication_service.dart';
+import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +18,38 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  AuthenticatedUser user;
+
+  @override
+  void initState() {
+    super.initState();
+    user = context.read<AuthenticatedUser>();
+  }
+
+  void _changeLanguage() async {
+    var db = await DatabaseService().database;
+
+    if (user.isRomanianLanguage) {
+      await db.update('SystemValue', {'value': '0'}, where: 'user_id = ? and key = ?', whereArgs: [user.id, 'language']);
+      user.isRomanianLanguage = false;
+    } else {
+      await db.update('SystemValue', {'value': '1'}, where: 'user_id = ? and key = ?', whereArgs: [user.id, 'language']);
+      user.isRomanianLanguage = true;
+    }
+  }
+
+  void _changeDataUsage() async {
+    var db = await DatabaseService().database;
+
+    if (user.normalDataUsage) {
+      await db.update('SystemValue', {'value': '0'}, where: 'user_id = ? and key = ?', whereArgs: [user.id, 'datausage']);
+      user.normalDataUsage = false;
+    } else {
+      await db.update('SystemValue', {'value': '1'}, where: 'user_id = ? and key = ?', whereArgs: [user.id, 'datausage']);
+      user.normalDataUsage = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -77,7 +112,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Expanded(
                                       child: ElevatedButton(
                                         child: Icon(Icons.camera_alt_outlined),
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
+                                            setState(() {});
+                                          });
+                                        },
                                         style: ElevatedButton.styleFrom(
                                             primary: Theme.of(context).primaryColorDark,
                                             shape: RoundedRectangleBorder(
@@ -141,20 +180,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   Expanded(
                                       child: OutlinedButton(
-                                          onPressed: () {},
+                                          onPressed: () async {
+                                            await _changeDataUsage();
+                                            setState(() {});
+                                          },
                                           style: OutlinedButton.styleFrom(
                                               shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
                                           child: Text(
-                                            'Reduce consumul de date',
+                                            this.user.normalDataUsage ? 'Reduce consumul de date' : 'Activeaza consumul de date',
                                             textAlign: TextAlign.left,
                                             style: Theme.of(context).textTheme.headline4,
                                           )),
                                       flex: 8),
                                   Expanded(
                                     child: ElevatedButton(
-                                      child: Icon(Icons.data_saver_off),
-                                      onPressed: () {},
+                                      child: Icon(this.user.normalDataUsage ? Icons.data_saver_off : Icons.data_saver_on),
+                                      onPressed: () async {
+                                        await _changeDataUsage();
+                                        setState(() {});
+                                      },
                                       style: ElevatedButton.styleFrom(
                                           primary: Theme.of(context).primaryColorDark,
                                           shape: RoundedRectangleBorder(
@@ -203,7 +248,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   Expanded(
                                       child: OutlinedButton(
-                                          onPressed: () {},
+                                          onPressed: () async {
+                                            await this._changeLanguage();
+                                            setState(() {});
+                                          },
                                           style: OutlinedButton.styleFrom(
                                               shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
@@ -215,8 +263,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       flex: 8),
                                   Expanded(
                                     child: ElevatedButton(
-                                      child: Text('RO'),
-                                      onPressed: () {},
+                                      child: user.isRomanianLanguage ? Text('RO') : Text('EN'),
+                                      onPressed: () async {
+                                        await this._changeLanguage();
+                                        setState(() {});
+                                      },
                                       style: ElevatedButton.styleFrom(
                                           primary: Theme.of(context).primaryColorDark,
                                           shape: RoundedRectangleBorder(
@@ -254,15 +305,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               Expanded(
                                 flex: 1,
-                                child: ElevatedButton(
-                                  child: Text('Logout'),
-                                  onPressed: () {
-                                    Provider.of<AuthenticationService>(context, listen: false).signOut();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Theme.of(context).primaryColorDark,
-                                  ),
-                                ),
+                                child: OutlinedButton(
+                                    onPressed: () async {
+                                      Provider.of<AuthenticationService>(context, listen: false).signOut();
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        textStyle: TextStyle(fontSize: 14),
+                                        primary: Theme.of(context).primaryColor,
+                                        side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                                    child: Text('Logout')),
                               )
                             ],
                           ),
