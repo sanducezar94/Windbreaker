@@ -1,3 +1,4 @@
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/facebook_signup.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -67,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 padding: EdgeInsets.fromLTRB(10.0, 0, 0, 10.0),
                                 child: Row(children: [
                                   Text(
-                                    'Logare',
+                                    context.read<LanguageManager>().login,
                                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).accentColor),
                                     textAlign: TextAlign.start,
                                   )
@@ -91,14 +92,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                           child: TextFormField(
                                             controller: userController,
                                             decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.symmetric(vertical: 1.0),
+                                                contentPadding: EdgeInsets.symmetric(vertical: 16.0),
                                                 fillColor: Colors.white,
                                                 hintStyle: Theme.of(context).textTheme.headline2,
                                                 filled: true,
                                                 prefixIcon: Icon(Icons.email_outlined),
                                                 border: OutlineInputBorder(
                                                     borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                                hintText: 'Introdu e-mail'),
+                                                hintText: context.read<LanguageManager>().email),
                                           ),
                                         ),
                                       ),
@@ -114,14 +115,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                               controller: passwordController,
                                               obscureText: true,
                                               decoration: InputDecoration(
-                                                  contentPadding: EdgeInsets.symmetric(vertical: 1.0),
+                                                  contentPadding: EdgeInsets.symmetric(vertical: 16.0),
                                                   hintStyle: Theme.of(context).textTheme.headline2,
                                                   prefixIcon: Icon(Icons.lock_outlined),
                                                   fillColor: Colors.white,
                                                   filled: true,
                                                   border: OutlineInputBorder(
                                                       borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                                  hintText: 'Parola'),
+                                                  hintText: context.read<LanguageManager>().password),
                                             ),
                                             shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
                                             borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
@@ -152,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                     }
                                                   },
                                                   child: Text(
-                                                    'Logare',
+                                                    context.read<LanguageManager>().login,
                                                     style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
                                                   )),
                                               flex: 1,
@@ -168,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       child: Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 8),
                                           child: Text(
-                                            'Sau logheaza-te cu',
+                                            context.read<LanguageManager>().loginWith,
                                             style: Theme.of(context).textTheme.headline2,
                                           )),
                                       flex: flexer),
@@ -233,9 +234,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 child: Wrap(
                                                   alignment: WrapAlignment.center,
                                                   children: [
-                                                    Text('Nu am cont.', style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.56))),
+                                                    Text(context.read<LanguageManager>().noAccount,
+                                                        style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.56))),
                                                     InkWell(
-                                                      child: Text(' Creeaza unul!', style: TextStyle(fontSize: 14, color: Theme.of(context).primaryColor)),
+                                                      child: Text(context.read<LanguageManager>().createOne,
+                                                          style: TextStyle(fontSize: 14, color: Theme.of(context).primaryColor)),
                                                       onTap: () async {
                                                         try {
                                                           var db = await DatabaseService().database;

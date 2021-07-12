@@ -36,14 +36,13 @@ Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Functio
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-    SizedBox(
-        height: 0.3 * height,
-        width: 1 * width,
+    Expanded(
+        flex: 1,
         child: PageView(
           children: carouselItems,
           pageSnapping: true,
           scrollDirection: Axis.horizontal,
-          controller: PageController(viewportFraction: 0.45),
+          controller: PageController(viewportFraction: 0.4),
         ))
   ]);
 }

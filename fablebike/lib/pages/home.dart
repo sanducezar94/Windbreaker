@@ -5,6 +5,7 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -56,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     user = context.read<AuthenticatedUser>();
     subscription = context.read<MainBloc>().output.listen((event) {
       if (event == Constants.HomeRefreshBookmarks) {
-        _bloc.bookmarkEventSync..add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
+        _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
       }
     });
 
@@ -85,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             title: Center(
                 child: Text(
-              'Acasa',
+              context.read<LanguageManager>().appHome,
               style: Theme.of(context).textTheme.headline3,
             )),
             shadowColor: Colors.white54,
@@ -121,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Icon(Icons.bookmarks_outlined),
                           SizedBox(width: 5),
                           Text(
-                            'Puncte de interes marcate',
+                            context.read<LanguageManager>().homeBookmarks,
                             style: Theme.of(context).textTheme.headline5,
                             textAlign: TextAlign.start,
                           )
@@ -179,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Icon(Icons.fmd_good),
                           SizedBox(width: 5),
                           Text(
-                            'Puncte de interes aflate in apropiere',
+                            context.read<LanguageManager>().homeNearbyObjectives,
                             style: Theme.of(context).textTheme.headline5,
                             textAlign: TextAlign.start,
                           )
@@ -235,7 +236,7 @@ _buildStatsRow(BuildContext context) {
                             height: 48,
                           ),
                           SizedBox(height: 5),
-                          Text('Distanta parcursa', style: Theme.of(context).textTheme.bodyText2),
+                          Text(context.read<LanguageManager>().homeDistance, style: Theme.of(context).textTheme.bodyText2),
                           SizedBox(height: 3),
                           Text('2000 Km', style: Theme.of(context).textTheme.bodyText1)
                         ],
@@ -252,7 +253,7 @@ _buildStatsRow(BuildContext context) {
                             height: 48,
                           ),
                           SizedBox(height: 5),
-                          Text('Rute finalizate', style: Theme.of(context).textTheme.bodyText2),
+                          Text(context.read<LanguageManager>().homeRoutes, style: Theme.of(context).textTheme.bodyText2),
                           SizedBox(height: 3),
                           Text('3 Km', style: Theme.of(context).textTheme.bodyText1)
                         ],
@@ -269,7 +270,7 @@ _buildStatsRow(BuildContext context) {
                             height: 48,
                           ),
                           SizedBox(height: 5),
-                          Text('Puncte vizitate', style: Theme.of(context).textTheme.bodyText2),
+                          Text(context.read<LanguageManager>().homeObjectives, style: Theme.of(context).textTheme.bodyText2),
                           SizedBox(height: 3),
                           Text('450', style: Theme.of(context).textTheme.bodyText1)
                         ],

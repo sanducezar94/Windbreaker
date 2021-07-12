@@ -15,6 +15,7 @@ class BikeRoute {
   double descent;
   double difficulty;
   int ratingCount;
+  int commentCount;
   String file;
 
   LatLng center;
@@ -39,6 +40,7 @@ class BikeRoute {
         //ascent = json['ascent'],
         difficulty = 0.0,
         center = json['center_lat'] != null ? LatLng(json['center_lat'], json['center_lng']) : LatLng(0, 0),
+        commentCount = json["commentCount"],
         ratingCount = json["rating_count"];
 }
 

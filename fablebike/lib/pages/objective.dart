@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -42,13 +43,14 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
+            resizeToAvoidBottomInset: false,
             appBar: AppBar(
               title: Row(
                 children: [
                   Expanded(
                       flex: 7,
                       child: Text(
-                        "Inapoi",
+                        context.read<LanguageManager>().back,
                         style: Theme.of(context).textTheme.headline3,
                       )),
                   Expanded(
@@ -139,7 +141,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 1.0),
                         child: Row(children: [
                           Text(
-                            'Descriere',
+                            context.read<LanguageManager>().description,
                             style: TextStyle(fontSize: 18.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.87), fontWeight: FontWeight.bold),
                             textAlign: TextAlign.start,
                           )

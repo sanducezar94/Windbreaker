@@ -1,4 +1,5 @@
 import 'package:fablebike/bloc/main_bloc.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/explore.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -47,8 +48,8 @@ class MyApp extends StatelessWidget {
         Provider<AuthenticationService>(
           create: (_) => AuthenticationService(),
         ),
-        Provider<DatabaseService>(create: (_) => DatabaseService()),
         Provider<MainBloc>(create: (_) => MainBloc()),
+        Provider<LanguageManager>(create: (_) => LanguageManager()),
         StreamProvider(create: (context) => context.read<AuthenticationService>().authUser, initialData: null),
         StreamProvider(
           create: (context) => context.read<MainBloc>().output,
@@ -56,7 +57,7 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Cu bicicleta pe drumuri de poveste',
         theme: ThemeData(
             scaffoldBackgroundColor: const Color.fromRGBO(249, 249, 249, 1),
             primaryColor: Color.fromRGBO(99, 157, 78, 1),
@@ -68,7 +69,7 @@ class MyApp extends StatelessWidget {
                   textStyle: TextStyle(fontSize: 16),
                   primary: Color.fromRGBO(99, 157, 78, 1),
                   //primary: Color.fromRGBO(49, 112, 181, 1),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))),
             ),
             textTheme: TextTheme(
               headline1: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.black54),

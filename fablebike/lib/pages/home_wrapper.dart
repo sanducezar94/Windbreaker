@@ -1,7 +1,12 @@
+import 'dart:async';
+
+import 'package:fablebike/bloc/event_constants.dart';
+import 'package:fablebike/bloc/main_bloc.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import 'explore.dart';
 import 'home.dart';
 
@@ -16,6 +21,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
   PageController _pageController = PageController();
   List<Widget> _screens = [HomeScreen(), ExploreScreen(), RoutesScreen(), SettingsScreen()];
   int _selectedIndex = 0;
+  StreamSubscription<String> subscription;
 
   _onItemTapped(int selectedIndex) {
     _pageController.jumpToPage(selectedIndex);
@@ -24,6 +30,16 @@ class _HomeWrapperState extends State<HomeWrapper> {
   _onPageChanged(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    subscription = context.read<MainBloc>().output.listen((event) {
+      if (event == Constants.NavigationRefresh) {
+        setState(() {});
+      }
     });
   }
 
@@ -45,23 +61,23 @@ class _HomeWrapperState extends State<HomeWrapper> {
             BottomNavigationBarItem(
               icon:
                   _selectedIndex == 0 ? Image.asset('assets/icons/home_h.png', width: w, height: h) : Image.asset('assets/icons/home.png', width: w, height: h),
-              label: 'Acasa',
+              label: context.read<LanguageManager>().appHome,
             ),
             BottomNavigationBarItem(
               icon: _selectedIndex == 1
                   ? Image.asset('assets/icons/explore_h.png', width: w, height: h)
                   : Image.asset('assets/icons/explore.png', width: w, height: h),
-              label: 'Exploreaza',
+              label: context.read<LanguageManager>().appExplore,
             ),
             BottomNavigationBarItem(
               icon: _selectedIndex == 2 ? Image.asset('assets/icons/poi_h.png', width: w, height: h) : Image.asset('assets/icons/poi.png', width: w, height: h),
-              label: 'Rute',
+              label: context.read<LanguageManager>().appRoutes,
             ),
             BottomNavigationBarItem(
               icon: _selectedIndex == 3
                   ? Image.asset('assets/icons/settings_h.png', width: w, height: h)
                   : Image.asset('assets/icons/settings.png', width: w, height: h),
-              label: 'Contul meu',
+              label: context.read<LanguageManager>().appSettings,
             ),
           ]);
     }

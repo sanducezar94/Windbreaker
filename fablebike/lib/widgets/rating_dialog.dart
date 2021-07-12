@@ -10,25 +10,35 @@ class RatingDialog extends StatefulWidget {
 class _RatingDialogState extends State<RatingDialog> {
   int _stars = 0;
 
-  Widget _buildStar(int starCount) {
-    return InkWell(
-      child: Icon(Icons.star, color: _stars >= starCount ? Colors.orange : Colors.grey),
-      onTap: () {
-        setState(() {
-          _stars = starCount;
-        });
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    Widget _buildStar(int starCount) {
+      return InkWell(
+        child: Icon(
+          Icons.star,
+          color: _stars >= starCount ? Theme.of(context).primaryColor : Colors.grey,
+          size: 40,
+        ),
+        onTap: () {
+          setState(() {
+            _stars = starCount;
+          });
+        },
+      );
+    }
+
     return AlertDialog(
         actions: <Widget>[
-          ElevatedButton(
-              onPressed: () {
+          OutlinedButton(
+              onPressed: () async {
                 Navigator.of(context).pop();
               },
+              style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  textStyle: TextStyle(fontSize: 14),
+                  primary: Theme.of(context).primaryColor,
+                  side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
               child: Text('Anuleaza')),
           ElevatedButton(
               onPressed: () {

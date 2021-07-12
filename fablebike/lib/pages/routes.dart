@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/filters.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/widgets/card_builders.dart';
@@ -8,6 +9,7 @@ import 'package:fablebike/widgets/route_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
+import 'package:provider/provider.dart';
 
 class RoutesScreen extends StatefulWidget {
   static const route = '/routes';
@@ -112,7 +114,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                     color: Theme.of(context).accentColor,
                                   ))
                               : null,
-                          hintText: 'Cauta',
+                          hintText: context.read<LanguageManager>().search,
                         ),
                       ),
                       flex: 9),
@@ -141,7 +143,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                     Icon(Icons.map_outlined),
                     SizedBox(width: 5),
                     Text(
-                      'Lista rutelor disponibile',
+                      context.read<LanguageManager>().routeAvailable,
                       style: Theme.of(context).textTheme.headline5,
                       textAlign: TextAlign.start,
                     )

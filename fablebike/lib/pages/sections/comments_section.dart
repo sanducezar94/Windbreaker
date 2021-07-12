@@ -1,11 +1,12 @@
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/services/comment_service.dart';
 import '../../models/comments.dart';
+import 'package:provider/provider.dart';
 
 const PAGE_SIZE = 10;
 
@@ -27,11 +28,13 @@ class _CommentSectionState extends State<CommentSection> {
   List<Comment> comments = [];
   List<Widget> commentWidgets = [];
   bool loadingComments = false;
+  AuthenticatedUser user;
 
   @override
   void initState() {
     super.initState();
     getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
+    user = context.read<AuthenticatedUser>();
   }
 
   @override
@@ -137,27 +140,30 @@ Future<Uint8List> getIcon({String imageName, int userId, String username}) async
 }
 
 Widget _buildComment(BuildContext context, Comment comment) {
+  var user = context.read<AuthenticatedUser>();
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
     child: ListTile(
       minVerticalPadding: 10,
       horizontalTitleGap: 25,
-      leading: FutureBuilder<Uint8List>(
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(48.0),
-                  child: Image.memory(snapshot.data, width: 48, height: 48),
-                );
-              } else {
-                return CircularProgressIndicator();
-              }
-            } else {
-              return CircularProgressIndicator();
-            }
-          },
-          future: getIcon(imageName: comment.icon, username: comment.user, userId: comment.userId)),
+      leading: user.normalDataUsage
+          ? FutureBuilder<Uint8List>(
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(48.0),
+                      child: Image.memory(snapshot.data, width: 48, height: 48),
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+              future: getIcon(imageName: comment.icon, username: comment.user, userId: comment.userId))
+          : Image(image: AssetImage('assets/icons/user.png')),
       title: Text(
         comment.user,
         style: Theme.of(context).textTheme.headline5,

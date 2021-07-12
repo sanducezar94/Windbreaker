@@ -1,3 +1,4 @@
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/map.dart';
@@ -66,7 +67,7 @@ class CardBuilder {
                                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
                                 child: ElevatedButton(
                                   onPressed: () {},
-                                  child: Text('Detalii'),
+                                  child: Text(context.read<LanguageManager>().details),
                                   style: ElevatedButton.styleFrom(
                                       fixedSize: Size(64, 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))),
                                 )))
@@ -185,6 +186,59 @@ class CardBuilder {
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
                 width: 0.35 * width,
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        Expanded(
+                            child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                child: ClipRRect(
+                                  child: Image.asset(
+                                    'assets/images/bisericalemn_000.jpg',
+                                    fit: BoxFit.cover,
+                                    height: double.infinity,
+                                  ),
+                                  borderRadius: BorderRadius.circular(18),
+                                )),
+                            flex: 12),
+                        Expanded(
+                          child: Container(
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                  child: Text(objective.name, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline4))),
+                          flex: 6,
+                        )
+                      ],
+                    ),
+                    Align(
+                        alignment: FractionalOffset(0.5, 0.65),
+                        child: Image.asset(
+                          'assets/icons/church_marker.png',
+                          height: 40,
+                          width: 40,
+                          fit: BoxFit.contain,
+                        ))
+                  ],
+                ))));
+  }
+
+  static Widget buildSmallObjectiveCardC(BuildContext context, Objective objective) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height - 80;
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: InkWell(
+            onTap: () {
+              var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+              Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+            },
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    color: Colors.white,
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                width: 0.35 * width,
                 height: 0.275 * height,
                 child: Stack(
                   children: [
@@ -280,7 +334,7 @@ class CardBuilder {
                                                       primary: Theme.of(context).primaryColor,
                                                       side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                                  child: Text('Rute')))))
+                                                  child: Text(context.read<LanguageManager>().routes)))))
                                 ]),
                                 Row(children: [
                                   Expanded(
@@ -299,7 +353,7 @@ class CardBuilder {
                                                 var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
                                                 Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
                                               },
-                                              child: Text('Detalii'),
+                                              child: Text(context.read<LanguageManager>().details),
                                               style: ElevatedButton.styleFrom(
                                                   textStyle: TextStyle(fontSize: 14.0),
                                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
@@ -542,7 +596,7 @@ class CardBuilder {
                         onTap: () async {},
                         child: Column(
                           children: [
-                            Text('Distanta', style: Theme.of(context).textTheme.bodyText2),
+                            Text(context.read<LanguageManager>().routeDistance, style: Theme.of(context).textTheme.bodyText2),
                             SizedBox(height: 3),
                             Text(route.distance.toString() + ' KM', style: Theme.of(context).textTheme.bodyText1)
                           ],
@@ -553,7 +607,7 @@ class CardBuilder {
                         onTap: () async {},
                         child: Column(
                           children: [
-                            Text('Puncte Interes', style: Theme.of(context).textTheme.bodyText2),
+                            Text(context.read<LanguageManager>().objective, style: Theme.of(context).textTheme.bodyText2),
                             SizedBox(height: 3),
                             Text(route.objectives.length.toString(), style: Theme.of(context).textTheme.bodyText1)
                           ],
@@ -567,8 +621,7 @@ class CardBuilder {
                             ElevatedButton(
                               onPressed: () async {
                                 try {
-                                  var db = context.read<DatabaseService>();
-                                  var database = await db.database;
+                                  var database = await DatabaseService().database;
                                   var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
 
                                   var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
@@ -597,14 +650,15 @@ class CardBuilder {
                                         where: 'id = ?', whereArgs: [bikeRoute.id]);
                                     bikeRoute.rating = serverRoute.rating;
                                     bikeRoute.ratingCount = serverRoute.ratingCount;
+                                    bikeRoute.commentCount = serverRoute.commentCount;
                                   }
 
-                                  Navigator.pushNamed(context, MapScreen.route, arguments: bikeRoute);
+                                  Navigator.of(context).pushNamed(MapScreen.route, arguments: bikeRoute);
                                 } on Exception catch (e) {
                                   print(e);
                                 }
                               },
-                              child: Text('Detalii'),
+                              child: Text(context.read<LanguageManager>().details),
                               style: ElevatedButton.styleFrom(
                                   textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
                             ),

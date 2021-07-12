@@ -1,13 +1,18 @@
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
-import 'package:fablebike/login_screen.dart';
+import 'package:fablebike/bloc/event_constants.dart';
+import 'package:fablebike/bloc/main_bloc.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/services/authentication_service.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/widgets/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const route = '/settings';
@@ -26,7 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     user = context.read<AuthenticatedUser>();
   }
 
-  void _changeLanguage() async {
+  Future<void> _changeLanguage() async {
     var db = await DatabaseService().database;
 
     if (user.isRomanianLanguage) {
@@ -38,7 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _changeDataUsage() async {
+  Future<void> _changeDataUsage() async {
     var db = await DatabaseService().database;
 
     if (user.normalDataUsage) {
@@ -62,10 +67,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             overflowRules: OverflowRules.all(true),
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Scaffold(
+                resizeToAvoidBottomInset: false,
                 appBar: AppBar(
                   title: Center(
                       child: Text(
-                    'Contul meu',
+                    context.read<LanguageManager>().appSettings,
                     style: Theme.of(context).textTheme.headline3,
                   )),
                   shadowColor: Colors.white54,
@@ -85,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Icon(Icons.account_box_rounded),
                                     SizedBox(width: 5),
                                     Text(
-                                      'Cont',
+                                      context.read<LanguageManager>().settingAccount,
                                       style: Theme.of(context).textTheme.headline5,
                                       textAlign: TextAlign.start,
                                     )
@@ -104,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 shape: RoundedRectangleBorder(
                                                     borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
                                             child: Text(
-                                              'Schimba fotografia de profil',
+                                              context.read<LanguageManager>().settingPhoto,
                                               textAlign: TextAlign.left,
                                               style: Theme.of(context).textTheme.headline4,
                                             )),
@@ -138,7 +144,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             child: Stack(
                                               children: [
                                                 Align(
-                                                  child: Text('Citeste clauze GDPR', style: TextStyle(color: Colors.white, fontSize: 16)),
+                                                  child: Text(context.read<LanguageManager>().settingGDPR, style: TextStyle(color: Colors.white, fontSize: 16)),
                                                   alignment: Alignment.centerLeft,
                                                 ),
                                                 Align(
@@ -166,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Icon(Icons.settings),
                                   SizedBox(width: 5),
                                   Text(
-                                    'Preferinte',
+                                    context.read<LanguageManager>().settingPreferences,
                                     style: Theme.of(context).textTheme.headline5,
                                     textAlign: TextAlign.start,
                                   )
@@ -180,15 +186,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   Expanded(
                                       child: OutlinedButton(
-                                          onPressed: () async {
-                                            await _changeDataUsage();
-                                            setState(() {});
-                                          },
+                                          onPressed: null,
                                           style: OutlinedButton.styleFrom(
                                               shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
                                           child: Text(
-                                            this.user.normalDataUsage ? 'Reduce consumul de date' : 'Activeaza consumul de date',
+                                            this.user.normalDataUsage
+                                                ? context.read<LanguageManager>().settingDataUsageNormal
+                                                : context.read<LanguageManager>().settingDataUsageLow,
                                             textAlign: TextAlign.left,
                                             style: Theme.of(context).textTheme.headline4,
                                           )),
@@ -217,12 +222,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   Expanded(
                                       child: OutlinedButton(
-                                          onPressed: () {},
+                                          onPressed: null,
                                           style: OutlinedButton.styleFrom(
                                               shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
                                           child: Text(
-                                            'Goleste datele de cache',
+                                            context.read<LanguageManager>().settingCache,
                                             textAlign: TextAlign.left,
                                             style: Theme.of(context).textTheme.headline4,
                                           )),
@@ -230,7 +235,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Expanded(
                                     child: ElevatedButton(
                                       child: Icon(Icons.delete),
-                                      onPressed: () {},
+                                      onPressed: () async {
+                                        var confirm = await showDialog(context: context, builder: (_) => ConfirmDialog());
+
+                                        if (confirm) {
+                                          var dbDir = await getDatabasesPath();
+                                          var dbPath = path.join(dbDir, "fablebike.db");
+
+                                          await deleteDatabase(dbPath);
+                                          await DatabaseService().closeConnection();
+                                        }
+                                      },
                                       style: ElevatedButton.styleFrom(
                                           primary: Theme.of(context).primaryColorDark,
                                           shape: RoundedRectangleBorder(
@@ -248,15 +263,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   Expanded(
                                       child: OutlinedButton(
-                                          onPressed: () async {
-                                            await this._changeLanguage();
-                                            setState(() {});
-                                          },
+                                          onPressed: null,
                                           style: OutlinedButton.styleFrom(
                                               shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
                                           child: Text(
-                                            'Schimba Limba',
+                                            context.read<LanguageManager>().settingLanguage,
                                             textAlign: TextAlign.left,
                                             style: Theme.of(context).textTheme.headline4,
                                           )),
@@ -266,6 +278,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       child: user.isRomanianLanguage ? Text('RO') : Text('EN'),
                                       onPressed: () async {
                                         await this._changeLanguage();
+                                        context.read<LanguageManager>().language = user.isRomanianLanguage ? 'RO' : 'EN';
+                                        Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.NavigationRefresh);
                                         setState(() {});
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -288,7 +302,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               Expanded(
                                 flex: 1,
                                 child: ElevatedButton(
-                                  child: Text('Prezentare aplicatie'),
+                                  child: Text(context.read<LanguageManager>().settingPresentation),
                                   onPressed: () {},
                                   style: ElevatedButton.styleFrom(
                                     primary: Theme.of(context).primaryColorDark,
@@ -315,7 +329,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         primary: Theme.of(context).primaryColor,
                                         side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                    child: Text('Logout')),
+                                    child: Text(context.read<LanguageManager>().settingLogout)),
                               )
                             ],
                           ),

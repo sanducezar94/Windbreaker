@@ -17,6 +17,11 @@ class DatabaseService {
     }
   }
 
+  Future<void> closeConnection() async {
+    await _database.close();
+    _database = null;
+  }
+
   initDatabase() async {
     var dbDir = await getDatabasesPath();
     var dbPath = join(dbDir, "fablebike.db");

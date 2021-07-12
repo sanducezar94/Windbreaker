@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:expandable/expandable.dart';
 import 'package:fablebike/bloc/objective_bloc.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/routes.dart';
@@ -243,7 +244,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                           borderSide: BorderSide.none,
                                           borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)))
                                       : OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(24.0))),
-                                  hintText: 'Cauta obiectiv...'),
+                                  hintText: context.read<LanguageManager>().searchObjective),
                             ),
                           ),
                           if (this._node.hasFocus)
@@ -340,9 +341,7 @@ class _ObjectiveContainerState extends State<ObjectiveContainer> with TickerProv
                                   Image.asset('assets/images/podu_001.jpg', fit: BoxFit.cover),
                                   Image.asset('assets/images/podu_002.jpg', fit: BoxFit.cover),
                                 ],
-                                onPageChanged: (value) {
-                                  print('Page changed: $value');
-                                },
+                                onPageChanged: (value) {},
                                 autoPlayInterval: 3000,
                               ),
                               Positioned(
@@ -403,7 +402,7 @@ class _ObjectiveContainerState extends State<ObjectiveContainer> with TickerProv
                                             primary: Theme.of(context).primaryColor,
                                             side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                        child: Text('Rute'),
+                                        child: Text(context.read<LanguageManager>().routes),
                                       ))))
                             ]),
                             Row(children: [
@@ -423,7 +422,7 @@ class _ObjectiveContainerState extends State<ObjectiveContainer> with TickerProv
                                             var objectiveInfo = new ObjectiveInfo(objective: widget.objective, fromRoute: ModalRoute.of(context).settings.name);
                                             Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
                                           },
-                                          child: Text('Detalii'),
+                                          child: Text(context.read<LanguageManager>().details),
                                           style: ElevatedButton.styleFrom(
                                               textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
                                         ),
