@@ -12,10 +12,11 @@ const PAGE_SIZE = 10;
 
 class CommentSection extends StatefulWidget {
   final int route_id;
+  final int totalPages;
   final ConnectivityResult connectionStatus;
   final bool canPost;
 
-  CommentSection({Key key, this.route_id, this.connectionStatus, this.canPost}) : super(key: key);
+  CommentSection({Key key, this.route_id, this.connectionStatus, this.canPost, this.totalPages}) : super(key: key);
 
   @override
   _CommentSectionState createState() => _CommentSectionState();
@@ -29,12 +30,21 @@ class _CommentSectionState extends State<CommentSection> {
   List<Widget> commentWidgets = [];
   bool loadingComments = false;
   AuthenticatedUser user;
+  Widget previousContainer;
 
   @override
   void initState() {
     super.initState();
     getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
     user = context.read<AuthenticatedUser>();
+    print(widget.totalPages.toString());
+  }
+
+  void _getNextPageComments() {
+    if (this.page > widget.totalPages) return;
+    setState(() {
+      getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
+    });
   }
 
   @override
@@ -76,7 +86,10 @@ class _CommentSectionState extends State<CommentSection> {
                         decoration: InputDecoration(
                             suffixIcon: InkWell(
                               child: Icon(Icons.send),
-                              onTap: () {},
+                              onTap: () async {
+                                await CommentService().addComment(route: widget.route_id, message: commentController.text);
+                                commentController.text = '';
+                              },
                             ),
                             fillColor: Colors.white,
                             filled: true,
@@ -99,27 +112,40 @@ class _CommentSectionState extends State<CommentSection> {
                       if (snapshot.data.page == this.page) {
                         this.comments.addAll(snapshot.data.comments);
                         this.page++;
+                        previousContainer = null;
+                      } else if (previousContainer != null) {
+                        return previousContainer;
                       }
 
-                      return Container(
+                      previousContainer = Container(
                           height: height * 0.6,
                           child: Padding(
                             child: ListView.separated(
-                                itemBuilder: (context, index) => _buildComment(context, this.comments[index]),
+                                itemBuilder: (context, index) => _buildComment(
+                                    context,
+                                    index < this.comments.length ? this.comments[index] : null,
+                                    index == this.comments.length,
+                                    index == this.comments.length
+                                        ? () {
+                                            _getNextPageComments();
+                                          }
+                                        : null),
                                 separatorBuilder: (context, index) {
                                   return Divider(
                                     indent: 0,
                                     thickness: 0,
                                   );
                                 },
-                                itemCount: this.comments.length),
+                                itemCount: this.comments.length + 1),
                             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                           ));
+
+                      return previousContainer;
                     } else {
-                      return commentWidgets.length == 0 ? CircularProgressIndicator() : Column(children: commentWidgets);
+                      return previousContainer != null ? previousContainer : CircularProgressIndicator();
                     }
                   } else {
-                    return commentWidgets.length == 0 ? CircularProgressIndicator() : Column(children: commentWidgets);
+                    return previousContainer != null ? previousContainer : CircularProgressIndicator();
                   }
                 },
                 future: this.getComments),
@@ -131,47 +157,61 @@ class _CommentSectionState extends State<CommentSection> {
 Future<Uint8List> getIcon({String imageName, int userId, String username}) async {
   var blobImage = await DatabaseService().query('usericon', where: 'user_id = ? and is_profile is null', whereArgs: [userId], columns: ['blob']);
 
-  if (blobImage.length == 0) {
+  if (blobImage.length == 0 && imageName.isNotEmpty) {
     var serverImage = await UserService().getIcon(imageName: imageName, userId: userId, username: username);
     return serverImage;
   } else {
+    if (imageName.isEmpty) return null;
     return blobImage.first['blob'];
   }
 }
 
-Widget _buildComment(BuildContext context, Comment comment) {
+Widget _buildComment(BuildContext context, Comment comment, bool moreButton, VoidCallback onTap) {
   var user = context.read<AuthenticatedUser>();
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-    child: ListTile(
-      minVerticalPadding: 10,
-      horizontalTitleGap: 25,
-      leading: user.normalDataUsage
-          ? FutureBuilder<Uint8List>(
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
+
+  if (moreButton) {
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+        child: Center(
+            child: ElevatedButton(
+          onPressed: onTap,
+          child: Icon(Icons.add_circle_outline),
+          style: ElevatedButton.styleFrom(
+            shape: CircleBorder(),
+            padding: EdgeInsets.all(12),
+          ),
+        )));
+  } else {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      child: ListTile(
+        minVerticalPadding: 10,
+        horizontalTitleGap: 025,
+        leading: user.normalDataUsage
+            ? FutureBuilder<Uint8List>(
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(48.0),
-                      child: Image.memory(snapshot.data, width: 48, height: 48),
+                      child: snapshot.data == null
+                          ? Image.asset('assets/icons/user.png', width: 48, height: 48)
+                          : Image.memory(snapshot.data, width: 48, height: 48),
                     );
                   } else {
-                    return CircularProgressIndicator();
+                    return Image.asset('assets/icons/user.png', width: 48, height: 48);
                   }
-                } else {
-                  return CircularProgressIndicator();
-                }
-              },
-              future: getIcon(imageName: comment.icon, username: comment.user, userId: comment.userId))
-          : Image(image: AssetImage('assets/icons/user.png')),
-      title: Text(
-        comment.user,
-        style: Theme.of(context).textTheme.headline5,
+                },
+                future: getIcon(imageName: comment.icon, username: comment.user, userId: comment.userId))
+            : Image(image: AssetImage('assets/icons/user.png')),
+        title: Text(
+          comment.user,
+          style: Theme.of(context).textTheme.headline5,
+        ),
+        subtitle: Text(
+          comment.text,
+          style: Theme.of(context).textTheme.headline4,
+        ),
       ),
-      subtitle: Text(
-        comment.text,
-        style: Theme.of(context).textTheme.headline4,
-      ),
-    ),
-  );
+    );
+  }
 }

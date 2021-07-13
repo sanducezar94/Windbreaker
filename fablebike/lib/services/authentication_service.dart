@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:fablebike/models/service_response.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/user_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'storage_service.dart';
@@ -88,6 +89,16 @@ class AuthenticationService {
         await setUserData(newUser);
 
         storage.writeValue('token', body["token"]);
+
+        var db = await DatabaseService().database;
+
+        var profilePicRow = await db.query('usericon', where: 'name = ? and is_profile = ?', whereArgs: ['profile_pic_registration', 0], columns: ['blob']);
+
+        if (profilePicRow.length > 0) {
+          var profilePic = profilePicRow.first;
+          await UserService().uploadProfileImage(profilePic['blob'], user + '.jpg');
+        }
+
         sc.add(newUser);
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }

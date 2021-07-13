@@ -138,7 +138,7 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
                                                 } else {
                                                   await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
 
-                                                  await db.insert('usericon', {'name': 'profile_pic_registration', 'blob': compressedFile});
+                                                  await db.insert('usericon', {'name': 'profile_pic_registration', 'is_profile': 0, 'blob': compressedFile});
 
                                                   await db
                                                       .insert('usericon', {'name': 'profile_pic_registration', 'blob': compressedProfilePic, 'is_profile': 1});

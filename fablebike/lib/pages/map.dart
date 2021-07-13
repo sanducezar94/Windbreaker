@@ -633,10 +633,7 @@ _buildBottomSheet(BuildContext context, BikeRoute bikeRoute) {
       context: context,
       backgroundColor: Colors.white.withOpacity(0),
       builder: (context) {
-        return CommentSection(
-          canPost: true,
-          route_id: bikeRoute.id,
-        );
+        return CommentSection(canPost: true, route_id: bikeRoute.id, totalPages: bikeRoute.commentCount ~/ 5 + (bikeRoute.commentCount % 5 == 0 ? 0 : 1));
       });
 }
 
