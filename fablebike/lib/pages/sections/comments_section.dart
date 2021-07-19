@@ -41,7 +41,7 @@ class _CommentSectionState extends State<CommentSection> {
   }
 
   void _getNextPageComments() {
-    if (this.page > widget.totalPages) return;
+    if (this.page >= widget.totalPages) return;
     setState(() {
       getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
     });
@@ -157,7 +157,7 @@ class _CommentSectionState extends State<CommentSection> {
 Future<Uint8List> getIcon({String imageName, int userId, String username}) async {
   var blobImage = await DatabaseService().query('usericon', where: 'user_id = ? and is_profile is null', whereArgs: [userId], columns: ['blob']);
 
-  if (blobImage.length == 0 && imageName.isNotEmpty) {
+  if (blobImage.length == 0) {
     var serverImage = await UserService().getIcon(imageName: imageName, userId: userId, username: username);
     return serverImage;
   } else {
@@ -187,7 +187,7 @@ Widget _buildComment(BuildContext context, Comment comment, bool moreButton, Voi
       child: ListTile(
         minVerticalPadding: 10,
         horizontalTitleGap: 025,
-        leading: user.normalDataUsage
+        leading: !user.lowDataUsage
             ? FutureBuilder<Uint8List>(
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {

@@ -59,7 +59,8 @@ dependencies:
   expandable: ^5.0.1
   focus_widget: ^1.0.5+2
   shimmer: ^2.0.0
-
+  google_sign_in: ^4.5.9
+  flutter_switch: ^0.3.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

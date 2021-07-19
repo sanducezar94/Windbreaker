@@ -10,6 +10,7 @@ import 'package:fablebike/services/authentication_service.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/widgets/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -46,12 +47,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _changeDataUsage() async {
     var db = await DatabaseService().database;
 
-    if (user.normalDataUsage) {
+    if (user.lowDataUsage) {
       await db.update('SystemValue', {'value': '0'}, where: 'user_id = ? and key = ?', whereArgs: [user.id, 'datausage']);
-      user.normalDataUsage = false;
+      user.lowDataUsage = false;
     } else {
       await db.update('SystemValue', {'value': '1'}, where: 'user_id = ? and key = ?', whereArgs: [user.id, 'datausage']);
-      user.normalDataUsage = true;
+      user.lowDataUsage = true;
     }
   }
 
@@ -189,28 +190,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           onPressed: null,
                                           style: OutlinedButton.styleFrom(
                                               shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
+                                                  borderRadius: BorderRadius.only(
+                                                      topRight: Radius.circular(6.0),
+                                                      bottomRight: Radius.circular(6.0),
+                                                      topLeft: Radius.circular(16.0),
+                                                      bottomLeft: Radius.circular(16.0)))),
                                           child: Text(
-                                            this.user.normalDataUsage
-                                                ? context.read<LanguageManager>().settingDataUsageNormal
-                                                : context.read<LanguageManager>().settingDataUsageLow,
+                                            context.read<LanguageManager>().settingDataUsageLow,
                                             textAlign: TextAlign.left,
                                             style: Theme.of(context).textTheme.headline4,
                                           )),
-                                      flex: 8),
+                                      flex: 3),
                                   Expanded(
-                                    child: ElevatedButton(
-                                      child: Icon(this.user.normalDataUsage ? Icons.data_saver_off : Icons.data_saver_on),
-                                      onPressed: () async {
-                                        await _changeDataUsage();
-                                        setState(() {});
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          primary: Theme.of(context).primaryColorDark,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.only(topRight: Radius.circular(16.0), bottomRight: Radius.circular(16.0)))),
-                                    ),
-                                    flex: 2,
+                                    child: FlutterSwitch(
+                                        activeColor: Theme.of(context).primaryColorDark,
+                                        borderRadius: 6,
+                                        value: user.lowDataUsage,
+                                        showOnOff: true,
+                                        padding: 8.0,
+                                        onToggle: (val) async {
+                                          await _changeDataUsage();
+                                          setState(() {});
+                                        }),
                                   )
                                 ],
                               ),
@@ -275,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       flex: 8),
                                   Expanded(
                                     child: ElevatedButton(
-                                      child: user.isRomanianLanguage ? Text('RO') : Text('EN'),
+                                      child: user.isRomanianLanguage ? Text('EN') : Text('RO'),
                                       onPressed: () async {
                                         await this._changeLanguage();
                                         context.read<LanguageManager>().language = user.isRomanianLanguage ? 'RO' : 'EN';

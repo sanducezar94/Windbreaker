@@ -1,17 +1,29 @@
+import 'dart:io';
+
+import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'constants/language.dart';
 import 'services/authentication_service.dart';
 
-class SignUpScreen extends StatefulWidget {
-  static const route = '/signup';
+class OAuthRegisterScreen extends StatefulWidget {
+  static const route = '/oauth_register';
+
+  final OAuthUser user;
+  const OAuthRegisterScreen({
+    Key key,
+    @required this.user,
+  }) : super(key: key);
+
   @override
-  _SignUpScreen createState() => _SignUpScreen();
+  _OAuthRegisterScreen createState() => _OAuthRegisterScreen();
 }
 
-class _SignUpScreen extends State<SignUpScreen> {
+class _OAuthRegisterScreen extends State<OAuthRegisterScreen> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -25,9 +37,18 @@ class _SignUpScreen extends State<SignUpScreen> {
   String nameError = '';
   String passwordError = '';
   String confirmPasswordError = '';
-
   bool _loading = false;
-  int commonFlex = 5;
+  File initialImage;
+  Image readyImage;
+  bool isCropped = false;
+  File croppedImage;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    emailController.text = widget.user.email;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +56,29 @@ class _SignUpScreen extends State<SignUpScreen> {
       return emailError.isEmpty && nameError.isEmpty && passwordError.isEmpty && confirmPasswordError.isEmpty;
     }
 
-    errorStyle = TextStyle(color: Theme.of(context).errorColor, fontSize: 14);
+    Future<void> initProfilePicImage(String photoUrl) async {
+      try {
+        var db = await DatabaseService().database;
+        if (!_initialized) {
+          await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
+        }
+
+        var profilePic = await db.query('usericon', where: 'name = ? and is_profile = ?', whereArgs: ['profile_pic_registration', 1], columns: ['blob']);
+        _initialized = true;
+        if (profilePic.length > 0) {
+          readyImage = Image.memory(profilePic.first["blob"], fit: BoxFit.contain);
+          return;
+        }
+
+        if (readyImage != null) return;
+        var file = await UserService().getOAuthIcon(photoUrl);
+        readyImage = Image.file(file, width: 116, height: 116, fit: BoxFit.cover);
+        initialImage = file;
+        return file;
+      } on Exception {
+        return null;
+      }
+    }
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
@@ -60,47 +103,38 @@ class _SignUpScreen extends State<SignUpScreen> {
                       child: Column(children: [
                         Spacer(flex: 2),
                         Expanded(
-                          child: FutureBuilder(
-                            builder: (BuildContext context, AsyncSnapshot<Image> snapshot) {
-                              if (snapshot.connectionState == ConnectionState.done) {
-                                if (snapshot.hasData && snapshot.data != null) {
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.circular(96.0),
-                                    child: InkWell(
-                                      child: snapshot.data,
-                                      onTap: () async {
-                                        Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
-                                          setState(() {});
-                                        });
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  return InkWell(
-                                    onTap: () async {
-                                      Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
-                                        setState(() {});
-                                      });
-                                    },
-                                    child: Image.asset('assets/icons/user.png', fit: BoxFit.contain),
-                                  );
-                                }
-                              } else {
-                                return InkWell(
-                                  onTap: () async {
-                                    Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
-                                      setState(() {});
-                                    });
+                          child: readyImage != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(96.0),
+                                  child: InkWell(
+                                    child: readyImage,
+                                    onTap: () async {},
+                                  ),
+                                )
+                              : FutureBuilder(
+                                  builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.done) {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(96.0),
+                                        child: InkWell(
+                                          child: readyImage,
+                                          onTap: () async {},
+                                        ),
+                                      );
+                                    } else {
+                                      return InkWell(
+                                        onTap: () async {},
+                                        child: Image.asset('assets/icons/user.png', fit: BoxFit.contain),
+                                      );
+                                    }
                                   },
-                                  child: Image.asset('assets/icons/user.png', fit: BoxFit.contain),
-                                );
-                              }
-                            },
-                            future: getRegistrationImage(),
-                          ),
+                                  future: initProfilePicImage(widget.user.iconUrl),
+                                ),
                           flex: 8,
                         ),
-                        Spacer(flex: 1),
+                        Spacer(
+                          flex: 1,
+                        ),
                         Center(
                           child: InkWell(
                               child: Text(
@@ -108,13 +142,12 @@ class _SignUpScreen extends State<SignUpScreen> {
                                 style: Theme.of(context).textTheme.headline4,
                               ),
                               onTap: () async {
-                                Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
+                                var test = 2;
+                                Navigator.pushNamed(context, ImagePickerScreen.route, arguments: initialImage).then((value) async {
+                                  await initProfilePicImage(widget.user.iconUrl);
                                   setState(() {});
                                 });
                               }),
-                        ),
-                        SizedBox(
-                          height: _isValid() ? 10 : 1,
                         ),
                         Spacer(flex: 1),
                         Expanded(
@@ -124,6 +157,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                               SizedBox(
                                 child: Material(
                                   child: TextFormField(
+                                    readOnly: true,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         emailError = "Va rugam introduceti un email valid.";
@@ -198,85 +232,6 @@ class _SignUpScreen extends State<SignUpScreen> {
                                 height: 10,
                               ),
                               SizedBox(
-                                height: 54,
-                                child: Material(
-                                  child: TextFormField(
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        passwordError = 'Parola trebuie sa contina minim 6 caractere.';
-                                        return null;
-                                      }
-                                      passwordError = '';
-                                      return null;
-                                    },
-                                    controller: passwordController,
-                                    decoration: InputDecoration(
-                                        prefixIcon: Icon(Icons.lock_outlined),
-                                        fillColor: Colors.white,
-                                        hintStyle: Theme.of(context).textTheme.headline2,
-                                        filled: true,
-                                        border:
-                                            OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                        hintText: context.read<LanguageManager>().password),
-                                  ),
-                                  shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                  borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                                  elevation: 10.0,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              if (passwordError.isNotEmpty && canValidate)
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    passwordError,
-                                    style: errorStyle,
-                                  ),
-                                ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              SizedBox(
-                                height: 54,
-                                child: Material(
-                                  child: TextFormField(
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty || value != passwordController.text) {
-                                        confirmPasswordError = 'Parolele nu coincid.';
-                                        return null;
-                                      }
-                                      confirmPasswordError = '';
-                                      return null;
-                                    },
-                                    controller: passwordDuplicateController,
-                                    decoration: InputDecoration(
-                                        prefixIcon: Icon(Icons.lock_outlined),
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        hintStyle: Theme.of(context).textTheme.headline2,
-                                        border:
-                                            OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                        hintText: 'Confirma Parola'),
-                                  ),
-                                  shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                  borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                                  elevation: 10.0,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              if (confirmPasswordError.isNotEmpty && canValidate)
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    confirmPasswordError,
-                                    style: errorStyle,
-                                  ),
-                                ),
-                              SizedBox(
                                 height: _isValid() ? 30 : 10,
                               ),
                               SizedBox(
@@ -296,9 +251,8 @@ class _SignUpScreen extends State<SignUpScreen> {
                                           isValid = false;
                                           return;
                                         }
-                                        var response = await context
-                                            .read<AuthenticationService>()
-                                            .signUp(user: userController.text, email: userController.text, password: passwordController.text);
+                                        var response =
+                                            await context.read<AuthenticationService>().facebookSignUp(user: userController.text, email: emailController.text);
 
                                         if (!response.success) {
                                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -323,23 +277,5 @@ class _SignUpScreen extends State<SignUpScreen> {
                     ),
                   )),
             )));
-  }
-}
-
-Future<Image> getRegistrationImage() async {
-  try {
-    imageCache.clear();
-
-    var db = await DatabaseService().database;
-
-    var profilePic = await db.query('usericon', where: 'name = ? and is_profile = ?', whereArgs: ['profile_pic_registration', 1], columns: ['blob']);
-
-    if (profilePic.length == 0) {
-      return Image.asset('assets/icons/user.png', fit: BoxFit.contain);
-    }
-
-    return Image.memory(profilePic.first["blob"], fit: BoxFit.contain);
-  } on Exception {
-    return null;
   }
 }

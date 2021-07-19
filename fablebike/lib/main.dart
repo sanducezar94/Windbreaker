@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/explore.dart';
@@ -18,7 +20,7 @@ import 'package:provider/provider.dart';
 import './pages/home.dart';
 import './pages/map.dart';
 import './pages/routes.dart';
-import 'facebook_signup.dart';
+import 'oauth_signup.dart';
 import 'login_screen.dart';
 import 'models/user.dart';
 import 'signup.dart';
@@ -88,7 +90,6 @@ class MyApp extends StatelessWidget {
           SignUpScreen.route: (context) => SignUpScreen(),
           ExploreScreen.route: (context) => ExploreScreen(),
           SettingsScreen.route: (context) => SettingsScreen(),
-          ImagePickerScreen.route: (context) => ImagePickerScreen(),
           BookmarksScreen.route: (context) => BookmarksScreen(),
         },
         onGenerateRoute: (settings) {
@@ -97,6 +98,13 @@ class MyApp extends StatelessWidget {
 
             return MaterialPageRoute(builder: (context) {
               return ObjectiveScreen(objective: args.objective, fromRoute: args.fromRoute);
+            });
+          }
+          if (settings.name == ImagePickerScreen.route) {
+            final args = settings.arguments as File;
+
+            return MaterialPageRoute(builder: (context) {
+              return ImagePickerScreen(file: args);
             });
           }
           if (settings.name == RoutesScreen.route) {
@@ -115,12 +123,12 @@ class MyApp extends StatelessWidget {
               },
             );
           }
-          if (settings.name == FacebookSignUpScreen.route) {
-            final args = settings.arguments as FacebookUser;
+          if (settings.name == OAuthRegisterScreen.route) {
+            final args = settings.arguments as OAuthUser;
 
             return MaterialPageRoute(
               builder: (context) {
-                return FacebookSignUpScreen(fbUser: args);
+                return OAuthRegisterScreen(user: args);
               },
             );
           }

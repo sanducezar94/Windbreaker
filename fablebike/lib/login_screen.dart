@@ -1,11 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+
 import 'package:fablebike/constants/language.dart';
-import 'package:fablebike/facebook_signup.dart';
+import 'package:fablebike/oauth_signup.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import 'services/authentication_service.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'signup.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,8 +32,25 @@ class _LoginScreenState extends State<LoginScreen> {
       var reponse = await context.read<AuthenticationService>().signIn(email: facebookUser.email, password: "");
 
       if (!reponse.success) {
-        Navigator.pushNamed(context, FacebookSignUpScreen.route, arguments: facebookUser);
+        var oAuthUser = OAuthUser("", facebookUser.email, facebookUser.photo);
+        oAuthUser.iconUrl = userData['picture']['data']['url'];
+        oAuthUser.isFacebook = true;
+        Navigator.pushNamed(context, OAuthRegisterScreen.route, arguments: oAuthUser);
       }
+    }
+  }
+
+  loginWithGoogle() async {
+    var googleSignIn = GoogleSignIn();
+
+    var googleAccount = await googleSignIn.signIn();
+
+    var response = await context.read<AuthenticationService>().signIn(email: googleAccount.email, password: "");
+    if (!response.success) {
+      var oAuthUser = OAuthUser("", googleAccount.email, googleAccount.photoUrl);
+      oAuthUser.iconUrl = googleAccount.photoUrl;
+      oAuthUser.isGoogle = true;
+      Navigator.pushNamed(context, OAuthRegisterScreen.route, arguments: oAuthUser);
     }
   }
 
@@ -146,10 +166,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                                     elevation: 10.0,
                                                   ),
                                                   onPressed: () async {
+                                                    if (userController.text.isEmpty || passwordController.text.isEmpty) return;
                                                     if (formKey.currentState.validate()) {
-                                                      context
+                                                      var response = await context
                                                           .read<AuthenticationService>()
                                                           .signIn(email: userController.text, password: passwordController.text);
+
+                                                      if (!response.success) {
+                                                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                            duration: const Duration(milliseconds: 1500),
+                                                            backgroundColor: Theme.of(context).errorColor,
+                                                            content: Text(response.message)));
+                                                      }
                                                     }
                                                   },
                                                   child: Text(
@@ -199,7 +228,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                                       flex: 1),
                                                   Expanded(
                                                       child: InkWell(
-                                                          onTap: () {},
+                                                          onTap: () async {
+                                                            await loginWithGoogle();
+                                                          },
                                                           child: Image.asset(
                                                             'assets/images/search.png',
                                                             fit: BoxFit.contain,

@@ -14,7 +14,7 @@ class AuthenticatedUser {
   List<int> ratedRoutes;
   List<int> ratedComments;
 
-  bool normalDataUsage;
+  bool lowDataUsage;
   bool isRomanianLanguage;
 
   AuthenticatedUser(int id, String user, String email, String token, String icon, String roles) {
@@ -27,6 +27,16 @@ class AuthenticatedUser {
     ratedComments = [];
     roleTokens = roles;
   }
+}
+
+class OAuthUser {
+  String username;
+  String email;
+  String iconUrl;
+  bool isFacebook;
+  bool isGoogle;
+
+  OAuthUser(this.username, this.email, this.iconUrl);
 }
 
 class UserIcon {

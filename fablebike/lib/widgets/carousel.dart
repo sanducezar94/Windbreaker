@@ -42,7 +42,7 @@ Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Functio
           children: carouselItems,
           pageSnapping: true,
           scrollDirection: Axis.horizontal,
-          controller: PageController(viewportFraction: 0.4),
+          controller: PageController(viewportFraction: 0.8),
         ))
   ]);
 }

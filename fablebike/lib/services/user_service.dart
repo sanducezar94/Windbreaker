@@ -4,9 +4,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'storage_service.dart';
 
-//const SERVER_IP = '192.168.146.54:8080';
+//const SERVER_IP = '192.168.1.251:8080';
 const SERVER_IP = 'lighthousestudio.ro';
 const FILE_UPLOAD = '/auth/user_icon';
 const FILE_GET = '/auth/user_icon';
@@ -56,6 +57,37 @@ class UserService {
         await storage.storeUserIcon(userId, username, response.bodyBytes);
         return response.bodyBytes;
       }
+      return null;
+    } on SocketException {
+      return null;
+    } on Exception {
+      return null;
+    }
+  }
+
+  Future<File> getOAuthIcon(String url) async {
+    try {
+      var client = http.Client();
+      var storage = new StorageService();
+
+      var response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 5), onTimeout: () {
+        throw TimeoutException('Connection timed out!');
+      });
+      if (response.statusCode == 200) {
+        final appDirectory = await getApplicationDocumentsDirectory();
+
+        if (File(join(appDirectory.path, 'profile_pic.jpg')).existsSync()) {
+          var localFile = File(join(appDirectory.path, 'profile_pic.jpg'));
+          await localFile.delete();
+        }
+        imageCache.clear();
+        final file = File(join(appDirectory.path, 'profile_pic.jpg'));
+
+        file.writeAsBytesSync(response.bodyBytes);
+
+        return file;
+      }
+
       return null;
     } on SocketException {
       return null;

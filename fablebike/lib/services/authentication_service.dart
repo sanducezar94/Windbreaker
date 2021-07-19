@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'storage_service.dart';
 
-//const SERVER_IP = '192.168.100.24:8080';
+//const SERVER_IP = '192.168.1.251:8080';
 const SERVER_IP = 'lighthousestudio.ro';
 const AUTH = '/auth';
 const SIGNUP = '/auth/sign_up';
@@ -32,11 +32,11 @@ class AuthenticationService {
       await db.insert('SystemValue', {'key': 'datausage', 'value': '0', 'user_id': loggedUser.id.toString()}, conflictAlgorithm: ConflictAlgorithm.replace);
       await db.insert('SystemValue', {'key': 'language', 'value': 'RO', 'user_id': loggedUser.id.toString()}, conflictAlgorithm: ConflictAlgorithm.replace);
     } else {
-      var dataUsage = dataUsageRow.first['value'] == '0' ? false : true;
-      var language = languageRow.first['value'] == 'RO' ? true : false;
+      dataUsage = dataUsageRow.first['value'] == '0' ? false : true;
+      language = languageRow.first['value'] == 'RO' ? true : false;
     }
 
-    loggedUser.normalDataUsage = dataUsage;
+    loggedUser.lowDataUsage = dataUsage;
     loggedUser.isRomanianLanguage = language;
   }
 
@@ -151,7 +151,17 @@ class AuthenticationService {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
         var newUser = new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw");
-        storage.writeValue('token', response.body);
+        await storage.writeValue('token', body['token']);
+
+        var db = await DatabaseService().database;
+
+        var profilePicRow = await db.query('usericon', where: 'name = ? and is_profile = ?', whereArgs: ['profile_pic_registration', 0], columns: ['blob']);
+
+        if (profilePicRow.length > 0) {
+          var profilePic = profilePicRow.first;
+          await UserService().uploadProfileImage(profilePic['blob'], user + '.jpg');
+        }
+
         await setUserData(newUser);
         sc.add(newUser);
         return ServiceResponse(true, SUCCESS_MESSAGE);
@@ -160,7 +170,8 @@ class AuthenticationService {
       return ServiceResponse(false, response.body);
     } on SocketException {
       return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
-    } on Exception {
+    } on Exception catch (e) {
+      print(e.toString());
       return ServiceResponse(false, SERVER_ERROR_MESSAGE);
     }
   }
