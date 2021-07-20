@@ -17,6 +17,10 @@ class AuthenticatedUser {
   bool lowDataUsage;
   bool isRomanianLanguage;
 
+  double distanceTravelled;
+  int finishedRoutes;
+  int objectivesVisited;
+
   AuthenticatedUser(int id, String user, String email, String token, String icon, String roles) {
     this.id = id;
     this.username = user;

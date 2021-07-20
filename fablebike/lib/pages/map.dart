@@ -241,6 +241,19 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                 MarkerLayerOptions(markers: markers),
                               ],
                             ),
+                            /*Positioned(
+                                child: Align(
+                                    alignment: Alignment.center,
+                                    child: ElevatedButton(
+                                      onPressed: () {},
+                                      child: Text('Start', style: TextStyle(fontSize: 16)),
+                                      style: ElevatedButton.styleFrom(
+                                        shape: CircleBorder(),
+                                        padding: EdgeInsets.all(20),
+                                      ),
+                                    )),
+                                top: 7.5,
+                                left: MediaQuery.of(context).size.width / 2 - 55),*/
                             Positioned(
                                 left: 15,
                                 bottom: 15,
@@ -517,6 +530,7 @@ _buildBottomSheet(BuildContext context, BikeRoute bikeRoute) {
   showModalBottomSheet(
       isScrollControlled: true,
       context: context,
+      isDismissible: true,
       backgroundColor: Colors.white.withOpacity(0),
       builder: (context) {
         return CommentSection(canPost: true, route_id: bikeRoute.id, totalPages: bikeRoute.commentCount ~/ 5 + (bikeRoute.commentCount % 5 == 0 ? 0 : 1));

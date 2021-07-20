@@ -32,7 +32,7 @@ Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Functio
   double width = MediaQuery.of(context).size.width - 80;
 
   for (var i = 0; i < objectives.length; i++) {
-    carouselItems.add(CardBuilder.buildSmallObjectiveCard(context, objectives[i]));
+    carouselItems.add(CardBuilder.buildSmallObjectiveCarouselCard(context, objectives[i]));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[

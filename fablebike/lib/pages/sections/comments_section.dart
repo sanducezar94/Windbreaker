@@ -52,7 +52,7 @@ class _CommentSectionState extends State<CommentSection> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height - 80;
     return Container(
-        height: height * 0.75,
+        height: height * 0.8,
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
         child: Column(
           mainAxisSize: MainAxisSize.min,

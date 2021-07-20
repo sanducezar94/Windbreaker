@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
@@ -143,14 +144,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: MediaQuery.of(context).size.width,
                               height: MediaQuery.of(context).size.height * 0.275,
                               child: ListView.separated(
-                                  itemBuilder: (context, index) => CardBuilder.buildSmallObjectiveCard(context, snapshot.data[index]),
+                                  itemBuilder: (context, index) => (index == 5 || index == snapshot.data.length + 1)
+                                      ? CardBuilder.buildSeeAllBookmarksCard(context)
+                                      : CardBuilder.buildSmallObjectiveCard(context, snapshot.data[index]),
                                   padding: EdgeInsets.all(0),
                                   separatorBuilder: (context, index) => Divider(
                                         indent: 0,
                                         thickness: 0,
                                         endIndent: 0,
                                       ),
-                                  itemCount: snapshot.data.length,
+                                  itemCount: min(6, snapshot.data.length),
                                   scrollDirection: Axis.horizontal),
                             );
                           } else {
@@ -194,6 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 List<Widget> widgets = List.generate(snapshot.data.length > 5 ? 5 : snapshot.data.length, (index) {
                                   return CardBuilder.buildLargeObjectiveCard(context, snapshot.data[index]);
                                 });
+                                widgets.add(CardBuilder.buildNearestObjectiveButton(context));
                                 return SingleChildScrollView(
                                   scrollDirection: Axis.vertical,
                                   child: Column(children: widgets),
@@ -238,7 +242,7 @@ _buildStatsRow(BuildContext context) {
                           SizedBox(height: 5),
                           Text(context.read<LanguageManager>().homeDistance, style: Theme.of(context).textTheme.bodyText2),
                           SizedBox(height: 3),
-                          Text('2000 Km', style: Theme.of(context).textTheme.bodyText1)
+                          Text(context.read<AuthenticatedUser>().distanceTravelled.toString() + ' Km', style: Theme.of(context).textTheme.bodyText1)
                         ],
                       )),
                   flex: 1),
@@ -255,7 +259,7 @@ _buildStatsRow(BuildContext context) {
                           SizedBox(height: 5),
                           Text(context.read<LanguageManager>().homeRoutes, style: Theme.of(context).textTheme.bodyText2),
                           SizedBox(height: 3),
-                          Text('3 Km', style: Theme.of(context).textTheme.bodyText1)
+                          Text(context.read<AuthenticatedUser>().finishedRoutes.toString(), style: Theme.of(context).textTheme.bodyText1)
                         ],
                       )),
                   flex: 1),
@@ -272,7 +276,7 @@ _buildStatsRow(BuildContext context) {
                           SizedBox(height: 5),
                           Text(context.read<LanguageManager>().homeObjectives, style: Theme.of(context).textTheme.bodyText2),
                           SizedBox(height: 3),
-                          Text('450', style: Theme.of(context).textTheme.bodyText1)
+                          Text(context.read<AuthenticatedUser>().objectivesVisited.toString(), style: Theme.of(context).textTheme.bodyText1)
                         ],
                       )),
                   flex: 1)

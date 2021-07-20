@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  final flexer = 6;
+  final flexer = 7;
 
   loginWithFB(BuildContext context) async {
     final result = await FacebookAuth.instance.login(loginBehavior: LoginBehavior.nativeWithFallback);
@@ -58,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height - 80;
+    var formFieldStyle = TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w700, color: Theme.of(context).accentColor.withOpacity(0.64), fontSize: 18);
 
     double smallPadding = height * 0.0125;
     double bigPadding = height * 0.05;
@@ -89,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Row(children: [
                                   Text(
                                     context.read<LanguageManager>().login,
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).accentColor),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'OpenSans', fontSize: 18, color: Theme.of(context).accentColor),
                                     textAlign: TextAlign.start,
                                   )
                                 ]),
@@ -110,11 +111,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                           elevation: 10.0,
                                           borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
                                           child: TextFormField(
+                                            textAlignVertical: TextAlignVertical.bottom,
+                                            style: formFieldStyle,
                                             controller: userController,
                                             decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                                                hintStyle: formFieldStyle,
                                                 fillColor: Colors.white,
-                                                hintStyle: Theme.of(context).textTheme.headline2,
                                                 filled: true,
                                                 prefixIcon: Icon(Icons.email_outlined),
                                                 border: OutlineInputBorder(
@@ -125,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       flex: flexer),
                                   Spacer(
-                                    flex: 2,
+                                    flex: 3,
                                   ),
                                   Expanded(
                                       child: Padding(
@@ -133,10 +135,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                           child: Material(
                                             child: TextFormField(
                                               controller: passwordController,
+                                              style: formFieldStyle,
                                               obscureText: true,
+                                              textAlignVertical: TextAlignVertical.bottom,
                                               decoration: InputDecoration(
-                                                  contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                                                  hintStyle: Theme.of(context).textTheme.headline2,
+                                                  hintStyle: formFieldStyle,
                                                   prefixIcon: Icon(Icons.lock_outlined),
                                                   fillColor: Colors.white,
                                                   filled: true,
@@ -150,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           )),
                                       flex: flexer),
                                   Spacer(
-                                    flex: 3,
+                                    flex: 4,
                                   ),
                                   Expanded(
                                     child: Padding(
@@ -183,23 +186,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   },
                                                   child: Text(
                                                     context.read<LanguageManager>().login,
-                                                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                                                    style: TextStyle(fontSize: 20, color: Colors.white, fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
                                                   )),
                                               flex: 1,
                                             )
                                           ],
                                         ))),
-                                    flex: (flexer * 1.1).toInt(),
+                                    flex: (flexer * 1.2).toInt(),
                                   ),
                                   Spacer(
-                                    flex: 2,
+                                    flex: 3,
                                   ),
                                   Expanded(
                                       child: Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 8),
                                           child: Text(
                                             context.read<LanguageManager>().loginWith,
-                                            style: Theme.of(context).textTheme.headline2,
+                                            style: TextStyle(fontSize: 18, color: Theme.of(context).accentColor.withOpacity(0.5), fontFamily: 'OpenSans'),
                                           )),
                                       flex: flexer),
                                   Spacer(
@@ -266,10 +269,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   alignment: WrapAlignment.center,
                                                   children: [
                                                     Text(context.read<LanguageManager>().noAccount,
-                                                        style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.56))),
+                                                        style: TextStyle(
+                                                            fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).accentColor.withOpacity(0.56))),
                                                     InkWell(
                                                       child: Text(context.read<LanguageManager>().createOne,
-                                                          style: TextStyle(fontSize: 14, color: Theme.of(context).primaryColor)),
+                                                          style: TextStyle(fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).primaryColor)),
                                                       onTap: () async {
                                                         try {
                                                           var db = await DatabaseService().database;

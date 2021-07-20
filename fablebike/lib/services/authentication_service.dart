@@ -55,6 +55,10 @@ class AuthenticationService {
 
         await storage.writeValue('token', body["token"]);
         var loggedUser = new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"], body["roles"]);
+        loggedUser.distanceTravelled = body["distance_travelled"];
+        loggedUser.finishedRoutes = body["routes_finished"];
+        loggedUser.objectivesVisited = body["objectives_visited"];
+
         loggedUser.ratedComments = body["rated_comments"].cast<int>();
         loggedUser.ratedRoutes = body["rated_routes"].cast<int>();
 
@@ -86,6 +90,9 @@ class AuthenticationService {
         var body = jsonDecode(response.body);
 
         var newUser = new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw");
+        newUser.distanceTravelled = 0;
+        newUser.finishedRoutes = 0;
+        newUser.objectivesVisited = 0;
         await setUserData(newUser);
 
         storage.writeValue('token', body["token"]);
@@ -151,6 +158,9 @@ class AuthenticationService {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
         var newUser = new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw");
+        newUser.distanceTravelled = 0;
+        newUser.finishedRoutes = 0;
+        newUser.objectivesVisited = 0;
         await storage.writeValue('token', body['token']);
 
         var db = await DatabaseService().database;

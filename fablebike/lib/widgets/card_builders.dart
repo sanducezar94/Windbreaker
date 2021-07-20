@@ -1,6 +1,7 @@
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/pages/bookmarks.dart';
 import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/routes.dart';
@@ -223,6 +224,97 @@ class CardBuilder {
                 ))));
   }
 
+  static Widget buildSeeAllBookmarksCard(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height - 80;
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: InkWell(
+            onTap: () {
+              Navigator.of(context).pushNamed(BookmarksScreen.route);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+              width: 0.35 * width,
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          child: Text('Vezi toate obiectivele salvate',
+                              textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: Theme.of(context).primaryColor))),
+                    ),
+                  )
+                ],
+              ),
+            )));
+  }
+
+  static Widget buildSmallObjectiveCarouselCard(BuildContext context, Objective objective) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height - 80;
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: InkWell(
+            onTap: () {
+              var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+              Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+            },
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    color: Colors.white,
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                width: width,
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                        child: ClipRRect(
+                                          child: Image.asset(
+                                            'assets/images/bisericalemn_000.jpg',
+                                            fit: BoxFit.cover,
+                                            height: double.infinity,
+                                          ),
+                                          borderRadius: BorderRadius.circular(18),
+                                        )),
+                                    flex: 1)
+                              ],
+                            ),
+                            flex: 12),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(objective.name, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline5),
+                          ),
+                          flex: 6,
+                        )
+                      ],
+                    ),
+                    Align(
+                        alignment: FractionalOffset(0.5, 0.65),
+                        child: Image.asset(
+                          'assets/icons/church_marker.png',
+                          height: 40,
+                          width: 40,
+                          fit: BoxFit.contain,
+                        ))
+                  ],
+                ))));
+  }
+
   static Widget buildSmallObjectiveCardC(BuildContext context, Objective objective) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height - 80;
@@ -371,18 +463,16 @@ class CardBuilder {
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 24),
         child: Container(
-            height: 80,
+            height: 64,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                      primary: Theme.of(context).primaryColor,
-                      backgroundColor: Colors.white,
-                      side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                  child: Text('Vezi toate obiectivele pe harta'),
+                Expanded(
+                  flex: 1,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    child: Text('Vezi toate obiectivele pe harta'),
+                  ),
                 )
               ],
             )));
@@ -541,7 +631,7 @@ class CardBuilder {
                       child: Column(
                         children: [
                           Expanded(
-                              flex: 3,
+                              flex: 20,
                               child: Row(
                                 children: [
                                   Expanded(
@@ -571,7 +661,7 @@ class CardBuilder {
                                 ],
                               )),
                           Expanded(
-                              flex: 1,
+                              flex: 8,
                               child: Container(
                                 child: buildRouteStats(context, route),
                               ))
@@ -582,92 +672,88 @@ class CardBuilder {
   }
 
   static buildRouteStats(BuildContext context, BikeRoute route) {
-    return Padding(
-        padding: EdgeInsets.symmetric(vertical: 0),
-        child: Column(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                    child: InkWell(
-                        onTap: () async {},
-                        child: Column(
-                          children: [
-                            Text(context.read<LanguageManager>().routeDistance, style: Theme.of(context).textTheme.bodyText2),
-                            SizedBox(height: 3),
-                            Text(route.distance.toString() + ' KM', style: Theme.of(context).textTheme.bodyText1)
-                          ],
-                        )),
-                    flex: 1),
-                Expanded(
-                    child: InkWell(
-                        onTap: () async {},
-                        child: Column(
-                          children: [
-                            Text(context.read<LanguageManager>().objective, style: Theme.of(context).textTheme.bodyText2),
-                            SizedBox(height: 3),
-                            Text(route.objectives.length.toString(), style: Theme.of(context).textTheme.bodyText1)
-                          ],
-                        )),
-                    flex: 1),
-                Expanded(
-                    child: InkWell(
-                        onTap: () async {},
-                        child: Column(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                try {
-                                  var database = await DatabaseService().database;
-                                  var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
+            Expanded(
+                child: InkWell(
+                    onTap: () async {},
+                    child: Column(
+                      children: [
+                        Text(context.read<LanguageManager>().routeDistance, style: Theme.of(context).textTheme.bodyText2),
+                        SizedBox(height: 3),
+                        Text(route.distance.toString() + ' KM', style: Theme.of(context).textTheme.bodyText1)
+                      ],
+                    )),
+                flex: 7),
+            Expanded(
+                child: InkWell(
+                    onTap: () async {},
+                    child: Column(
+                      children: [
+                        Text(context.read<LanguageManager>().objective, style: Theme.of(context).textTheme.bodyText2),
+                        SizedBox(height: 3),
+                        Text(route.objectives.length.toString(), style: Theme.of(context).textTheme.bodyText1)
+                      ],
+                    )),
+                flex: 7),
+            Spacer(flex: 3),
+            Expanded(
+                child: InkWell(
+                  onTap: () async {},
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        var database = await DatabaseService().database;
+                        var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
 
-                                  var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
+                        var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
 
-                                  var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [route.id]);
+                        var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [route.id]);
 
-                                  List<Objective> objectives = [];
-                                  for (var i = 0; i < objToRoutes.length; i++) {
-                                    var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
-                                    if (objRow.length > 1 || objRow.length == 0) continue;
-                                    objectives.add(Objective.fromJson(objRow.first));
-                                  }
+                        List<Objective> objectives = [];
+                        for (var i = 0; i < objToRoutes.length; i++) {
+                          var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
+                          if (objRow.length > 1 || objRow.length == 0) continue;
+                          objectives.add(Objective.fromJson(objRow.first));
+                        }
 
-                                  var bikeRoute = new BikeRoute.fromJson(routes.first);
-                                  bikeRoute.coordinates = List.generate(coords.length, (i) {
-                                    return Coordinates.fromJson(coords[i]);
-                                  });
-                                  bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
-                                  bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
-                                  bikeRoute.objectives = objectives;
+                        var bikeRoute = new BikeRoute.fromJson(routes.first);
+                        bikeRoute.coordinates = List.generate(coords.length, (i) {
+                          return Coordinates.fromJson(coords[i]);
+                        });
+                        bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
+                        bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
+                        bikeRoute.objectives = objectives;
 
-                                  var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
+                        var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
 
-                                  if (serverRoute != null) {
-                                    database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount},
-                                        where: 'id = ?', whereArgs: [bikeRoute.id]);
-                                    bikeRoute.rating = serverRoute.rating;
-                                    bikeRoute.ratingCount = serverRoute.ratingCount;
-                                    bikeRoute.commentCount = serverRoute.commentCount;
-                                  }
+                        if (serverRoute != null) {
+                          database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount},
+                              where: 'id = ?', whereArgs: [bikeRoute.id]);
+                          bikeRoute.rating = serverRoute.rating;
+                          bikeRoute.ratingCount = serverRoute.ratingCount;
+                          bikeRoute.commentCount = serverRoute.commentCount;
+                        }
 
-                                  Navigator.of(context).pushNamed(MapScreen.route, arguments: bikeRoute);
-                                } on Exception catch (e) {
-                                  print(e);
-                                }
-                              },
-                              child: Text(context.read<LanguageManager>().details),
-                              style: ElevatedButton.styleFrom(
-                                  textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                            ),
-                          ],
-                        )),
-                    flex: 1)
-              ],
-            )
+                        Navigator.of(context).pushNamed(MapScreen.route, arguments: bikeRoute);
+                      } on Exception catch (e) {
+                        print(e);
+                      }
+                    },
+                    child: Text(context.read<LanguageManager>().details),
+                    style: ElevatedButton.styleFrom(
+                        textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                  ),
+                ),
+                flex: 10)
           ],
-        ));
+        )
+      ],
+    );
   }
 }

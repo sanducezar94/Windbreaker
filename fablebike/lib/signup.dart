@@ -35,6 +35,8 @@ class _SignUpScreen extends State<SignUpScreen> {
       return emailError.isEmpty && nameError.isEmpty && passwordError.isEmpty && confirmPasswordError.isEmpty;
     }
 
+    var formFieldStyle = TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w700, color: Theme.of(context).accentColor.withOpacity(0.64), fontSize: 18);
+
     errorStyle = TextStyle(color: Theme.of(context).errorColor, fontSize: 14);
 
     return Scaffold(
@@ -132,11 +134,13 @@ class _SignUpScreen extends State<SignUpScreen> {
                                       emailError = '';
                                       return null;
                                     },
+                                    style: formFieldStyle,
                                     controller: emailController,
+                                    textAlignVertical: TextAlignVertical.bottom,
                                     decoration: InputDecoration(
                                         prefixIcon: Icon(Icons.email_outlined),
                                         fillColor: Colors.white,
-                                        hintStyle: Theme.of(context).textTheme.headline2,
+                                        hintStyle: formFieldStyle,
                                         filled: true,
                                         border:
                                             OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
@@ -172,10 +176,12 @@ class _SignUpScreen extends State<SignUpScreen> {
                                       return null;
                                     },
                                     controller: userController,
+                                    textAlignVertical: TextAlignVertical.bottom,
+                                    style: formFieldStyle,
                                     decoration: InputDecoration(
                                         prefixIcon: Icon(Icons.contact_mail_outlined),
                                         fillColor: Colors.white,
-                                        hintStyle: Theme.of(context).textTheme.headline2,
+                                        hintStyle: formFieldStyle,
                                         filled: true,
                                         border:
                                             OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
@@ -209,11 +215,13 @@ class _SignUpScreen extends State<SignUpScreen> {
                                       passwordError = '';
                                       return null;
                                     },
+                                    style: formFieldStyle,
+                                    textAlignVertical: TextAlignVertical.bottom,
                                     controller: passwordController,
                                     decoration: InputDecoration(
                                         prefixIcon: Icon(Icons.lock_outlined),
                                         fillColor: Colors.white,
-                                        hintStyle: Theme.of(context).textTheme.headline2,
+                                        hintStyle: formFieldStyle,
                                         filled: true,
                                         border:
                                             OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
@@ -250,12 +258,14 @@ class _SignUpScreen extends State<SignUpScreen> {
                                       confirmPasswordError = '';
                                       return null;
                                     },
+                                    style: formFieldStyle,
+                                    textAlignVertical: TextAlignVertical.bottom,
                                     controller: passwordDuplicateController,
                                     decoration: InputDecoration(
                                         prefixIcon: Icon(Icons.lock_outlined),
                                         fillColor: Colors.white,
                                         filled: true,
-                                        hintStyle: Theme.of(context).textTheme.headline2,
+                                        hintStyle: formFieldStyle,
                                         border:
                                             OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
                                         hintText: 'Confirma Parola'),
