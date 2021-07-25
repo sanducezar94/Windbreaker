@@ -41,6 +41,7 @@ Widget _buildCarousel(BuildContext context, Function(int) onItemChanged, Functio
         child: PageView(
           children: carouselItems,
           pageSnapping: true,
+          onPageChanged: onItemChanged,
           scrollDirection: Axis.horizontal,
           controller: PageController(viewportFraction: 0.8),
         ))

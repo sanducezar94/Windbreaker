@@ -1,3 +1,5 @@
+import 'package:fablebike/bloc/event_constants.dart';
+import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
@@ -461,19 +463,27 @@ class CardBuilder {
 
   static buildNearestObjectiveButton(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Container(
-            height: 64,
+            height: 48,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  flex: 1,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: Text('Vezi toate obiectivele pe harta'),
-                  ),
-                )
+                SizedBox(
+                  height: 10,
+                ),
+                Align(
+                    alignment: Alignment.center,
+                    child: InkWell(
+                      child: Text(
+                        'Vezi toate obiectivele pe harta',
+                        style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+                        textAlign: TextAlign.start,
+                      ),
+                      onTap: () {
+                        context.read<MainBloc>().objectiveEventSync.add(Constants.NavigateToExplore);
+                      },
+                    )),
               ],
             )));
   }

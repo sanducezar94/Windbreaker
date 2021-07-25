@@ -39,7 +39,7 @@ class _RouteFilterDialogState extends State<RouteFilterDialog> {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('Dificultate'), flex: 1),
+                  Expanded(child: Text('Dificultate', style: Theme.of(context).textTheme.bodyText1), flex: 1),
                 ],
               ),
               Row(
@@ -64,7 +64,7 @@ class _RouteFilterDialogState extends State<RouteFilterDialog> {
               ),
               Row(
                 children: [
-                  Expanded(child: Text('Rating'), flex: 1),
+                  Expanded(child: Text('Rating', style: Theme.of(context).textTheme.bodyText1), flex: 1),
                 ],
               ),
               Row(
@@ -89,7 +89,7 @@ class _RouteFilterDialogState extends State<RouteFilterDialog> {
               ),
               Row(
                 children: [
-                  Expanded(child: Text('Distanta'), flex: 1),
+                  Expanded(child: Text('Distanta', style: Theme.of(context).textTheme.bodyText1), flex: 1),
                 ],
               ),
               Row(
@@ -114,7 +114,7 @@ class _RouteFilterDialogState extends State<RouteFilterDialog> {
               ),
               Row(
                 children: [
-                  Expanded(child: Text('Obiective'), flex: 1),
+                  Expanded(child: Text('Obiective', style: Theme.of(context).textTheme.bodyText1), flex: 1),
                 ],
               ),
               Row(
@@ -147,7 +147,12 @@ class _RouteFilterDialogState extends State<RouteFilterDialog> {
               flex: 10,
             ),
             Expanded(
-              child: Icon(Icons.close),
+              child: InkWell(
+                child: Icon(Icons.close),
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+              ),
               flex: 2,
             )
           ],

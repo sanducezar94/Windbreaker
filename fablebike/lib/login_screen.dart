@@ -8,6 +8,7 @@ import 'package:fablebike/oauth_signup.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
 
+import 'models/service_response.dart';
 import 'services/authentication_service.dart';
 import 'signup.dart';
 
@@ -62,248 +63,259 @@ class _LoginScreenState extends State<LoginScreen> {
 
     double smallPadding = height * 0.0125;
     double bigPadding = height * 0.05;
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Padding(
-            padding: const EdgeInsets.only(left: 15.0, right: 15.0),
-            child: SafeArea(
-                child: Container(
-              height: height + 80,
-              child: Column(children: [
-                Spacer(flex: 1),
-                Expanded(
-                  flex: 5,
-                  child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
-                ),
-                Spacer(
-                  flex: 1,
-                ),
-                Expanded(
-                  flex: 13,
-                  child: Padding(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(10.0, 0, 0, 10.0),
-                                child: Row(children: [
-                                  Text(
-                                    context.read<LanguageManager>().login,
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'OpenSans', fontSize: 18, color: Theme.of(context).accentColor),
-                                    textAlign: TextAlign.start,
-                                  )
-                                ]),
-                              ),
-                              flex: 1),
-                          Expanded(
-                            child: Form(
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              key: formKey,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: smallPadding),
-                                        child: Material(
-                                          shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                          elevation: 10.0,
-                                          borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                                          child: TextFormField(
-                                            textAlignVertical: TextAlignVertical.bottom,
-                                            style: formFieldStyle,
-                                            controller: userController,
-                                            decoration: InputDecoration(
-                                                hintStyle: formFieldStyle,
-                                                fillColor: Colors.white,
-                                                filled: true,
-                                                prefixIcon: Icon(Icons.email_outlined),
-                                                border: OutlineInputBorder(
-                                                    borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                                hintText: context.read<LanguageManager>().email),
-                                          ),
-                                        ),
-                                      ),
-                                      flex: flexer),
-                                  Spacer(
-                                    flex: 3,
-                                  ),
-                                  Expanded(
-                                      child: Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: smallPadding),
-                                          child: Material(
-                                            child: TextFormField(
-                                              controller: passwordController,
-                                              style: formFieldStyle,
-                                              obscureText: true,
-                                              textAlignVertical: TextAlignVertical.bottom,
-                                              decoration: InputDecoration(
-                                                  hintStyle: formFieldStyle,
-                                                  prefixIcon: Icon(Icons.lock_outlined),
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  border: OutlineInputBorder(
-                                                      borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                                  hintText: context.read<LanguageManager>().password),
-                                            ),
-                                            shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                            borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                                            elevation: 10.0,
-                                          )),
-                                      flex: flexer),
-                                  Spacer(
-                                    flex: 4,
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 8),
-                                        child: Container(
-                                            child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                                          children: [
-                                            Expanded(
-                                              child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                                    elevation: 10.0,
-                                                  ),
-                                                  onPressed: () async {
-                                                    if (userController.text.isEmpty || passwordController.text.isEmpty) return;
-                                                    if (formKey.currentState.validate()) {
-                                                      var response = await context
-                                                          .read<AuthenticationService>()
-                                                          .signIn(email: userController.text, password: passwordController.text);
 
-                                                      if (!response.success) {
-                                                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                            duration: const Duration(milliseconds: 1500),
-                                                            backgroundColor: Theme.of(context).errorColor,
-                                                            content: Text(response.message)));
-                                                      }
-                                                    }
-                                                  },
-                                                  child: Text(
-                                                    context.read<LanguageManager>().login,
-                                                    style: TextStyle(fontSize: 20, color: Colors.white, fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
-                                                  )),
-                                              flex: 1,
-                                            )
-                                          ],
-                                        ))),
-                                    flex: (flexer * 1.2).toInt(),
+    var loginForm = Padding(
+        padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+        child: SafeArea(
+            child: Container(
+          height: height + 80,
+          child: Column(children: [
+            Spacer(flex: 1),
+            Expanded(
+              flex: 5,
+              child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+            ),
+            Spacer(
+              flex: 1,
+            ),
+            Expanded(
+              flex: 13,
+              child: Padding(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(10.0, 0, 0, 10.0),
+                            child: Row(children: [
+                              Text(
+                                context.read<LanguageManager>().login,
+                                style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'OpenSans', fontSize: 18, color: Theme.of(context).accentColor),
+                                textAlign: TextAlign.start,
+                              )
+                            ]),
+                          ),
+                          flex: 1),
+                      Expanded(
+                        child: Form(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          key: formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: smallPadding),
+                                    child: Material(
+                                      shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                      elevation: 10.0,
+                                      borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                      child: TextFormField(
+                                        textAlignVertical: TextAlignVertical.bottom,
+                                        style: formFieldStyle,
+                                        controller: userController,
+                                        decoration: InputDecoration(
+                                            hintStyle: formFieldStyle,
+                                            fillColor: Colors.white,
+                                            filled: true,
+                                            prefixIcon: Icon(Icons.email_outlined),
+                                            border: OutlineInputBorder(
+                                                borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                            hintText: context.read<LanguageManager>().email),
+                                      ),
+                                    ),
                                   ),
-                                  Spacer(
-                                    flex: 3,
-                                  ),
-                                  Expanded(
-                                      child: Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 8),
-                                          child: Text(
-                                            context.read<LanguageManager>().loginWith,
-                                            style: TextStyle(fontSize: 18, color: Theme.of(context).accentColor.withOpacity(0.5), fontFamily: 'OpenSans'),
-                                          )),
-                                      flex: flexer),
-                                  Spacer(
-                                    flex: 1,
-                                  ),
-                                  Expanded(
-                                      child: Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 8),
-                                          child: Column(
+                                  flex: flexer),
+                              Spacer(
+                                flex: 3,
+                              ),
+                              Expanded(
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: smallPadding),
+                                      child: Material(
+                                        child: TextFormField(
+                                          controller: passwordController,
+                                          style: formFieldStyle,
+                                          obscureText: true,
+                                          textAlignVertical: TextAlignVertical.bottom,
+                                          decoration: InputDecoration(
+                                              hintStyle: formFieldStyle,
+                                              prefixIcon: Icon(Icons.lock_outlined),
+                                              fillColor: Colors.white,
+                                              filled: true,
+                                              border: OutlineInputBorder(
+                                                  borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                              hintText: context.read<LanguageManager>().password),
+                                        ),
+                                        shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                        borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                        elevation: 10.0,
+                                      )),
+                                  flex: flexer),
+                              Spacer(
+                                flex: 4,
+                              ),
+                              Expanded(
+                                child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 8),
+                                    child: Container(
+                                        child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                                elevation: 10.0,
+                                              ),
+                                              onPressed: () async {
+                                                if (userController.text.isEmpty || passwordController.text.isEmpty) return;
+                                                if (formKey.currentState.validate()) {
+                                                  var response = await context
+                                                      .read<AuthenticationService>()
+                                                      .signIn(email: userController.text, password: passwordController.text);
+
+                                                  if (!response.success) {
+                                                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                        duration: const Duration(milliseconds: 1500),
+                                                        backgroundColor: Theme.of(context).errorColor,
+                                                        content: Text(response.message)));
+                                                  }
+                                                }
+                                              },
+                                              child: Text(
+                                                context.read<LanguageManager>().login,
+                                                style: TextStyle(fontSize: 20, color: Colors.white, fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
+                                              )),
+                                          flex: 1,
+                                        )
+                                      ],
+                                    ))),
+                                flex: (flexer * 1.2).toInt(),
+                              ),
+                              Spacer(
+                                flex: 3,
+                              ),
+                              Expanded(
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text(
+                                        context.read<LanguageManager>().loginWith,
+                                        style: TextStyle(fontSize: 18, color: Theme.of(context).accentColor.withOpacity(0.5), fontFamily: 'OpenSans'),
+                                      )),
+                                  flex: flexer),
+                              Spacer(
+                                flex: 1,
+                              ),
+                              Expanded(
+                                  child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Row(
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
-                                              Row(
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  Expanded(
-                                                      child: InkWell(
-                                                        onTap: () {
-                                                          loginWithFB(context);
-                                                        },
-                                                        child: Image.asset(
-                                                          'assets/images/facebook.png',
-                                                          fit: BoxFit.contain,
-                                                          height: bigPadding * 1.2,
-                                                        ),
-                                                      ),
-                                                      flex: 1),
-                                                  Expanded(
-                                                      child: InkWell(
-                                                          onTap: () async {
-                                                            await loginWithGoogle();
-                                                          },
-                                                          child: Image.asset(
-                                                            'assets/images/search.png',
-                                                            fit: BoxFit.contain,
-                                                            height: bigPadding * 1.2,
-                                                          )),
-                                                      flex: 1),
-                                                  Expanded(
-                                                      child: InkWell(
-                                                        onTap: () async {
-                                                          await context.read<AuthenticationService>().signInGuest();
-                                                        },
-                                                        child: Image.asset(
-                                                          'assets/images/user (1).png',
-                                                          fit: BoxFit.contain,
-                                                          height: bigPadding * 1.2,
-                                                        ),
-                                                      ),
-                                                      flex: 1)
-                                                ],
-                                              )
-                                            ],
-                                          )),
-                                      flex: flexer),
-                                  Spacer(flex: 2),
-                                  Expanded(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 8),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                                flex: 1,
-                                                child: Wrap(
-                                                  alignment: WrapAlignment.center,
-                                                  children: [
-                                                    Text(context.read<LanguageManager>().noAccount,
-                                                        style: TextStyle(
-                                                            fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).accentColor.withOpacity(0.56))),
-                                                    InkWell(
-                                                      child: Text(context.read<LanguageManager>().createOne,
-                                                          style: TextStyle(fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).primaryColor)),
+                                              Expanded(
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      loginWithFB(context);
+                                                    },
+                                                    child: Image.asset(
+                                                      'assets/images/facebook.png',
+                                                      fit: BoxFit.contain,
+                                                      height: bigPadding * 1.2,
+                                                    ),
+                                                  ),
+                                                  flex: 1),
+                                              Expanded(
+                                                  child: InkWell(
                                                       onTap: () async {
-                                                        try {
-                                                          var db = await DatabaseService().database;
-                                                          await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
-                                                        } on Exception {
-                                                          Navigator.pushNamed(context, SignUpScreen.route);
-                                                        }
-
-                                                        Navigator.pushNamed(context, SignUpScreen.route);
+                                                        await loginWithGoogle();
                                                       },
-                                                    )
-                                                  ],
-                                                ))
-                                          ],
-                                        ),
-                                      ),
-                                      flex: 5),
-                                  Spacer(
-                                    flex: 1,
-                                  )
-                                ],
-                              ),
-                            ),
-                            flex: 10,
-                          )
-                        ],
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 5.0)),
-                )
-              ]),
-            ))));
+                                                      child: Image.asset(
+                                                        'assets/images/search.png',
+                                                        fit: BoxFit.contain,
+                                                        height: bigPadding * 1.2,
+                                                      )),
+                                                  flex: 1),
+                                              Expanded(
+                                                  child: InkWell(
+                                                    onTap: () async {
+                                                      await context.read<AuthenticationService>().signInGuest();
+                                                    },
+                                                    child: Image.asset(
+                                                      'assets/images/user (1).png',
+                                                      fit: BoxFit.contain,
+                                                      height: bigPadding * 1.2,
+                                                    ),
+                                                  ),
+                                                  flex: 1)
+                                            ],
+                                          )
+                                        ],
+                                      )),
+                                  flex: flexer),
+                              Spacer(flex: 2),
+                              Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 8),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                            flex: 1,
+                                            child: Wrap(
+                                              alignment: WrapAlignment.center,
+                                              children: [
+                                                Text(context.read<LanguageManager>().noAccount,
+                                                    style: TextStyle(
+                                                        fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).accentColor.withOpacity(0.56))),
+                                                InkWell(
+                                                  child: Text(context.read<LanguageManager>().createOne,
+                                                      style: TextStyle(fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).primaryColor)),
+                                                  onTap: () async {
+                                                    try {
+                                                      var db = await DatabaseService().database;
+                                                      await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
+                                                    } on Exception {
+                                                      Navigator.pushNamed(context, SignUpScreen.route);
+                                                    }
+
+                                                    Navigator.pushNamed(context, SignUpScreen.route);
+                                                  },
+                                                )
+                                              ],
+                                            ))
+                                      ],
+                                    ),
+                                  ),
+                                  flex: 5),
+                              Spacer(
+                                flex: 1,
+                              )
+                            ],
+                          ),
+                        ),
+                        flex: 10,
+                      )
+                    ],
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 5.0)),
+            )
+          ]),
+        )));
+    return Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: FutureBuilder(
+          builder: (BuildContext context, AsyncSnapshot<ServiceResponse> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return loginForm;
+            } else {
+              return loginForm;
+            }
+          },
+          future: context.read<AuthenticationService>().isPersistentUserLogged(),
+        ));
   }
 }

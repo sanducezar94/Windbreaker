@@ -57,7 +57,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   double rotation = 0;
   double size = 12.0;
   bool init = false;
-  MapController mapController;
+  MapController mapController = MapController();
   double kmTraveled = 0;
   var hoverPoint = LatLng(0, 0);
   var currentTab = 'poi';
@@ -217,7 +217,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                         child: Stack(
                           children: [
                             FlutterMap(
-                              mapController: mapController,
+                              mapController: this.mapController,
                               options: MapOptions(
                                   center: widget.bikeRoute.center,
                                   minZoom: 10.0,

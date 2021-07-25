@@ -3,4 +3,5 @@ class Constants {
   static String HomeRefreshBookmarks = 'homerefreshbookmarks';
   static String HomeRefreshObjectives = 'homerefreshobjectives';
   static String NavigationRefresh = 'navigationrefresh';
+  static String NavigateToExplore = 'navigatetoexplore';
 }

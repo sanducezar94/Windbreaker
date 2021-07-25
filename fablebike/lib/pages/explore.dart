@@ -222,29 +222,39 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                       padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
                       child: Column(
                         children: [
+                          SizedBox(
+                            height: 10,
+                          ),
                           FocusWidget.builder(
                             context,
-                            builder: (context, _node) => TextField(
-                              focusNode: this._node,
-                              onTap: () {
-                                expandAnimation(height * 1.1);
-                              },
-                              onChanged: (value) {
-                                _searchBlock.objectiveEventSync
-                                    .add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
-                              },
-                              controller: searchController,
-                              decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  contentPadding: EdgeInsets.symmetric(vertical: 0.0),
-                                  prefixIcon: Icon(Icons.search),
-                                  border: this._node.hasFocus
-                                      ? OutlineInputBorder(
-                                          borderSide: BorderSide.none,
-                                          borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)))
-                                      : OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(24.0))),
-                                  hintText: context.read<LanguageManager>().searchObjective),
+                            builder: (context, _node) => Material(
+                              child: TextField(
+                                focusNode: this._node,
+                                onTap: () {
+                                  expandAnimation(height * 1.1);
+                                },
+                                onChanged: (value) {
+                                  _searchBlock.objectiveEventSync.add(
+                                      ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
+                                },
+                                controller: searchController,
+                                decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 0.0),
+                                    prefixIcon: Icon(Icons.search),
+                                    border: this._node.hasFocus
+                                        ? OutlineInputBorder(
+                                            borderSide: BorderSide.none,
+                                            borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)))
+                                        : OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(24.0))),
+                                    hintText: context.read<LanguageManager>().searchObjective),
+                              ),
+                              borderRadius: !this._node.hasFocus
+                                  ? const BorderRadius.all(const Radius.circular(24.0))
+                                  : BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
+                              shadowColor: Theme.of(context).accentColor.withOpacity(0.3),
+                              elevation: 10.0,
                             ),
                           ),
                           if (this._node.hasFocus)

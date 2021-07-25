@@ -54,43 +54,13 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         style: Theme.of(context).textTheme.headline3,
                       )),
                   Expanded(
-                      child: FutureBuilder(
-                        builder: (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            widget.objective.is_bookmarked = snapshot.data;
-                            return InkWell(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                                Icon(widget.objective.is_bookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
-                                    color: widget.objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).accentColor)
-                              ]),
-                              onTap: () async {
-                                try {
-                                  var db = await DatabaseService().database;
-                                  if (widget.objective.is_bookmarked) {
-                                    await db.delete('objectivebookmark', where: 'user_id = ? and objective_id = ?', whereArgs: [user.id, widget.objective.id]);
-                                  } else {
-                                    await db.insert('objectivebookmark', {'user_id': user.id, 'objective_id': widget.objective.id},
-                                        conflictAlgorithm: ConflictAlgorithm.replace);
-                                  }
-
-                                  Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.HomeRefreshBookmarks);
-                                  widget.objective.is_bookmarked = !widget.objective.is_bookmarked;
-                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      duration: const Duration(milliseconds: 800),
-                                      backgroundColor: widget.objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).errorColor,
-                                      content: widget.objective.is_bookmarked ? Text('Obiectivul a fost salvat.') : Text('Obiectivul a fost sters.')));
-                                  setState(() {});
-                                } on Exception {}
-                              },
-                            );
-                          } else {
-                            return CircularProgressIndicator();
-                          }
+                      child: InkWell(
+                        onTap: () {
+                          Share.share('check out my website https://example.com');
                         },
-                        future: _getObjectiveData(user.id, widget.objective.id),
+                        child: Icon(Icons.share, color: Theme.of(context).accentColor),
                       ),
-                      flex: 1),
+                      flex: 1)
                 ],
               ),
               iconTheme: IconThemeData(color: Colors.black),
@@ -140,11 +110,52 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 1.0),
                         child: Row(children: [
-                          Text(
-                            context.read<LanguageManager>().description,
-                            style: TextStyle(fontSize: 18.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.87), fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.start,
-                          )
+                          Expanded(
+                              child: Text(
+                                context.read<LanguageManager>().description,
+                                style: TextStyle(fontSize: 18.0, color: Color.fromRGBO(37, 14, 19, 1).withOpacity(0.87), fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.start,
+                              ),
+                              flex: 5),
+                          Expanded(
+                              child: FutureBuilder(
+                                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.done) {
+                                    widget.objective.is_bookmarked = snapshot.data;
+                                    return InkWell(
+                                      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                                        Icon(widget.objective.is_bookmarked ? Icons.bookmark : Icons.bookmark_add_outlined,
+                                            color: widget.objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).accentColor)
+                                      ]),
+                                      onTap: () async {
+                                        try {
+                                          var db = await DatabaseService().database;
+                                          if (widget.objective.is_bookmarked) {
+                                            await db.delete('objectivebookmark',
+                                                where: 'user_id = ? and objective_id = ?', whereArgs: [user.id, widget.objective.id]);
+                                          } else {
+                                            await db.insert('objectivebookmark', {'user_id': user.id, 'objective_id': widget.objective.id},
+                                                conflictAlgorithm: ConflictAlgorithm.replace);
+                                          }
+
+                                          Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.HomeRefreshBookmarks);
+                                          widget.objective.is_bookmarked = !widget.objective.is_bookmarked;
+                                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                              duration: const Duration(milliseconds: 800),
+                                              backgroundColor: widget.objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).errorColor,
+                                              content: widget.objective.is_bookmarked ? Text('Obiectivul a fost salvat.') : Text('Obiectivul a fost sters.')));
+                                          setState(() {});
+                                        } on Exception {}
+                                      },
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                },
+                                future: _getObjectiveData(user.id, widget.objective.id),
+                              ),
+                              flex: 1),
                         ]),
                       ),
                       SizedBox(height: 10),

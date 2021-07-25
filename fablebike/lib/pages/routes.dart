@@ -177,6 +177,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       }
                     },
                     future: this.getBikeRoutes),
+                SizedBox(height: 15),
               ],
             ))));
   }

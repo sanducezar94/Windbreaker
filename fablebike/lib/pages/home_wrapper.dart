@@ -40,6 +40,9 @@ class _HomeWrapperState extends State<HomeWrapper> {
       if (event == Constants.NavigationRefresh) {
         setState(() {});
       }
+      if (event == Constants.NavigateToExplore) {
+        _pageController.jumpToPage(1);
+      }
     });
   }
 

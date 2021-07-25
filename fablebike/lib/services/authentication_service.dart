@@ -15,13 +15,53 @@ const AUTH = '/auth';
 const SIGNUP = '/auth/sign_up';
 const FACEBOOK_SIGNUP = '/auth/facebook';
 const FILE_UPLOAD = '/auth/upload';
+const PERSISTENT_LOGIN = '/auth/persistent';
 
 class AuthenticationService {
   StreamController sc = new StreamController<AuthenticatedUser>();
   Stream<AuthenticatedUser> get authUser => sc.stream;
 
+  Future<ServiceResponse> isPersistentUserLogged() async {
+    try {
+      var db = await DatabaseService().database;
+
+      var persistentUserRow = await db.query('SystemValue', where: 'key = ?', whereArgs: ['puseremail']);
+
+      if (persistentUserRow.length > 0) {
+        var client = http.Client();
+        var storage = new StorageService();
+
+        var token = await storage.readValue('token');
+        if (token == null) return ServiceResponse(false, null);
+
+        var response = await client.get(Uri.https(SERVER_IP, PERSISTENT_LOGIN), headers: {HttpHeaders.authorizationHeader: 'Bearer ' + token}).timeout(
+            const Duration(seconds: 5), onTimeout: () {
+          throw TimeoutException('Connection timed out!');
+        });
+
+        if (response.statusCode == 200) {
+          var storage = new StorageService();
+          var body = jsonDecode(response.body);
+          var loggedUser = new AuthenticatedUser.fromJson(response.body);
+
+          await storage.writeValue('token', body["token"]);
+          await setUserData(loggedUser);
+          sc.add(loggedUser);
+          return ServiceResponse(true, null);
+        }
+      }
+
+      return ServiceResponse(false, null);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
+    }
+  }
+
   Future<void> setUserData(AuthenticatedUser loggedUser) async {
     var db = await DatabaseService().database;
+
     var dataUsageRow = await db.query('SystemValue', where: 'user_id = ? and key = ?', whereArgs: [loggedUser.id, 'datausage']);
     var languageRow = await db.query('SystemValue', where: 'user_id = ? and key = ?', whereArgs: [loggedUser.id, 'language']);
 
@@ -54,14 +94,7 @@ class AuthenticationService {
         var body = jsonDecode(response.body);
 
         await storage.writeValue('token', body["token"]);
-        var loggedUser = new AuthenticatedUser(body["user_id"], body["user"], email, response.body, body["icon"], body["roles"]);
-        loggedUser.distanceTravelled = body["distance_travelled"];
-        loggedUser.finishedRoutes = body["routes_finished"];
-        loggedUser.objectivesVisited = body["objectives_visited"];
-
-        loggedUser.ratedComments = body["rated_comments"].cast<int>();
-        loggedUser.ratedRoutes = body["rated_routes"].cast<int>();
-
+        var loggedUser = new AuthenticatedUser.fromJson(response.body);
         await setUserData(loggedUser);
         sc.add(loggedUser);
         return ServiceResponse(true, SUCCESS_MESSAGE);
@@ -89,16 +122,12 @@ class AuthenticationService {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
 
-        var newUser = new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw");
-        newUser.distanceTravelled = 0;
-        newUser.finishedRoutes = 0;
-        newUser.objectivesVisited = 0;
+        var newUser = new AuthenticatedUser.newUser(body['user_id'], user, email);
         await setUserData(newUser);
 
         storage.writeValue('token', body["token"]);
 
         var db = await DatabaseService().database;
-
         var profilePicRow = await db.query('usericon', where: 'name = ? and is_profile = ?', whereArgs: ['profile_pic_registration', 0], columns: ['blob']);
 
         if (profilePicRow.length > 0) {
@@ -132,7 +161,7 @@ class AuthenticationService {
         var body = jsonDecode(response.body);
 
         await storage.writeValue('token', body["token"]);
-        sc.add(new AuthenticatedUser(0, 'GUEST', 'GUEST', body['token'], '', 'r'));
+        //sc.add(new AuthenticatedUser(0, 'GUEST', 'GUEST', body['token'], '', 'r'));
         return ServiceResponse(true, SUCCESS_MESSAGE);
       }
 
@@ -157,10 +186,7 @@ class AuthenticationService {
       if (response.statusCode == 200) {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
-        var newUser = new AuthenticatedUser(body["user_id"], user, email, body["token"], "none", "rw");
-        newUser.distanceTravelled = 0;
-        newUser.finishedRoutes = 0;
-        newUser.objectivesVisited = 0;
+        var newUser = new AuthenticatedUser.newUser(body["user_id"], user, email);
         await storage.writeValue('token', body['token']);
 
         var db = await DatabaseService().database;
@@ -188,9 +214,9 @@ class AuthenticationService {
 
   Future<bool> signOut() async {
     try {
-      sc.add(new AuthenticatedUser(-1, 'none', 'none', 'none', 'none', ""));
+      sc.add(new AuthenticatedUser.emptyUser());
       var storage = new StorageService();
-      storage.deleteKey('token');
+//      storage.deleteKey('token');
       return true;
     } on Exception catch (e) {
       return false;
