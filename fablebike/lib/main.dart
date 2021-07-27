@@ -70,8 +70,8 @@ class MyApp extends StatelessWidget {
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(fontSize: 16),
-                  primary: Color.fromRGBO(99, 157, 78, 1),
-                  //primary: Color.fromRGBO(49, 112, 181, 1),
+                  //primary: Color.fromRGBO(99, 157, 78, 1),
+                  primary: Color.fromRGBO(49, 112, 181, 1),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
             ),
             textTheme: TextTheme(

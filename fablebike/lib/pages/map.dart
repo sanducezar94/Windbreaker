@@ -367,10 +367,27 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                         currentTab = 'elev';
                                       });
                                     },
-                                    child: Text(context.read<LanguageManager>().routeElevationTab,
-                                        style: TextStyle(color: currentTab != 'elev' ? Theme.of(context).primaryColor : Colors.white)),
+                                    child: Text(
+                                      context.read<LanguageManager>().routeElevationTab,
+                                      style: TextStyle(color: currentTab != 'elev' ? Theme.of(context).primaryColor : Colors.white),
+                                    ),
                                     style: OutlinedButton.styleFrom(
-                                        backgroundColor: currentTab == 'elev' ? Theme.of(context).primaryColor : Colors.white,
+                                      backgroundColor: currentTab == 'elev' ? Theme.of(context).primaryColor : Colors.white,
+                                      textStyle: TextStyle(fontSize: 14.0),
+                                    ),
+                                  ),
+                                  flex: 1),
+                              Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () async {
+                                      setState(() {
+                                        currentTab = 'info';
+                                      });
+                                    },
+                                    child: Text(context.read<LanguageManager>().info,
+                                        style: TextStyle(color: currentTab != 'info' ? Theme.of(context).primaryColor : Colors.white)),
+                                    style: OutlinedButton.styleFrom(
+                                        backgroundColor: currentTab == 'info' ? Theme.of(context).primaryColor : Colors.white,
                                         textStyle: TextStyle(fontSize: 14.0),
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.only(topRight: Radius.circular(16.0), bottomRight: Radius.circular(16.0)))),
@@ -386,10 +403,18 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                     children: [
                       Expanded(
                         child: Row(children: [
-                          currentTab == 'poi' ? Icon(Icons.place) : Icon(Icons.equalizer_rounded),
+                          currentTab == 'poi'
+                              ? Icon(Icons.place)
+                              : currentTab == 'elev'
+                                  ? Icon(Icons.equalizer_rounded)
+                                  : Icon(Icons.info),
                           SizedBox(width: 5),
                           Text(
-                            currentTab == 'poi' ? context.read<LanguageManager>().routeObjectiveOn : context.read<LanguageManager>().routeElevation,
+                            currentTab == 'poi'
+                                ? context.read<LanguageManager>().routeObjectiveOn
+                                : currentTab == 'elev'
+                                    ? context.read<LanguageManager>().routeElevation
+                                    : context.read<LanguageManager>().routeInformation,
                             style: Theme.of(context).textTheme.headline5,
                             textAlign: TextAlign.start,
                           )
@@ -407,34 +432,92 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     onItemChanged: (int index) {
                                       goToPoint(widget.bikeRoute.objectives[index].coords);
                                     }))
-                            : Container(
-                                child: ClipRRect(
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(Radius.circular(18.0)),
-                                            color: Colors.white,
-                                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
-                                        child: Padding(
-                                          child: NotificationListener<ElevationHoverNotification>(
-                                            onNotification: (ElevationHoverNotification notification) {
-                                              setState(() {
-                                                hoverPoint = notification.position;
-                                              });
-                                              return true;
-                                            },
-                                            child: Elevation(
-                                              widget.bikeRoute.elevationPoints,
-                                              color: Theme.of(context).primaryColor,
-                                              elevationGradientColors: ElevationGradientColors(
-                                                  gt10: Color.fromRGBO(186, 150, 51, 1),
-                                                  gt20: Color.fromRGBO(234, 120, 85, 1),
-                                                  gt30: Color.fromRGBO(255, 61, 0, 1)),
+                            : currentTab == 'elev'
+                                ? Container(
+                                    child: ClipRRect(
+                                        child: Container(
+                                            decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(18.0)), color: Colors.white, boxShadow: [
+                                              BoxShadow(color: Colors.black.withOpacity(0.5), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))
+                                            ]),
+                                            child: Padding(
+                                              child: NotificationListener<ElevationHoverNotification>(
+                                                onNotification: (ElevationHoverNotification notification) {
+                                                  setState(() {
+                                                    hoverPoint = notification.position;
+                                                  });
+                                                  return true;
+                                                },
+                                                child: Elevation(
+                                                  widget.bikeRoute.elevationPoints,
+                                                  color: Theme.of(context).primaryColor,
+                                                  elevationGradientColors: ElevationGradientColors(
+                                                      gt10: Color.fromRGBO(186, 150, 51, 1),
+                                                      gt20: Color.fromRGBO(234, 120, 85, 1),
+                                                      gt30: Color.fromRGBO(255, 61, 0, 1)),
+                                                ),
+                                              ),
+                                              padding: EdgeInsets.all(24),
+                                            )),
+                                        borderRadius: BorderRadius.circular(20.0)),
+                                  )
+                                : Container(
+                                    child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Padding(
+                                                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                                  child: Column(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: _buildInfoBox(context, Icon(Icons.pedal_bike_outlined), 'Distanta',
+                                                                  widget.bikeRoute.distance.toString() + ' KM'),
+                                                              flex: 10,
+                                                            ),
+                                                            Spacer(
+                                                              flex: 2,
+                                                            ),
+                                                            Expanded(
+                                                              child: _buildInfoBox(context, Icon(Icons.place_outlined), 'Obiective',
+                                                                  widget.bikeRoute.objectives.length.toString()),
+                                                              flex: 10,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        flex: 10,
+                                                      ),
+                                                      Spacer(
+                                                        flex: 2,
+                                                      ),
+                                                      Expanded(
+                                                        child: Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: _buildInfoBox(context, Icon(Icons.landscape_outlined), 'Elevatie max.', '843 m'),
+                                                              flex: 10,
+                                                            ),
+                                                            Spacer(
+                                                              flex: 2,
+                                                            ),
+                                                            Expanded(
+                                                              child: _buildInfoBox(context, Icon(Icons.av_timer_outlined), 'Durata', 'Aprox. 20 min'),
+                                                              flex: 10,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        flex: 10,
+                                                      ),
+                                                    ],
+                                                  )),
+                                              flex: 8,
                                             ),
-                                          ),
-                                          padding: EdgeInsets.all(24),
-                                        )),
-                                    borderRadius: BorderRadius.circular(20.0)),
-                              ),
+                                          ],
+                                        ))),
                       ),
                       Spacer(flex: 1),
                       Expanded(

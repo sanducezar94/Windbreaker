@@ -51,6 +51,7 @@ class LanguageManager {
   String get routes => language == 'RO' ? 'Rute' : 'Routes';
   String get objective => language == 'RO' ? 'Obiective' : 'Objectives';
   String get search => language == 'RO' ? 'Cauta' : 'Search';
+  String get info => language == 'RO' ? 'Informatii' : 'Informations';
 
   String get back => language == 'RO' ? 'Inapoi' : 'Back';
   String get description => language == 'RO' ? 'Descriere' : 'Description';

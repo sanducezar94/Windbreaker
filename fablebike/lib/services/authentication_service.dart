@@ -216,7 +216,7 @@ class AuthenticationService {
     try {
       sc.add(new AuthenticatedUser.emptyUser());
       var storage = new StorageService();
-//      storage.deleteKey('token');
+      storage.deleteKey('token');
       return true;
     } on Exception catch (e) {
       return false;
