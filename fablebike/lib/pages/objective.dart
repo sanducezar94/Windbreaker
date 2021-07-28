@@ -73,7 +73,6 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                 child: Container(
                   child: Column(
                     children: [
-                      SizedBox(height: 10),
                       Column(
                         children: [
                           RichText(
@@ -83,7 +82,6 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 15),
                       Container(
                         child: ClipRRect(
                           child: ImageSlideshow(

@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Spacer(flex: 1),
             Expanded(
               flex: 5,
-              child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+              child: Image.asset('assets/images/logo_cbd.png', fit: BoxFit.cover),
             ),
             Spacer(
               flex: 1,

@@ -63,14 +63,16 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
             fontFamily: 'OpenSans',
             scaffoldBackgroundColor: const Color.fromRGBO(249, 249, 249, 1),
-            primaryColor: Color.fromRGBO(99, 157, 78, 1),
-            primaryColorDark: Color.fromRGBO(43, 127, 61, 1),
+            //primaryColor: Color.fromRGBO(99, 157, 78, 1),
+            primaryColor: Color.fromRGBO(49, 112, 181, 1),
+            //primaryColorDark: Color.fromRGBO(43, 127, 61, 1),
+            primaryColorDark: Color.fromRGBO(36, 94, 158, 1),
             accentColor: Color.fromRGBO(37, 14, 19, 1),
             errorColor: Color.fromRGBO(157, 78, 78, 1),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(fontSize: 16),
-                  //primary: Color.fromRGBO(99, 157, 78, 1),
+                  //primary: Color.fro mRGBO(99, 157, 78, 1),
                   primary: Color.fromRGBO(49, 112, 181, 1),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
             ),
