@@ -47,7 +47,7 @@ class LanguageManager {
   String get pickImage => language == 'RO' ? 'Adauga fotografie!' : 'Pick Image!';
   String get name => language == 'RO' ? 'Introdu nume' : 'Name';
   String get createAccount => language == 'RO' ? 'Creeaza cont' : 'Create account';
-  String get details => language == 'RO' ? 'Detalii' : 'Details';
+  String get details => language == 'RO' ? 'Vezi detalii' : 'Details';
   String get routes => language == 'RO' ? 'Rute' : 'Routes';
   String get objective => language == 'RO' ? 'Obiective' : 'Objectives';
   String get search => language == 'RO' ? 'Cauta' : 'Search';

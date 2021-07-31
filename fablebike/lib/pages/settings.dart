@@ -71,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context.read<LanguageManager>().appSettings,
                 style: Theme.of(context).textTheme.headline3,
               )),
-              shadowColor: Colors.white54,
+              shadowColor: Colors.white10,
               backgroundColor: Colors.white,
             ),
             body: SingleChildScrollView(
@@ -223,6 +223,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             child: FlutterSwitch(
                                                 activeColor: Theme.of(context).primaryColorDark,
                                                 borderRadius: 6,
+                                                activeTextFontWeight: FontWeight.normal,
+                                                inactiveTextFontWeight: FontWeight.normal,
+                                                activeTextColor: Colors.white,
                                                 value: user.lowDataUsage,
                                                 showOnOff: true,
                                                 padding: 8.0,

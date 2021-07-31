@@ -209,7 +209,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                       child: loadResults
                           ? Container(
                               height: height * 0.4,
-                              child: CircularProgressIndicator(),
+                              child: SizedBox(width: 10),
                             )
                           : ObjectiveContainer(
                               objective: currentObjective,
@@ -253,7 +253,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                               borderRadius: !this._node.hasFocus
                                   ? const BorderRadius.all(const Radius.circular(24.0))
                                   : BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
-                              shadowColor: Theme.of(context).accentColor.withOpacity(0.3),
+                              shadowColor: Colors.white10,
                               elevation: 10.0,
                             ),
                           ),

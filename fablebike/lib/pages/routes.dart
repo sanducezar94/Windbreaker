@@ -71,10 +71,10 @@ class _RoutesScreenState extends State<RoutesScreen> {
         color: Colors.white,
         child: Scaffold(
             appBar: AppBar(
-              shadowColor: Colors.white54,
+              shadowColor: Colors.white10,
               backgroundColor: Colors.white,
               centerTitle: true,
-              iconTheme: IconThemeData(color: Theme.of(context).accentColor),
+              iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
               title: Row(
                 children: [
                   Expanded(
@@ -97,11 +97,14 @@ class _RoutesScreenState extends State<RoutesScreen> {
                           enabledBorder: InputBorder.none,
                           errorBorder: InputBorder.none,
                           disabledBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.all(20.0),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Theme.of(context).accentColor,
-                          ),
+                          prefixIconConstraints: BoxConstraints(minHeight: 10, minWidth: 10),
+                          prefixIcon: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Image(
+                                image: AssetImage('assets/icons/search_icon.png'),
+                                width: 24,
+                                height: 24,
+                              )),
                           suffixIcon: this.searchController != null && this.searchController.text.length > 0
                               ? IconButton(
                                   onPressed: () {
@@ -111,7 +114,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                   },
                                   icon: Icon(
                                     Icons.cancel_outlined,
-                                    color: Theme.of(context).accentColor,
+                                    color: Theme.of(context).primaryColorDark,
                                   ))
                               : null,
                           hintText: context.read<LanguageManager>().search,
@@ -120,7 +123,13 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       flex: 9),
                   Expanded(
                       child: InkWell(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [Icon(Icons.filter_list, color: Theme.of(context).accentColor)]),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                          Image(
+                            image: AssetImage('assets/icons/filter_icon.png'),
+                            width: 24,
+                            height: 24,
+                          )
+                        ]),
                         onTap: () async {
                           var filter = await showDialog(context: context, builder: (_) => RouteFilterDialog(filter: routeFilter));
                           if (filter == null) return;
@@ -136,8 +145,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
             body: SingleChildScrollView(
                 child: Column(
               children: [
-                SizedBox(height: 25),
-                Padding(
+                /* Padding(
                   padding: EdgeInsets.fromLTRB(20.0, 0, 0, 0),
                   child: Row(children: [
                     Icon(Icons.map_outlined),
@@ -148,7 +156,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       textAlign: TextAlign.start,
                     )
                   ]),
-                ),
+                ),*/
                 SizedBox(height: 15),
                 FutureBuilder<List<BikeRoute>>(
                     builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {

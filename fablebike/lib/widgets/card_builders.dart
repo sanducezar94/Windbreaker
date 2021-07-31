@@ -24,7 +24,7 @@ class CardBuilder {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(12.0)),
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 3))]),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 5, offset: Offset(0, 3))]),
           height: 0.2 * height,
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -63,17 +63,16 @@ class CardBuilder {
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Expanded(flex: 2, child: SizedBox(width: 1)),
+                        Spacer(flex: 1),
                         Expanded(
                             flex: 1,
                             child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  child: Text(context.read<LanguageManager>().details),
-                                  style: ElevatedButton.styleFrom(
-                                      fixedSize: Size(64, 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))),
-                                )))
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
+                              child: ElevatedButton(
+                                onPressed: () {},
+                                child: Text(context.read<LanguageManager>().details),
+                              ),
+                            ))
                       ],
                     )
                   ],
@@ -112,7 +111,7 @@ class CardBuilder {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(18.0)),
                     color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 4))]),
                 width: 0.35 * width,
                 height: 0.275 * height,
                 child: Stack(
@@ -187,7 +186,7 @@ class CardBuilder {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(18.0)),
                     color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 width: 0.35 * width,
                 child: Stack(
                   children: [
@@ -239,7 +238,7 @@ class CardBuilder {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(18.0)),
                   color: Colors.white,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
               width: 0.35 * width,
               child: Column(
                 children: [
@@ -272,7 +271,7 @@ class CardBuilder {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(18.0)),
                     color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 width: width,
                 child: Stack(
                   children: [
@@ -331,7 +330,7 @@ class CardBuilder {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(18.0)),
                     color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 width: 0.35 * width,
                 height: 0.275 * height,
                 child: Stack(
@@ -388,7 +387,7 @@ class CardBuilder {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(18.0)),
                     color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 height: height * 0.35,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -415,20 +414,17 @@ class CardBuilder {
                                       )),
                                   Expanded(
                                       flex: 1,
-                                      child: Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 3),
-                                          child: Container(
-                                              child: OutlinedButton(
-                                                  onPressed: () async {
-                                                    Navigator.pushNamed(context, RoutesScreen.route, arguments: objective);
-                                                  },
-                                                  style: OutlinedButton.styleFrom(
-                                                      backgroundColor: Colors.white,
-                                                      textStyle: TextStyle(fontSize: 14),
-                                                      primary: Theme.of(context).primaryColor,
-                                                      side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 1),
-                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                                  child: Text(context.read<LanguageManager>().routes)))))
+                                      child: OutlinedButton(
+                                          onPressed: () async {
+                                            Navigator.pushNamed(context, RoutesScreen.route, arguments: objective);
+                                          },
+                                          style: OutlinedButton.styleFrom(
+                                              backgroundColor: Colors.white,
+                                              textStyle: TextStyle(fontSize: 14),
+                                              primary: Theme.of(context).primaryColor,
+                                              side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 0),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                                          child: Text(context.read<LanguageManager>().routes)))
                                 ]),
                                 Row(children: [
                                   Expanded(
@@ -438,21 +434,17 @@ class CardBuilder {
                                         style: Theme.of(context).textTheme.bodyText2,
                                       )),
                                   Expanded(
-                                      flex: 1,
-                                      child: Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 3),
-                                          child: Container(
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-                                                Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
-                                              },
-                                              child: Text(context.read<LanguageManager>().details),
-                                              style: ElevatedButton.styleFrom(
-                                                  textStyle: TextStyle(fontSize: 14.0),
-                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                            ),
-                                          )))
+                                    flex: 1,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+                                        Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+                                      },
+                                      child: Text(context.read<LanguageManager>().details),
+                                      style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                                    ),
+                                  )
                                 ])
                               ],
                             )),
@@ -497,7 +489,7 @@ class CardBuilder {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(18.0)),
                 color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
             height: height * 0.3,
             child: Column(children: [
               Expanded(
@@ -632,7 +624,7 @@ class CardBuilder {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(18.0)),
                 color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
             height: height * 0.3,
             child: Column(children: [
               Expanded(
@@ -647,26 +639,25 @@ class CardBuilder {
                                   Expanded(
                                       child: ClipRRect(
                                         child: Image.asset('assets/images/bisericalemn_000.jpg', fit: BoxFit.cover),
-                                        borderRadius: BorderRadius.circular(18),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       flex: 1),
                                   Expanded(
                                     flex: 1,
                                     child: Padding(
                                         child: Container(
-                                            width: 3,
                                             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                              Text(
-                                                route.name,
-                                                style: Theme.of(context).textTheme.headline5,
-                                              ),
-                                              SizedBox(height: 10),
-                                              Text(
-                                                route.description,
-                                                style: Theme.of(context).textTheme.bodyText2,
-                                              )
-                                            ])),
-                                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 20.0)),
+                                          Text(
+                                            route.name,
+                                            style: Theme.of(context).textTheme.headline5,
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            route.description,
+                                            style: Theme.of(context).textTheme.bodyText2,
+                                          )
+                                        ])),
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0)),
                                   ),
                                 ],
                               )),
@@ -696,7 +687,7 @@ class CardBuilder {
                       children: [
                         Text(context.read<LanguageManager>().routeDistance, style: Theme.of(context).textTheme.bodyText2),
                         SizedBox(height: 3),
-                        Text(route.distance.toString() + ' KM', style: Theme.of(context).textTheme.bodyText1)
+                        Text(route.distance.toStringAsPrecision(2) + ' Km', style: Theme.of(context).textTheme.bodyText1)
                       ],
                     )),
                 flex: 7),

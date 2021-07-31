@@ -184,15 +184,15 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
     var markers = <Marker>[];
     markers.add(Marker(
-        width: 36,
-        height: 36,
+        width: 64,
+        height: 64,
         builder: (ctx) =>
             Transform.rotate(angle: -this.rotation * 3.14159 / 180, child: Container(child: Image(image: AssetImage('assets/icons/ruin_ppin.png')))),
         point: hoverPoint));
     for (var i = 0; i < widget.bikeRoute.objectives.length; i++) {
       markers.add(Marker(
-          width: 24,
-          height: 24,
+          width: 40,
+          height: 40,
           builder: (ctx) => Transform.rotate(
               angle: -this.rotation * 3.14159 / 180,
               child: Container(child: Image(image: AssetImage('assets/icons/' + widget.bikeRoute.objectives[i].icon + '_pin.png')))),
@@ -254,7 +254,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     )),
                                 top: 7.5,
                                 left: MediaQuery.of(context).size.width / 2 - 55),*/
-                            Positioned(
+                            /* Positioned(
                                 left: 15,
                                 bottom: 15,
                                 child: Container(
@@ -325,7 +325,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                       ),
                                     ])),
                                 bottom: 15,
-                                right: 15),
+                                right: 15),*/
                           ],
                         ),
                         borderRadius: BorderRadius.circular(24.0),

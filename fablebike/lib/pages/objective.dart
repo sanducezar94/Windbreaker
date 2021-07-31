@@ -64,7 +64,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                 ],
               ),
               iconTheme: IconThemeData(color: Colors.black),
-              shadowColor: Colors.white54,
+              shadowColor: Colors.white10,
               backgroundColor: Colors.white,
             ),
             body: SingleChildScrollView(

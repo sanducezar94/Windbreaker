@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context.read<LanguageManager>().appHome,
               style: Theme.of(context).textTheme.headline3,
             )),
-            shadowColor: Colors.white54,
+            shadowColor: Colors.white10,
             backgroundColor: Colors.white,
           ),
           body: SingleChildScrollView(
@@ -100,9 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Column(
                     children: [
-                      SizedBox(height: 25),
-                      _buildStatsRow(context),
-                      SizedBox(height: 25),
+                      //SizedBox(height: 25),
+                      // _buildStatsRow(context),
+                      // SizedBox(height: 25),
                       FutureBuilder(
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.done) {
