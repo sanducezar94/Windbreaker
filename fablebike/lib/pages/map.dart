@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fablebike/constants/language.dart';
+import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/sections/comments_section.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/carousel.dart';
@@ -57,6 +60,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   double rotation = 0;
   double size = 12.0;
   bool init = false;
+  int currentPoint = 0;
   MapController mapController = MapController();
   double kmTraveled = 0;
   var hoverPoint = LatLng(0, 0);
@@ -98,7 +102,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   void goToPoint(LatLng dest) {
     final latTween = Tween<double>(begin: mapController.center.latitude, end: dest.latitude);
     final longTween = Tween<double>(begin: mapController.center.longitude, end: dest.longitude);
-    final zoomTween = Tween<double>(begin: mapController.zoom, end: 13.0);
+    final zoomTween = Tween<double>(begin: mapController.zoom, end: 11.0);
 
     var controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
 
@@ -191,360 +195,352 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         point: hoverPoint));
     for (var i = 0; i < widget.bikeRoute.objectives.length; i++) {
       markers.add(Marker(
-          width: 40,
-          height: 40,
+          width: i == currentPoint ? 40 : 32,
+          height: i == currentPoint ? 40 : 32,
           builder: (ctx) => Transform.rotate(
               angle: -this.rotation * 3.14159 / 180,
               child: Container(child: Image(image: AssetImage('assets/icons/' + widget.bikeRoute.objectives[i].icon + '_pin.png')))),
           point: widget.bikeRoute.objectives[i].coords));
     }
+    _buildMapStat(IconData iconData, String title, String value) {
+      return Row(
+        children: [
+          Expanded(
+              child: Icon(
+                iconData,
+                color: Theme.of(context).primaryColorDark.withOpacity(0.7),
+                size: 32,
+              ),
+              flex: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                )
+              ],
+            ),
+            flex: 10,
+          )
+        ],
+      );
+    }
 
     _buildMap() {
       return Container(
-          height: height - 80,
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(children: [
-                Spacer(
-                  flex: 2,
-                ),
-                Expanded(
+          height: height * 1.45 - 80,
+          child: Column(children: [
+            Spacer(flex: 5),
+            Expanded(
+                child: ClipRRect(
                     child: Container(
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(18.0)),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
-                      child: ClipRRect(
-                        child: Stack(
-                          children: [
-                            FlutterMap(
-                              mapController: this.mapController,
-                              options: MapOptions(
-                                  center: widget.bikeRoute.center,
-                                  minZoom: 10.0,
-                                  maxZoom: 13.0,
-                                  zoom: 10.0,
-                                  swPanBoundary: LatLng(46.2318, 27.3077),
-                                  nePanBoundary: LatLng(46.9708, 28.1942),
-                                  plugins: [LocationMarkerPlugin()]),
-                              layers: [
-                                TileLayerOptions(
-                                  tileProvider: AssetTileProvider(),
-                                  maxZoom: 13.0,
-                                  urlTemplate: 'assets/map/{z}/{x}/{y}.png',
-                                ),
-                                PolylineLayerOptions(
-                                  polylines: [
-                                    Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Colors.blue),
-                                  ],
-                                ),
-                                LocationMarkerLayerOptions(),
-                                MarkerLayerOptions(markers: markers),
-                              ],
-                            ),
-                            /*Positioned(
-                                child: Align(
-                                    alignment: Alignment.center,
-                                    child: ElevatedButton(
-                                      onPressed: () {},
-                                      child: Text('Start', style: TextStyle(fontSize: 16)),
-                                      style: ElevatedButton.styleFrom(
-                                        shape: CircleBorder(),
-                                        padding: EdgeInsets.all(20),
-                                      ),
-                                    )),
-                                top: 7.5,
-                                left: MediaQuery.of(context).size.width / 2 - 55),*/
-                            /* Positioned(
-                                left: 15,
-                                bottom: 15,
+                          color: Colors.white,
+                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                      child: Stack(
+                        children: [
+                          FlutterMap(
+                            mapController: this.mapController,
+                            options: MapOptions(
+                                center: widget.bikeRoute.center,
+                                minZoom: 10.0,
+                                maxZoom: 13.0,
+                                zoom: 10.0,
+                                swPanBoundary: LatLng(46.2318, 27.3077),
+                                nePanBoundary: LatLng(46.9708, 28.1942),
+                                plugins: [LocationMarkerPlugin()]),
+                            layers: [
+                              TileLayerOptions(
+                                tileProvider: AssetTileProvider(),
+                                maxZoom: 13.0,
+                                urlTemplate: 'assets/map/{z}/{x}/{y}.png',
+                              ),
+                              PolylineLayerOptions(
+                                polylines: [
+                                  Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Colors.blue),
+                                ],
+                              ),
+                              LocationMarkerLayerOptions(),
+                              MarkerLayerOptions(markers: markers),
+                            ],
+                          ),
+                          Positioned(
+                              bottom: 16,
+                              right: 16,
+                              child: InkWell(
                                 child: Container(
-                                  height: height * 0.065,
-                                  width: width * 0.275,
-                                  child: Row(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(128.0)),
+                                      color: Theme.of(context).primaryColor,
+                                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                                  child: Column(
                                     children: [
                                       Expanded(
-                                        flex: 1,
-                                        child: InkWell(
-                                          child: Container(
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.all(Radius.circular(18.0)),
-                                                  color: Colors.white70,
-                                                  boxShadow: [
-                                                    BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 1, offset: Offset(0, 6))
-                                                  ]),
-                                              child: Center(
-                                                child: Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(Icons.star),
-                                                    SizedBox(
-                                                      width: 3,
-                                                    ),
-                                                    Text(widget.bikeRoute.rating.toStringAsPrecision(2) + ' (' + widget.bikeRoute.ratingCount.toString() + ')',
-                                                        style: Theme.of(context).textTheme.headline5),
-                                                  ],
-                                                ),
-                                              )),
-                                          onTap: () async {
-                                            var rating = await showDialog(context: context, builder: (_) => RatingDialog());
-                                            var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
-                                            setState(() {
-                                              if (newRating != null && newRating != 0.0) widget.bikeRoute.rating = newRating;
-                                            });
-                                          },
-                                        ),
+                                        child: Icon(Icons.fullscreen, color: Colors.white),
+                                      )
+                                    ],
+                                  ),
+                                  width: 32,
+                                  height: 32,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).pushNamed(FullScreenMap.route, arguments: widget.bikeRoute);
+                                },
+                              ))
+                        ],
+                      ),
+                    ),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(16.0),
+                    )),
+                flex: 60),
+            Spacer(
+              flex: 5,
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    color: Colors.white,
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                child: Column(
+                  children: [
+                    Spacer(flex: 2),
+                    Expanded(
+                        child: Padding(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        widget.bikeRoute.name,
+                                        style: Theme.of(context).textTheme.headline3,
                                       ),
                                     ],
                                   ),
-                                )),
-                            Positioned(
-                                child: Container(
-                                    height: height * 0.065,
-                                    width: width * 0.275,
-                                    child: Column(children: [
-                                      Expanded(
-                                        flex: 1,
-                                        child: Container(
-                                            decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(18.0)), color: Colors.white70, boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 1, offset: Offset(0, 6))
-                                            ]),
-                                            child: Center(
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Image(image: AssetImage('assets/icons/dt.png'), height: 32),
-                                                  SizedBox(
-                                                    width: 3,
-                                                  ),
-                                                  Text(widget.bikeRoute.distance.toStringAsPrecision(3) + ' KM', style: Theme.of(context).textTheme.headline5),
-                                                ],
-                                              ),
-                                            )),
+                                  flex: 10),
+                              Spacer(
+                                flex: 4,
+                              ),
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.place,
+                                        color: Theme.of(context).primaryColorDark.withOpacity(0.7),
+                                        size: 24,
                                       ),
-                                    ])),
-                                bottom: 15,
-                                right: 15),*/
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(24.0),
-                      ),
-                    ),
-                    flex: 45),
-                Spacer(
-                  flex: 1,
-                ),
-                Expanded(
-                    flex: 9,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () async {
-                                      setState(() {
-                                        currentTab = 'poi';
-                                      });
-                                    },
-                                    child: Text(
-                                      context.read<LanguageManager>().routeObjectiveTab,
-                                      style: TextStyle(color: currentTab != 'poi' ? Theme.of(context).primaryColor : Colors.white),
-                                    ),
-                                    style: OutlinedButton.styleFrom(
-                                        backgroundColor: currentTab == 'poi' ? Theme.of(context).primaryColor : Colors.white,
-                                        textStyle: TextStyle(fontSize: 14.0),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)))),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        widget.bikeRoute.description,
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ],
                                   ),
-                                  flex: 1),
+                                  flex: 10),
                               Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () async {
-                                      setState(() {
-                                        currentTab = 'elev';
-                                      });
-                                    },
-                                    child: Text(
-                                      context.read<LanguageManager>().routeElevationTab,
-                                      style: TextStyle(color: currentTab != 'elev' ? Theme.of(context).primaryColor : Colors.white),
-                                    ),
-                                    style: OutlinedButton.styleFrom(
-                                      backgroundColor: currentTab == 'elev' ? Theme.of(context).primaryColor : Colors.white,
-                                      textStyle: TextStyle(fontSize: 14.0),
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.directions,
+                                        color: Theme.of(context).primaryColorDark.withOpacity(0.7),
+                                        size: 24,
+                                      ),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        '1.2km',
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ],
                                   ),
-                                  flex: 1),
-                              Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () async {
-                                      setState(() {
-                                        currentTab = 'info';
-                                      });
-                                    },
-                                    child: Text(context.read<LanguageManager>().info,
-                                        style: TextStyle(color: currentTab != 'info' ? Theme.of(context).primaryColor : Colors.white)),
-                                    style: OutlinedButton.styleFrom(
-                                        backgroundColor: currentTab == 'info' ? Theme.of(context).primaryColor : Colors.white,
-                                        textStyle: TextStyle(fontSize: 14.0),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(topRight: Radius.circular(16.0), bottomRight: Radius.circular(16.0)))),
-                                  ),
-                                  flex: 1),
+                                  flex: 10)
                             ],
                           ),
-                        )
-                      ],
-                    )),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Row(children: [
-                          currentTab == 'poi'
-                              ? Icon(Icons.place)
-                              : currentTab == 'elev'
-                                  ? Icon(Icons.equalizer_rounded)
-                                  : Icon(Icons.info),
-                          SizedBox(width: 5),
-                          Text(
-                            currentTab == 'poi'
-                                ? context.read<LanguageManager>().routeObjectiveOn
-                                : currentTab == 'elev'
-                                    ? context.read<LanguageManager>().routeElevation
-                                    : context.read<LanguageManager>().routeInformation,
-                            style: Theme.of(context).textTheme.headline5,
-                            textAlign: TextAlign.start,
-                          )
-                        ]),
-                        flex: 2,
-                      ),
-                      Spacer(flex: 1),
-                      Expanded(
-                        flex: 14,
-                        child: currentTab == 'poi'
-                            ? Container(
-                                child: Carousel(
-                                    objectives: widget.bikeRoute.objectives,
-                                    context: context,
-                                    onItemChanged: (int index) {
-                                      goToPoint(widget.bikeRoute.objectives[index].coords);
-                                    }))
-                            : currentTab == 'elev'
-                                ? Container(
-                                    child: ClipRRect(
-                                        child: Container(
-                                            decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(18.0)), color: Colors.white, boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.5), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))
-                                            ]),
-                                            child: Padding(
-                                              child: NotificationListener<ElevationHoverNotification>(
-                                                onNotification: (ElevationHoverNotification notification) {
-                                                  setState(() {
-                                                    hoverPoint = notification.position;
-                                                  });
-                                                  return true;
-                                                },
-                                                child: Elevation(
-                                                  widget.bikeRoute.elevationPoints,
-                                                  color: Theme.of(context).primaryColor,
-                                                  elevationGradientColors: ElevationGradientColors(
-                                                      gt10: Color.fromRGBO(186, 150, 51, 1),
-                                                      gt20: Color.fromRGBO(234, 120, 85, 1),
-                                                      gt30: Color.fromRGBO(255, 61, 0, 1)),
-                                                ),
-                                              ),
-                                              padding: EdgeInsets.all(24),
-                                            )),
-                                        borderRadius: BorderRadius.circular(20.0)),
-                                  )
-                                : Container(
-                                    child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: Padding(
-                                                  padding: EdgeInsets.symmetric(horizontal: 20.0),
-                                                  child: Column(
-                                                    children: [
-                                                      Expanded(
-                                                        child: Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child: _buildInfoBox(context, Icon(Icons.pedal_bike_outlined), 'Distanta',
-                                                                  widget.bikeRoute.distance.toString() + ' KM'),
-                                                              flex: 10,
-                                                            ),
-                                                            Spacer(
-                                                              flex: 2,
-                                                            ),
-                                                            Expanded(
-                                                              child: _buildInfoBox(context, Icon(Icons.place_outlined), 'Obiective',
-                                                                  widget.bikeRoute.objectives.length.toString()),
-                                                              flex: 10,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        flex: 10,
-                                                      ),
-                                                      Spacer(
-                                                        flex: 2,
-                                                      ),
-                                                      Expanded(
-                                                        child: Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child: _buildInfoBox(context, Icon(Icons.landscape_outlined), 'Elevatie max.', '843 m'),
-                                                              flex: 10,
-                                                            ),
-                                                            Spacer(
-                                                              flex: 2,
-                                                            ),
-                                                            Expanded(
-                                                              child: _buildInfoBox(context, Icon(Icons.av_timer_outlined), 'Durata', 'Aprox. 20 min'),
-                                                              flex: 10,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        flex: 10,
-                                                      ),
-                                                    ],
-                                                  )),
-                                              flex: 8,
-                                            ),
-                                          ],
-                                        ))),
-                      ),
-                      Spacer(flex: 1),
-                      Expanded(
-                        child: Row(children: [
-                          Expanded(
-                            flex: 1,
-                            child: Align(
-                                alignment: Alignment.center,
-                                child: InkWell(
-                                  child: Text(
-                                    'Vezi toate comentariile (' + widget.bikeRoute.commentCount.toString() + ')',
-                                    style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
-                                    textAlign: TextAlign.start,
+                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                        ),
+                        flex: 20),
+                    Spacer(flex: 5),
+                    Expanded(
+                        child: Padding(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: _buildMapStat(Icons.directions_bike_outlined, 'Distanta', widget.bikeRoute.distance.toStringAsFixed(0) + ' Km'),
+                                    flex: 2),
+                                Expanded(child: _buildMapStat(Icons.av_timer_outlined, 'Durata', '30 min'), flex: 2),
+                                Expanded(child: _buildMapStat(Icons.landscape_outlined, 'Dificultate', 'Medie'), flex: 2),
+                              ],
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 15.0)),
+                        flex: 10),
+                    Spacer(flex: 2),
+                  ],
+                ),
+              ),
+              flex: 45,
+            ),
+            Spacer(flex: 5),
+            Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: Padding(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Obiective pe aceasta ruta',
+                                        style: Theme.of(context).textTheme.bodyText1,
+                                      ),
+                                    ],
                                   ),
-                                  onTap: () {
-                                    _buildBottomSheet(context, widget.bikeRoute);
-                                  },
-                                )),
-                          )
-                        ]),
-                        flex: 2,
-                      ),
-                    ],
-                  ),
-                  flex: 40,
-                )
-              ])));
+                                  flex: 10),
+                            ],
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 00.0),
+                        ),
+                        flex: 4),
+                    Expanded(
+                        child: Container(
+                            child: Carousel(
+                                objectives: widget.bikeRoute.objectives,
+                                context: context,
+                                onItemChanged: (int index) {
+                                  this.setState(() {
+                                    this.currentPoint = index;
+                                  });
+                                  goToPoint(widget.bikeRoute.objectives[index].coords);
+                                })),
+                        flex: 20),
+                    Spacer(flex: 1),
+                  ],
+                ),
+                flex: 65),
+            Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: Padding(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Evalueaza ruta',
+                                        style: Theme.of(context).textTheme.bodyText1,
+                                      ),
+                                    ],
+                                  ),
+                                  flex: 10),
+                            ],
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 00.0),
+                        ),
+                        flex: 4),
+                    Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                child: Row(children: <Widget>[
+                                  for (var i = 1; i <= 5; i++)
+                                    Expanded(
+                                      child: _buildStar(i),
+                                    )
+                                ]),
+                                padding: EdgeInsets.symmetric(horizontal: 15.0),
+                              ),
+                              flex: 1,
+                            )
+                          ],
+                        ),
+                        flex: 10),
+                    Spacer(flex: 1),
+                  ],
+                ),
+                flex: 30),
+            Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: Padding(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Despre ruta',
+                                        style: Theme.of(context).textTheme.bodyText1,
+                                      ),
+                                    ],
+                                  ),
+                                  flex: 10),
+                            ],
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 00.0),
+                        ),
+                        flex: 5),
+                    Spacer(
+                      flex: 2,
+                    ),
+                    Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                              color: Colors.white,
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: _buildComment(
+                                    context, Comment(userId: 0, id: 0, text: 'Am plecat 5 si neam intors 2', user: 'Pacea Poc', icon: ''), false, null),
+                                flex: 1,
+                              )
+                            ],
+                          ),
+                        ),
+                        flex: 12),
+                    Spacer(flex: 2),
+                    Expanded(
+                      child: Row(children: [
+                        Expanded(
+                          flex: 1,
+                          child: Align(
+                              alignment: Alignment.center,
+                              child: InkWell(
+                                child: Text(
+                                  'Vezi toate comentariile (' + widget.bikeRoute.commentCount.toString() + ')',
+                                  style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+                                  textAlign: TextAlign.start,
+                                ),
+                                onTap: () {
+                                  _buildBottomSheet(context, widget.bikeRoute);
+                                },
+                              )),
+                        )
+                      ]),
+                      flex: 5,
+                    ),
+                  ],
+                ),
+                flex: 50),
+            Spacer(flex: 5)
+          ]));
     }
 
     return ColorfulSafeArea(
@@ -552,34 +548,12 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
             resizeToAvoidBottomInset: false,
-            bottomSheet: GestureDetector(
-              child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(18.0)),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
-                  height: height * 0.025,
-                  width: width,
-                  child: Center(
-                    child: Container(
-                      width: width / 2,
-                      height: height * 0.01,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.all(Radius.circular(18.0)),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 5, blurRadius: 7, offset: Offset(0, 4))]),
-                    ),
-                  )),
-              onVerticalDragEnd: (v) {
-                _buildBottomSheet(context, widget.bikeRoute);
-              },
-            ),
             appBar: AppBar(
               title: Row(
                 children: [
                   Expanded(
                       child: Text(
-                        widget.bikeRoute.name,
+                        '',
                         style: Theme.of(context).textTheme.headline3,
                       ),
                       flex: 10),
@@ -599,13 +573,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               backgroundColor: Colors.white,
             ),
             body: SingleChildScrollView(
-                physics: NeverScrollableScrollPhysics(),
-                child: Column(children: [
-                  _buildMap(),
-                  SizedBox(
-                    height: 20,
-                  ),
-                ]))));
+              child: Padding(
+                child: _buildMap(),
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+              ),
+            )));
   }
 }
 
@@ -683,4 +655,54 @@ _buildInfoBox(BuildContext context, Icon icon, title, label) {
               ),
             ],
           )));
+}
+
+Widget _buildComment(BuildContext context, Comment comment, bool moreButton, VoidCallback onTap) {
+  var user = context.read<AuthenticatedUser>();
+
+  if (moreButton) {
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+        child: Center(
+            child: ElevatedButton(
+          onPressed: onTap,
+          child: Icon(Icons.add_circle_outline),
+          style: ElevatedButton.styleFrom(
+            shape: CircleBorder(),
+            padding: EdgeInsets.all(12),
+          ),
+        )));
+  } else {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+      child: ListTile(
+        minVerticalPadding: 10,
+        horizontalTitleGap: 025,
+        leading: !user.lowDataUsage
+            ? FutureBuilder<Uint8List>(
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(48.0),
+                      child: snapshot.data == null
+                          ? Image.asset('assets/icons/user.png', width: 48, height: 48)
+                          : Image.memory(snapshot.data, width: 48, height: 48),
+                    );
+                  } else {
+                    return Image.asset('assets/icons/user.png', width: 48, height: 48);
+                  }
+                },
+                future: getIcon(imageName: comment.icon, username: comment.user, userId: comment.userId))
+            : Image(image: AssetImage('assets/icons/user.png')),
+        title: Text(
+          comment.user,
+          style: Theme.of(context).textTheme.headline5,
+        ),
+        subtitle: Text(
+          comment.text,
+          style: Theme.of(context).textTheme.headline4,
+        ),
+      ),
+    );
+  }
 }

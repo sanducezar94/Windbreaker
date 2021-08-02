@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/explore.dart';
+import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fablebike/services/authentication_service.dart';
@@ -101,6 +102,12 @@ class MyApp extends StatelessWidget {
 
             return MaterialPageRoute(builder: (context) {
               return ObjectiveScreen(objective: args.objective, fromRoute: args.fromRoute);
+            });
+          }
+          if (settings.name == FullScreenMap.route) {
+            final args = settings.arguments as BikeRoute;
+            return MaterialPageRoute(builder: (context) {
+              return FullScreenMap(bikeRoute: args);
             });
           }
           if (settings.name == ImagePickerScreen.route) {

@@ -687,7 +687,7 @@ class CardBuilder {
                       children: [
                         Text(context.read<LanguageManager>().routeDistance, style: Theme.of(context).textTheme.bodyText2),
                         SizedBox(height: 3),
-                        Text(route.distance.toStringAsPrecision(2) + ' Km', style: Theme.of(context).textTheme.bodyText1)
+                        Text(route.distance.toStringAsFixed(0) + ' Km', style: Theme.of(context).textTheme.bodyText1)
                       ],
                     )),
                 flex: 7),
