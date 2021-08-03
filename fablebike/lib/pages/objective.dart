@@ -82,6 +82,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           ),
                         ],
                       ),
+                      SizedBox(height: 20),
                       Container(
                         child: ClipRRect(
                           child: ImageSlideshow(

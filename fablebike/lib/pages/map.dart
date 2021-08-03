@@ -102,7 +102,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   void goToPoint(LatLng dest) {
     final latTween = Tween<double>(begin: mapController.center.latitude, end: dest.latitude);
     final longTween = Tween<double>(begin: mapController.center.longitude, end: dest.longitude);
-    final zoomTween = Tween<double>(begin: mapController.zoom, end: 11.0);
+    final zoomTween = Tween<double>(begin: mapController.zoom, end: 10.0);
 
     var controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
 
@@ -254,7 +254,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                             options: MapOptions(
                                 center: widget.bikeRoute.center,
                                 minZoom: 10.0,
-                                maxZoom: 13.0,
+                                maxZoom: 10.0,
                                 zoom: 10.0,
                                 swPanBoundary: LatLng(46.2318, 27.3077),
                                 nePanBoundary: LatLng(46.9708, 28.1942),
@@ -262,7 +262,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                             layers: [
                               TileLayerOptions(
                                 tileProvider: AssetTileProvider(),
-                                maxZoom: 13.0,
+                                maxZoom: 10.0,
                                 urlTemplate: 'assets/map/{z}/{x}/{y}.png',
                               ),
                               PolylineLayerOptions(
@@ -282,6 +282,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.all(Radius.circular(128.0)),
                                       color: Theme.of(context).primaryColor,
+                                      border: Border.all(color: Colors.white, width: 1),
                                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                                   child: Column(
                                     children: [
@@ -428,7 +429,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                     Spacer(flex: 1),
                   ],
                 ),
-                flex: 65),
+                flex: 80),
             Expanded(
                 child: Column(
                   children: [
@@ -553,7 +554,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                 children: [
                   Expanded(
                       child: Text(
-                        '',
+                        'Inapoi',
                         style: Theme.of(context).textTheme.headline3,
                       ),
                       flex: 10),
