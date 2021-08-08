@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/user_service.dart';
@@ -11,12 +12,10 @@ import 'package:provider/provider.dart';
 const PAGE_SIZE = 10;
 
 class CommentSection extends StatefulWidget {
-  final int route_id;
-  final int totalPages;
   final ConnectivityResult connectionStatus;
-  final bool canPost;
+  final BikeRoute bikeRoute;
 
-  CommentSection({Key key, this.route_id, this.connectionStatus, this.canPost, this.totalPages}) : super(key: key);
+  CommentSection({Key key, this.connectionStatus, this.bikeRoute}) : super(key: key);
 
   @override
   _CommentSectionState createState() => _CommentSectionState();
@@ -31,19 +30,21 @@ class _CommentSectionState extends State<CommentSection> {
   bool loadingComments = false;
   AuthenticatedUser user;
   Widget previousContainer;
-
+  bool forceRemake = false;
+  int totalPages;
   @override
   void initState() {
     super.initState();
-    getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
+    totalPages = widget.bikeRoute.commentCount ~/ 5 + (widget.bikeRoute.commentCount % 5 == 0 ? 0 : 1);
+    getComments = new CommentService().getComments(page: this.page, route: widget.bikeRoute.id);
     user = context.read<AuthenticatedUser>();
-    print(widget.totalPages.toString());
+    print(totalPages.toString());
   }
 
   void _getNextPageComments() {
-    if (this.page >= widget.totalPages) return;
+    if (this.page >= totalPages) return;
     setState(() {
-      getComments = new CommentService().getComments(page: this.page, route: widget.route_id);
+      getComments = new CommentService().getComments(page: this.page, route: widget.bikeRoute.id);
     });
   }
 
@@ -65,7 +66,7 @@ class _CommentSectionState extends State<CommentSection> {
                     InkWell(
                       child: Icon(Icons.arrow_back),
                       onTap: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(12);
                       },
                     ),
                     SizedBox(width: 20),
@@ -87,7 +88,14 @@ class _CommentSectionState extends State<CommentSection> {
                             suffixIcon: InkWell(
                               child: Icon(Icons.send),
                               onTap: () async {
-                                await CommentService().addComment(route: widget.route_id, message: commentController.text);
+                                var result = await CommentService().addComment(route: widget.bikeRoute.id, message: commentController.text);
+                                if (result != null) {
+                                  this.comments.insert(0, result);
+                                  this.setState(() {
+                                    forceRemake = true;
+                                    widget.bikeRoute.commentCount += 1;
+                                  });
+                                }
                                 commentController.text = '';
                               },
                             ),
@@ -113,10 +121,11 @@ class _CommentSectionState extends State<CommentSection> {
                         this.comments.addAll(snapshot.data.comments);
                         this.page++;
                         previousContainer = null;
-                      } else if (previousContainer != null) {
+                      } else if (previousContainer != null && !forceRemake) {
                         return previousContainer;
                       }
 
+                      forceRemake = false;
                       previousContainer = Container(
                           height: height * 0.6,
                           child: Padding(

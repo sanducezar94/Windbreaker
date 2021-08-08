@@ -239,7 +239,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(128.0)),
-                          color: Theme.of(context).primaryColor,
+                          color: Color.fromRGBO(157, 78, 78, 1),
                           border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                       child: Column(
@@ -479,7 +479,7 @@ _buildBottomSheet(BuildContext context, BikeRoute bikeRoute) {
       isDismissible: true,
       backgroundColor: Colors.white.withOpacity(0),
       builder: (context) {
-        return CommentSection(canPost: true, route_id: bikeRoute.id, totalPages: bikeRoute.commentCount ~/ 5 + (bikeRoute.commentCount % 5 == 0 ? 0 : 1));
+        return CommentSection(bikeRoute: bikeRoute);
       });
 }
 

@@ -530,7 +530,16 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                   textAlign: TextAlign.start,
                                 ),
                                 onTap: () {
-                                  _buildBottomSheet(context, widget.bikeRoute);
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      isDismissible: true,
+                                      backgroundColor: Colors.white.withOpacity(0),
+                                      builder: (context) {
+                                        return CommentSection(bikeRoute: widget.bikeRoute);
+                                      }).then((value) => () {
+                                        setState(() {});
+                                      });
                                 },
                               )),
                         )
@@ -580,17 +589,6 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               ),
             )));
   }
-}
-
-_buildBottomSheet(BuildContext context, BikeRoute bikeRoute) {
-  showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      isDismissible: true,
-      backgroundColor: Colors.white.withOpacity(0),
-      builder: (context) {
-        return CommentSection(canPost: true, route_id: bikeRoute.id, totalPages: bikeRoute.commentCount ~/ 5 + (bikeRoute.commentCount % 5 == 0 ? 0 : 1));
-      });
 }
 
 _buildInfoBox(BuildContext context, Icon icon, title, label) {
