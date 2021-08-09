@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
@@ -17,15 +19,15 @@ import 'package:shimmer/shimmer.dart';
 class CardBuilder {
   static Widget buildAnnouncementBanner(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+              borderRadius: BorderRadius.all(Radius.circular(16.0)),
               color: Colors.white,
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 5, offset: Offset(0, 3))]),
-          height: 0.2 * height,
+          height: 0.25 * height,
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -85,7 +87,7 @@ class CardBuilder {
 
   static Widget buildAnnouncementBannerShimmer(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Shimmer.fromColors(
         highlightColor: Colors.white,
         baseColor: Colors.black.withOpacity(0.01),
@@ -93,7 +95,7 @@ class CardBuilder {
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                borderRadius: BorderRadius.all(Radius.circular(16.0)),
                 color: Colors.white,
               ),
               height: 0.2 * height,
@@ -102,7 +104,7 @@ class CardBuilder {
 
   static Widget buildSmallObjectiveShimmerCard(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: InkWell(
@@ -113,7 +115,7 @@ class CardBuilder {
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 4))]),
                 width: 0.35 * width,
-                height: 0.275 * height,
+                height: max(200, 0.275 * height),
                 child: Stack(
                   children: [
                     Shimmer.fromColors(
@@ -174,7 +176,7 @@ class CardBuilder {
 
   static Widget buildSmallObjectiveCard(BuildContext context, Objective objective) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: InkWell(
@@ -184,24 +186,25 @@ class CardBuilder {
             },
             child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 width: 0.35 * width,
+                height: max(200, 0.275 * height),
                 child: Stack(
                   children: [
                     Column(
                       children: [
                         Expanded(
                             child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
                                 child: ClipRRect(
                                   child: Image.asset(
                                     'assets/images/bisericalemn_000.jpg',
                                     fit: BoxFit.cover,
                                     height: double.infinity,
                                   ),
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(16),
                                 )),
                             flex: 12),
                         Expanded(
@@ -227,7 +230,7 @@ class CardBuilder {
 
   static Widget buildSeeAllBookmarksCard(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: InkWell(
@@ -259,7 +262,7 @@ class CardBuilder {
 
   static Widget buildSmallObjectiveCarouselCard(BuildContext context, Objective objective) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: InkWell(
@@ -269,7 +272,7 @@ class CardBuilder {
             },
             child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 width: width,
@@ -282,14 +285,14 @@ class CardBuilder {
                               children: [
                                 Expanded(
                                     child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
                                         child: ClipRRect(
                                           child: Image.asset(
                                             'assets/images/bisericalemn_000.jpg',
                                             fit: BoxFit.cover,
                                             height: double.infinity,
                                           ),
-                                          borderRadius: BorderRadius.circular(18),
+                                          borderRadius: BorderRadius.circular(16),
                                         )),
                                     flex: 1)
                               ],
@@ -298,7 +301,7 @@ class CardBuilder {
                         Expanded(
                           child: Align(
                             alignment: Alignment.center,
-                            child: Text(objective.name, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline5),
+                            child: Text(objective.name, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyText1),
                           ),
                           flex: 6,
                         )
@@ -318,7 +321,7 @@ class CardBuilder {
 
   static Widget buildSmallObjectiveCardC(BuildContext context, Objective objective) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: InkWell(
@@ -328,7 +331,7 @@ class CardBuilder {
             },
             child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 width: 0.35 * width,
@@ -339,14 +342,14 @@ class CardBuilder {
                       children: [
                         Expanded(
                             child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
                                 child: ClipRRect(
                                   child: Image.asset(
                                     'assets/images/bisericalemn_000.jpg',
                                     fit: BoxFit.cover,
                                     height: double.infinity,
                                   ),
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(16),
                                 )),
                             flex: 2),
                         Container(
@@ -377,15 +380,15 @@ class CardBuilder {
 
   static buildLargeObjectiveCard(BuildContext context, Objective objective) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     var user = Provider.of<AuthenticatedUser>(context);
     return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         child: InkWell(
             onTap: () {},
             child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 height: height * 0.35,
@@ -394,10 +397,10 @@ class CardBuilder {
                   children: [
                     Expanded(
                         child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
                             child: ClipRRect(
                               child: Image.asset('assets/images/bisericalemn_000.jpg', fit: BoxFit.cover),
-                              borderRadius: BorderRadius.circular(18 + .0),
+                              borderRadius: BorderRadius.circular(16),
                             )),
                         flex: 1),
                     Expanded(
@@ -482,19 +485,19 @@ class CardBuilder {
 
   static buildShimmerRouteCard(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         child: Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                borderRadius: BorderRadius.all(Radius.circular(16.0)),
                 color: Colors.white,
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
             height: height * 0.3,
             child: Column(children: [
               Expanded(
                   child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
                       child: Column(
                         children: [
                           Expanded(
@@ -513,7 +516,7 @@ class CardBuilder {
                                                   borderRadius: BorderRadius.all(Radius.circular(16.0)),
                                                 ),
                                               )),
-                                          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 5),
+                                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                                         ),
                                         borderRadius: BorderRadius.circular(30),
                                       ),
@@ -617,19 +620,19 @@ class CardBuilder {
 
   static buildRouteCard(BuildContext context, BikeRoute route) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         child: Container(
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                borderRadius: BorderRadius.all(Radius.circular(16.0)),
                 color: Colors.white,
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
             height: height * 0.3,
             child: Column(children: [
               Expanded(
                   child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
                       child: Column(
                         children: [
                           Expanded(
@@ -637,9 +640,12 @@ class CardBuilder {
                               child: Row(
                                 children: [
                                   Expanded(
-                                      child: ClipRRect(
-                                        child: Image.asset('assets/images/bisericalemn_000.jpg', fit: BoxFit.cover),
-                                        borderRadius: BorderRadius.circular(12),
+                                      child: Padding(
+                                        child: ClipRRect(
+                                          child: Image.asset('assets/images/bisericalemn_000.jpg', fit: BoxFit.cover),
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        padding: EdgeInsets.symmetric(vertical: 12.0),
                                       ),
                                       flex: 1),
                                   Expanded(
@@ -663,8 +669,12 @@ class CardBuilder {
                               )),
                           Expanded(
                               flex: 8,
-                              child: Container(
-                                child: buildRouteStats(context, route),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    child: buildRouteStats(context, route),
+                                  )
+                                ],
                               ))
                         ],
                       )),

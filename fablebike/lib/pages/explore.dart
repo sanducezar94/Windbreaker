@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -260,7 +261,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                           if (this._node.hasFocus)
                             ClipRRect(
                               child: Container(
-                                  height: height * 0.4,
+                                  height: height * 0.35,
                                   color: Colors.white,
                                   child: Column(
                                     children: [
@@ -272,7 +273,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                               if (list.isEmpty) return ListView();
 
                                               return ListView.builder(
-                                                  padding: EdgeInsets.zero,
+                                                  padding: EdgeInsets.all(0),
                                                   itemCount: list.length,
                                                   itemBuilder: (context, index) => ListTile(
                                                       leading: Icon(Icons.search),
@@ -301,7 +302,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                             )
                         ],
                       )),
-                  top: 70),
+                  top: min(70, height * 0.075)),
             ],
           ),
         )));
@@ -325,7 +326,7 @@ class _ObjectiveContainerState extends State<ObjectiveContainer> with TickerProv
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     return Container(
       width: width,
       height: height * 0.35,

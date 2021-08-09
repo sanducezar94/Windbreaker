@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -178,7 +179,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     var user = Provider.of<AuthenticatedUser>(context);
 
     if (widget.bikeRoute == null) {
@@ -311,7 +312,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                 child: Column(
@@ -330,7 +331,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                       ),
                                     ],
                                   ),
-                                  flex: 10),
+                                  flex: 12),
                               Spacer(
                                 flex: 4,
                               ),
@@ -350,6 +351,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     ],
                                   ),
                                   flex: 10),
+                              Spacer(
+                                flex: 4,
+                              ),
                               Expanded(
                                   child: Row(
                                     children: [
@@ -371,7 +375,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                           padding: EdgeInsets.symmetric(horizontal: 20.0),
                         ),
                         flex: 20),
-                    Spacer(flex: 5),
+                    Spacer(flex: 2),
                     Expanded(
                         child: Padding(
                             child: Row(
@@ -384,8 +388,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                               ],
                             ),
                             padding: EdgeInsets.symmetric(horizontal: 15.0)),
-                        flex: 10),
-                    Spacer(flex: 2),
+                        flex: 8),
+                    Spacer(flex: 2)
                   ],
                 ),
               ),
@@ -429,7 +433,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                     Spacer(flex: 1),
                   ],
                 ),
-                flex: 80),
+                flex: 70),
             Expanded(
                 child: Column(
                   children: [
@@ -502,7 +506,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                     Expanded(
                         child: Container(
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                              borderRadius: BorderRadius.all(Radius.circular(16.0)),
                               color: Colors.white,
                               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
                           child: Column(

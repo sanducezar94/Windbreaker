@@ -80,6 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var height = max(656, MediaQuery.of(context).size.height - 80);
+
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -142,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             return Container(
                               width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height * 0.275,
+                              height: max(210, 0.275 * height),
                               child: ListView.separated(
                                   itemBuilder: (context, index) => (index == 5 || index == snapshot.data.length + 1)
                                       ? CardBuilder.buildSeeAllBookmarksCard(context)
@@ -159,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           } else {
                             return Container(
                               width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height * 0.275,
+                              height: height * 0.275,
                               child: ListView.separated(
                                   itemBuilder: (context, index) => CardBuilder.buildSmallObjectiveShimmerCard(context),
                                   padding: EdgeInsets.all(0),

@@ -80,7 +80,7 @@ class MyApp extends StatelessWidget {
             textTheme: TextTheme(
               headline1: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.black54, fontFamily: 'OpenSans'),
               headline2: TextStyle(fontSize: 18.0, color: Color.fromRGBO(40, 51, 63, 1).withOpacity(0.36), fontFamily: 'OpenSans'),
-              bodyText1: TextStyle(fontSize: 16.0, color: Color.fromRGBO(40, 51, 93, 1).withOpacity(0.87), fontWeight: FontWeight.bold, fontFamily: 'Roboto'),
+              bodyText1: TextStyle(fontSize: 17.0, color: Color.fromRGBO(40, 51, 93, 1).withOpacity(0.87), fontWeight: FontWeight.bold, fontFamily: 'Roboto'),
               bodyText2: TextStyle(fontSize: 12.0, color: Color.fromRGBO(30, 41, 53, 1).withOpacity(0.65), fontFamily: 'OpenSans'),
               headline5: TextStyle(fontSize: 16.0, color: Color.fromRGBO(40, 51, 63, 1).withOpacity(0.87), fontWeight: FontWeight.bold, fontFamily: 'OpenSans'),
               headline4: TextStyle(fontSize: 14.0, color: Color.fromRGBO(40, 51, 83, 1).withOpacity(0.75), fontFamily: 'OpenSans'),
