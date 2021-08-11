@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fablebike/models/comments.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
@@ -16,7 +17,9 @@ class BikeRoute {
   double difficulty;
   int ratingCount;
   int commentCount;
+  int userRating;
   String file;
+  RoutePinnedComment pinnedComment;
 
   LatLng center;
   List<LatLng> rtsCoordinates;
@@ -41,7 +44,8 @@ class BikeRoute {
         difficulty = 0.0,
         center = json['center_lat'] != null ? LatLng(json['center_lat'], json['center_lng']) : LatLng(0, 0),
         commentCount = json["commentCount"],
-        ratingCount = json["rating_count"];
+        ratingCount = json["rating_count"],
+        userRating = json["user_rating"];
 }
 
 class Coordinates {

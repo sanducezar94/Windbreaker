@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +33,7 @@ class _SignUpScreen extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var height = max(656.0 - 80, MediaQuery.of(context).size.height - 160);
     bool _isValid() {
       return emailError.isEmpty && nameError.isEmpty && passwordError.isEmpty && confirmPasswordError.isEmpty;
     }
@@ -308,7 +311,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                                         }
                                         var response = await context
                                             .read<AuthenticationService>()
-                                            .signUp(user: userController.text, email: userController.text, password: passwordController.text);
+                                            .signUp(user: userController.text, email: emailController.text, password: passwordController.text);
 
                                         if (!response.success) {
                                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -329,7 +332,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                           flex: 30,
                         ),
                       ]),
-                      height: MediaQuery.of(context).size.height - 160,
+                      height: height,
                     ),
                   )),
             )));

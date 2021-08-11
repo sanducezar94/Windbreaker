@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
@@ -36,7 +37,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height - 80;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
     var user = Provider.of<AuthenticatedUser>(context);
 
     return ColorfulSafeArea(

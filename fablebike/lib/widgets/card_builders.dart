@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
+import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/bookmarks.dart';
@@ -13,6 +14,7 @@ import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -424,8 +426,8 @@ class CardBuilder {
                                           style: OutlinedButton.styleFrom(
                                               backgroundColor: Colors.white,
                                               textStyle: TextStyle(fontSize: 14),
-                                              primary: Theme.of(context).primaryColor,
-                                              side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColor, width: 0),
+                                              primary: Theme.of(context).hintColor,
+                                              side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).hintColor, width: 0),
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
                                           child: Text(context.read<LanguageManager>().routes)))
                                 ]),
@@ -459,28 +461,26 @@ class CardBuilder {
   static buildNearestObjectiveButton(BuildContext context) {
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Container(
-            height: 48,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: 10,
+        child: InkWell(
+          child: Container(
+              height: 64,
+              width: 999,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+              child: Align(
+                child: Text(
+                  'Vezi toate obiectivele pe harta',
+                  style: TextStyle(fontSize: 20, color: Theme.of(context).hintColor),
+                  textAlign: TextAlign.center,
                 ),
-                Align(
-                    alignment: Alignment.center,
-                    child: InkWell(
-                      child: Text(
-                        'Vezi toate obiectivele pe harta',
-                        style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
-                        textAlign: TextAlign.start,
-                      ),
-                      onTap: () {
-                        context.read<MainBloc>().objectiveEventSync.add(Constants.NavigateToExplore);
-                      },
-                    )),
-              ],
-            )));
+                alignment: Alignment.center,
+              )),
+          onTap: () {
+            context.read<MainBloc>().objectiveEventSync.add(Constants.NavigateToExplore);
+          },
+        ));
   }
 
   static buildShimmerRouteCard(BuildContext context) {
@@ -719,6 +719,7 @@ class CardBuilder {
                   child: ElevatedButton(
                     onPressed: () async {
                       try {
+                        Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
                         var database = await DatabaseService().database;
                         var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
 
@@ -749,11 +750,19 @@ class CardBuilder {
                           bikeRoute.rating = serverRoute.rating;
                           bikeRoute.ratingCount = serverRoute.ratingCount;
                           bikeRoute.commentCount = serverRoute.commentCount;
+                          bikeRoute.userRating = serverRoute.userRating;
                         }
 
+                        var db = await DatabaseService().database;
+
+                        var pinnedRouteRow = await db.query('routepinnedcomment', where: 'route_id = ?', whereArgs: [bikeRoute.id]);
+                        if (pinnedRouteRow.length > 0) {
+                          bikeRoute.pinnedComment = RoutePinnedComment.fromMap(pinnedRouteRow.first);
+                        }
                         Navigator.of(context).pushNamed(MapScreen.route, arguments: bikeRoute);
+                        Loader.hide();
                       } on Exception catch (e) {
-                        print(e);
+                        Loader.hide();
                       }
                     },
                     child: Text(context.read<LanguageManager>().details),

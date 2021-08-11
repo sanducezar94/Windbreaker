@@ -50,6 +50,21 @@ class CommentService {
       for (var comment in commentsJson["comments"]) {
         comments.add(Comment.fromJson(comment));
       }
+
+      if (page == 0) {
+        var db = await DatabaseService().database;
+
+        var pinnedRouteRow = await db.query('routepinnedcomment', where: 'route_id = ?', whereArgs: [route]);
+        if (pinnedRouteRow.length > 0) {
+          var pinnedRouteComment = pinnedRouteRow.first;
+          await db.update('routepinnedcomment', {'username': comments[0].user, 'comment': comments[0].text},
+              where: 'id = ?', whereArgs: [pinnedRouteComment['id']]);
+        } else if (comments.length > 0) {
+          await db
+              .insert('routepinnedcomment', {'username': comments[0].user, 'comment': comments[0].text, 'route_id': route, 'usericon_id': comments[0].userId});
+        }
+      }
+
       return CommentsPlate(comments: comments, page: page);
     } on SocketException {
       return null;

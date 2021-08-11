@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 class Comment {
   int id;
@@ -119,4 +120,60 @@ class CommentsPlate {
 
     return other is CommentsPlate && listEquals(other.comments, comments) && other.page == page;
   }
+}
+
+class RoutePinnedComment {
+  int id;
+  int routeId;
+  String username;
+  String comment;
+  int userIcon;
+
+  RoutePinnedComment({
+    this.id,
+    this.routeId,
+    this.username,
+    this.comment,
+    this.userIcon,
+  });
+
+  RoutePinnedComment copyWith({
+    int id,
+    int routeId,
+    String username,
+    String comment,
+    int userIcon,
+  }) {
+    return RoutePinnedComment(
+      id: id ?? this.id,
+      routeId: routeId ?? this.routeId,
+      username: username ?? this.username,
+      comment: comment ?? this.comment,
+      userIcon: userIcon ?? this.userIcon,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'routeId': routeId,
+      'username': username,
+      'comment': comment,
+      'userIcon': userIcon,
+    };
+  }
+
+  factory RoutePinnedComment.fromMap(Map<String, dynamic> map) {
+    return RoutePinnedComment(
+      id: map['id'] ?? 0,
+      routeId: map['route_id'] ?? 0,
+      username: map['username'] ?? '',
+      comment: map['comment'] ?? '',
+      userIcon: map['usericon_id'] ?? 0,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory RoutePinnedComment.fromJson(String source) => RoutePinnedComment.fromMap(json.decode(source));
 }

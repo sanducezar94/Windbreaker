@@ -66,6 +66,7 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color.fromRGBO(249, 249, 249, 1),
             //primaryColor: Color.fromRGBO(99, 157, 78, 1),
             primaryColor: Color.fromRGBO(26, 140, 255, 1),
+            hintColor: Color.fromRGBO(14, 110, 205, 1),
             //primaryColorDark: Color.fromRGBO(43, 127, 61, 1),
             primaryColorDark: Color.fromRGBO(14, 110, 205, 1), // Color.fromRGBO(30, 135, 171, 1),
             accentColor: Color.fromRGBO(40, 51, 63, 1),

@@ -61,6 +61,7 @@ dependencies:
   shimmer: ^2.0.0
   google_sign_in: ^4.5.9
   flutter_switch: ^0.3.2
+  flutter_overlay_loader: ^0.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

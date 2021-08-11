@@ -7,6 +7,7 @@ import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/oauth_signup.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 
 import 'models/service_response.dart';
 import 'services/authentication_service.dart';
@@ -25,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final flexer = 7;
 
   loginWithFB(BuildContext context) async {
+    Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
     final result = await FacebookAuth.instance.login(loginBehavior: LoginBehavior.nativeWithFallback);
     if (result.status == LoginStatus.success) {
       final userData = await FacebookAuth.instance.getUserData();
@@ -36,14 +38,17 @@ class _LoginScreenState extends State<LoginScreen> {
         var oAuthUser = OAuthUser("", facebookUser.email, facebookUser.photo);
         oAuthUser.iconUrl = userData['picture']['data']['url'];
         oAuthUser.isFacebook = true;
+        Loader.hide();
         Navigator.pushNamed(context, OAuthRegisterScreen.route, arguments: oAuthUser);
       }
+    } else {
+      Loader.hide();
     }
   }
 
   loginWithGoogle() async {
     var googleSignIn = GoogleSignIn();
-
+    Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
     var googleAccount = await googleSignIn.signIn();
 
     var response = await context.read<AuthenticationService>().signIn(email: googleAccount.email, password: "");
@@ -51,7 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
       var oAuthUser = OAuthUser("", googleAccount.email, googleAccount.photoUrl);
       oAuthUser.iconUrl = googleAccount.photoUrl;
       oAuthUser.isGoogle = true;
+      Loader.hide();
       Navigator.pushNamed(context, OAuthRegisterScreen.route, arguments: oAuthUser);
+    } else {
+      Loader.hide();
     }
   }
 
@@ -171,10 +179,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                               onPressed: () async {
                                                 if (userController.text.isEmpty || passwordController.text.isEmpty) return;
                                                 if (formKey.currentState.validate()) {
+                                                  Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
                                                   var response = await context
                                                       .read<AuthenticationService>()
                                                       .signIn(email: userController.text, password: passwordController.text);
-
+                                                  Loader.hide();
                                                   if (!response.success) {
                                                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -243,6 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               Expanded(
                                                   child: InkWell(
                                                     onTap: () async {
+                                                      Loader.show(context, progressIndicator: LinearProgressIndicator());
                                                       await context.read<AuthenticationService>().signInGuest();
                                                     },
                                                     child: Image.asset(

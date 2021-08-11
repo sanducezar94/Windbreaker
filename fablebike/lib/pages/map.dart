@@ -4,14 +4,12 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/sections/comments_section.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/carousel.dart';
-import 'package:fablebike/widgets/rating_dialog.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
@@ -19,7 +17,6 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
-import 'package:map_elevation/map_elevation.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong/latlong.dart';
 import 'package:share_plus/share_plus.dart';
@@ -93,6 +90,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     initConnectivity();
+    _stars = widget.bikeRoute.userRating;
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       this.setState(() {
         _connectionStatus = result;
@@ -164,7 +162,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         setState(() {
           if (newRating != null && newRating != 0.0) {
             widget.bikeRoute.rating = newRating;
-            widget.bikeRoute.ratingCount += 1;
+            if (widget.bikeRoute.userRating == 0) widget.bikeRoute.ratingCount += 1;
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 duration: const Duration(milliseconds: 800),
@@ -239,7 +237,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
     _buildMap() {
       return Container(
-          height: height * 1.45 - 80,
+          height: height * (widget.bikeRoute.pinnedComment != null ? 1.45 : 1.3) - 80,
           child: Column(children: [
             Spacer(flex: 5),
             Expanded(
@@ -325,10 +323,27 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                               Expanded(
                                   child: Row(
                                     children: [
-                                      Text(
-                                        widget.bikeRoute.name,
-                                        style: Theme.of(context).textTheme.headline3,
-                                      ),
+                                      Expanded(
+                                          child: Text(
+                                            widget.bikeRoute.name,
+                                            style: Theme.of(context).textTheme.headline3,
+                                          ),
+                                          flex: 25),
+                                      Expanded(
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.star_rate_rounded, color: Colors.orange),
+                                              Padding(
+                                                child: Text(
+                                                  widget.bikeRoute.rating.toStringAsFixed(1) + ' (' + widget.bikeRoute.ratingCount.toString() + ')',
+                                                  style: Theme.of(context).textTheme.headline5,
+                                                ),
+                                                padding: EdgeInsets.only(top: 2),
+                                              )
+                                            ],
+                                          ),
+                                          flex: 8),
                                     ],
                                   ),
                                   flex: 12),
@@ -478,81 +493,147 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   ],
                 ),
                 flex: 30),
-            Expanded(
-                child: Column(
-                  children: [
-                    Expanded(
-                        child: Padding(
-                          child: Column(
-                            children: [
-                              Expanded(
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Despre ruta',
-                                        style: Theme.of(context).textTheme.bodyText1,
-                                      ),
-                                    ],
-                                  ),
-                                  flex: 10),
-                            ],
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 00.0),
-                        ),
-                        flex: 5),
-                    Spacer(
-                      flex: 2,
-                    ),
-                    Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                              color: Colors.white,
-                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: _buildComment(
-                                    context, Comment(userId: 0, id: 0, text: 'Am plecat 5 si neam intors 2', user: 'Pacea Poc', icon: ''), false, null),
-                                flex: 1,
-                              )
-                            ],
-                          ),
-                        ),
-                        flex: 12),
-                    Spacer(flex: 2),
-                    Expanded(
-                      child: Row(children: [
+            widget.bikeRoute.pinnedComment != null
+                ? Expanded(
+                    child: Column(
+                      children: [
                         Expanded(
-                          flex: 1,
-                          child: Align(
-                              alignment: Alignment.center,
-                              child: InkWell(
-                                child: Text(
-                                  'Vezi toate comentariile (' + widget.bikeRoute.commentCount.toString() + ')',
-                                  style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
-                                  textAlign: TextAlign.start,
-                                ),
-                                onTap: () {
-                                  showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      context: context,
-                                      isDismissible: true,
-                                      backgroundColor: Colors.white.withOpacity(0),
-                                      builder: (context) {
-                                        return CommentSection(bikeRoute: widget.bikeRoute);
-                                      }).then((value) => () {
-                                        setState(() {});
-                                      });
-                                },
-                              )),
-                        )
-                      ]),
-                      flex: 5,
+                            child: Padding(
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'Despre ruta',
+                                            style: Theme.of(context).textTheme.bodyText1,
+                                          ),
+                                        ],
+                                      ),
+                                      flex: 10),
+                                ],
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 00.0),
+                            ),
+                            flex: 5),
+                        Spacer(
+                          flex: 2,
+                        ),
+                        Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                  color: Colors.white,
+                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: _buildComment(
+                                        context,
+                                        Comment(
+                                            userId: 0,
+                                            id: 0,
+                                            text: widget.bikeRoute.pinnedComment.comment,
+                                            user: widget.bikeRoute.pinnedComment.username,
+                                            icon: ''),
+                                        false,
+                                        null),
+                                    flex: 1,
+                                  )
+                                ],
+                              ),
+                            ),
+                            flex: 12),
+                        Spacer(flex: 2),
+                        Expanded(
+                          child: Row(children: [
+                            Expanded(
+                              flex: 1,
+                              child: Align(
+                                  alignment: Alignment.center,
+                                  child: InkWell(
+                                    child: Text(
+                                      'Vezi toate comentariile (' + widget.bikeRoute.commentCount.toString() + ')',
+                                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                          isScrollControlled: true,
+                                          context: context,
+                                          isDismissible: true,
+                                          backgroundColor: Colors.white.withOpacity(0),
+                                          builder: (context) {
+                                            return CommentSection(bikeRoute: widget.bikeRoute);
+                                          }).then((value) => () {
+                                            setState(() {});
+                                          });
+                                    },
+                                  )),
+                            )
+                          ]),
+                          flex: 5,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                flex: 50),
+                    flex: 50)
+                : Expanded(
+                    flex: 30,
+                    child: Column(
+                      children: [
+                        Expanded(
+                            child: Padding(
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'Despre ruta',
+                                            style: Theme.of(context).textTheme.bodyText1,
+                                          ),
+                                        ],
+                                      ),
+                                      flex: 10),
+                                ],
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 00.0),
+                            ),
+                            flex: 5),
+                        Spacer(flex: 2),
+                        Expanded(
+                          child: Row(children: [
+                            Expanded(
+                              flex: 1,
+                              child: Align(
+                                  alignment: Alignment.center,
+                                  child: InkWell(
+                                    child: Text(
+                                      'Vezi toate comentariile (' + widget.bikeRoute.commentCount.toString() + ')',
+                                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                          isScrollControlled: true,
+                                          context: context,
+                                          isDismissible: true,
+                                          backgroundColor: Colors.white.withOpacity(0),
+                                          builder: (context) {
+                                            return CommentSection(bikeRoute: widget.bikeRoute);
+                                          }).then((value) => () {
+                                            setState(() {});
+                                          });
+                                    },
+                                  )),
+                            ),
+                          ]),
+                          flex: 5,
+                        ),
+                        Spacer(flex: 2)
+                      ],
+                    ),
+                  ),
             Spacer(flex: 5)
           ]));
     }

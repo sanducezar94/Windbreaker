@@ -212,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             }
                           },
                           future: _getNearbyObjectives(user)),
+                      SizedBox(height: 5)
                     ],
                   ),
                 ],
