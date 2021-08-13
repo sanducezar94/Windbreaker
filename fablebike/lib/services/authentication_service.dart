@@ -76,6 +76,12 @@ class AuthenticationService {
       language = languageRow.first['value'] == 'RO' ? true : false;
     }
 
+    var persistentUserRow = await db.query('SystemValue', where: 'key = ?', whereArgs: ['puseremail']);
+
+    if (persistentUserRow.length == 0) {
+      db.insert('SystemValue', {'key': 'puseremail'});
+    } else {}
+
     loggedUser.lowDataUsage = dataUsage;
     loggedUser.isRomanianLanguage = language;
   }

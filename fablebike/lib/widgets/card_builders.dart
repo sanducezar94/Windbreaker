@@ -253,7 +253,7 @@ class CardBuilder {
                       alignment: Alignment.center,
                       child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                          child: Text('Vezi toate obiectivele salvate',
+                          child: Text(context.read<LanguageManager>().homeSeeAllSavedObjectives,
                               textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: Theme.of(context).primaryColor))),
                     ),
                   )
@@ -471,7 +471,7 @@ class CardBuilder {
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
               child: Align(
                 child: Text(
-                  'Vezi toate obiectivele pe harta',
+                  context.read<LanguageManager>().homeSeeAllObjectives,
                   style: TextStyle(fontSize: 20, color: Theme.of(context).hintColor),
                   textAlign: TextAlign.center,
                 ),

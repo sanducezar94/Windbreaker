@@ -14,9 +14,15 @@ class LanguageManager {
   String get homeObjectives => language == 'RO' ? 'Obiective vizitate' : 'Objectives visited';
   String get homeBookmarks => language == 'RO' ? 'Obiective marcate' : 'Bookmarks';
   String get homeNearbyObjectives => language == 'RO' ? 'Obiective aflate in apropiere' : 'Nearby objectives';
+  String get homeSeeAllObjectives => language == 'RO' ? 'Vezi toate obiectivele pe harta' : 'See all objective on map';
+  String get homeSeeAllSavedObjectives => language == 'RO' ? 'Vezi toate obiectivele salvate' : 'See all bookmarks';
 
   String get routeDistance => language == 'RO' ? 'Distanta' : 'Distance';
   String get routeAvailable => language == 'RO' ? 'Lista rutelor disponibile' : 'All routes';
+  String get routeObjectives => language == 'RO' ? 'Obiective pe aceasta ruta' : 'Objectives on the route';
+  String get routeEvaluate => language == 'RO' ? 'Evalueaza ruta' : 'Evaluate this route';
+  String get routeAbout => language == 'RO' ? 'Despre Ruta' : 'About route';
+  String get routeSeeAllComments => language == 'RO' ? 'Vezi toate comentariile' : 'See all comments';
 
   String get settingPhoto => language == 'RO' ? 'Schimba fotografia de profil' : 'Change profile picture';
   String get settingGDPR => language == 'RO' ? 'Citeste clauze GDPR' : 'Read GDPR clauses';
@@ -52,6 +58,9 @@ class LanguageManager {
   String get objective => language == 'RO' ? 'Obiective' : 'Objectives';
   String get search => language == 'RO' ? 'Cauta' : 'Search';
   String get info => language == 'RO' ? 'Informatii' : 'Informations';
+  String get distance => language == 'RO' ? 'Distanta' : 'Distance';
+  String get duration => language == 'RO' ? 'Durata' : 'Duration';
+  String get difficulty => language == 'RO' ? 'Dificultate' : 'Difficulty';
 
   String get back => language == 'RO' ? 'Inapoi' : 'Back';
   String get description => language == 'RO' ? 'Descriere' : 'Description';

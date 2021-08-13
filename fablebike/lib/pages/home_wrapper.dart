@@ -6,6 +6,7 @@ import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
 import 'explore.dart';
 import 'home.dart';

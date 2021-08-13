@@ -9,6 +9,7 @@ import 'package:fablebike/widgets/route_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
 
 class RoutesScreen extends StatefulWidget {
@@ -33,7 +34,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
   void initState() {
     super.initState();
     getBikeRoutes = _getRoutes();
-
     if (widget.objective != null) {
       searchController.text = 'obiective:' + widget.objective.name;
       sensibleSearch = true;

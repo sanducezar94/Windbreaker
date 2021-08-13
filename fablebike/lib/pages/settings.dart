@@ -11,6 +11,7 @@ import 'package:fablebike/services/authentication_service.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/widgets/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';

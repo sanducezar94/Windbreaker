@@ -12,6 +12,7 @@ import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong/latlong.dart';
 import 'package:fablebike/widgets/card_builders.dart';

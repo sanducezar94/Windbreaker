@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/fullscreen_map.dart';
@@ -396,10 +397,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                             child: Row(
                               children: [
                                 Expanded(
-                                    child: _buildMapStat(Icons.directions_bike_outlined, 'Distanta', widget.bikeRoute.distance.toStringAsFixed(0) + ' Km'),
+                                    child: _buildMapStat(Icons.directions_bike_outlined, context.read<LanguageManager>().distance,
+                                        widget.bikeRoute.distance.toStringAsFixed(0) + ' Km'),
                                     flex: 2),
-                                Expanded(child: _buildMapStat(Icons.av_timer_outlined, 'Durata', '30 min'), flex: 2),
-                                Expanded(child: _buildMapStat(Icons.landscape_outlined, 'Dificultate', 'Medie'), flex: 2),
+                                Expanded(child: _buildMapStat(Icons.av_timer_outlined, context.read<LanguageManager>().duration, '30 min'), flex: 2),
+                                Expanded(child: _buildMapStat(Icons.landscape_outlined, context.read<LanguageManager>().difficulty, 'Medie'), flex: 2),
                               ],
                             ),
                             padding: EdgeInsets.symmetric(horizontal: 15.0)),
@@ -422,7 +424,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                   child: Row(
                                     children: [
                                       Text(
-                                        'Obiective pe aceasta ruta',
+                                        context.read<LanguageManager>().routeObjectiveOn,
                                         style: Theme.of(context).textTheme.bodyText1,
                                       ),
                                     ],
@@ -460,7 +462,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                   child: Row(
                                     children: [
                                       Text(
-                                        'Evalueaza ruta',
+                                        context.read<LanguageManager>().routeEvaluate,
                                         style: Theme.of(context).textTheme.bodyText1,
                                       ),
                                     ],
@@ -505,7 +507,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                       child: Row(
                                         children: [
                                           Text(
-                                            'Despre ruta',
+                                            context.read<LanguageManager>().routeAbout,
                                             style: Theme.of(context).textTheme.bodyText1,
                                           ),
                                         ],
@@ -553,7 +555,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                   alignment: Alignment.center,
                                   child: InkWell(
                                     child: Text(
-                                      'Vezi toate comentariile (' + widget.bikeRoute.commentCount.toString() + ')',
+                                      context.read<LanguageManager>().routeSeeAllComments + ' (' + widget.bikeRoute.commentCount.toString() + ')',
                                       style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
                                       textAlign: TextAlign.start,
                                     ),
