@@ -251,8 +251,9 @@ class _OAuthRegisterScreen extends State<OAuthRegisterScreen> {
                                           isValid = false;
                                           return;
                                         }
-                                        var response =
-                                            await context.read<AuthenticationService>().facebookSignUp(user: userController.text, email: emailController.text);
+                                        var response = await context
+                                            .read<AuthenticationService>()
+                                            .facebookSignUp(user: userController.text, email: emailController.text, userToken: widget.user.token);
 
                                         if (!response.success) {
                                           ScaffoldMessenger.of(context).hideCurrentSnackBar();

@@ -95,7 +95,36 @@ class AuthenticationService {
         throw TimeoutException('Connection timed out!');
       });
 
-      if (response.statusCode == 202) {
+      if (response.statusCode == 200) {
+        var storage = new StorageService();
+        var body = jsonDecode(response.body);
+
+        await storage.writeValue('token', body["token"]);
+        var loggedUser = new AuthenticatedUser.fromJson(response.body);
+        await setUserData(loggedUser);
+        sc.add(loggedUser);
+        return ServiceResponse(true, SUCCESS_MESSAGE);
+      }
+
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
+    }
+  }
+
+  Future<ServiceResponse> signInFacebook({String email, String password, String facebookToken}) async {
+    try {
+      var client = http.Client();
+      String authToken = base64Encode(utf8.encode(email + ':' + password));
+      var parameters = {'oauth_token': facebookToken};
+      var response = await client.get(Uri.https(SERVER_IP, AUTH, parameters), headers: {HttpHeaders.authorizationHeader: 'Basic ' + authToken}).timeout(
+          const Duration(seconds: 5), onTimeout: () {
+        throw TimeoutException('Connection timed out!');
+      });
+
+      if (response.statusCode == 200) {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
 
@@ -162,7 +191,7 @@ class AuthenticationService {
         throw TimeoutException('Connection timed out!');
       });
 
-      if (response.statusCode == 202) {
+      if (response.statusCode == 200) {
         var storage = new StorageService();
         var body = jsonDecode(response.body);
 
@@ -179,12 +208,12 @@ class AuthenticationService {
     }
   }
 
-  Future<ServiceResponse> facebookSignUp({String user, String email}) async {
+  Future<ServiceResponse> facebookSignUp({String user, String email, String userToken}) async {
     try {
       var client = http.Client();
       var response = await client.post(
         Uri.https(SERVER_IP, FACEBOOK_SIGNUP),
-        body: {'email': email, 'user': user},
+        body: {'email': email, 'user': user, 'user_token': userToken},
       ).timeout(const Duration(seconds: 5), onTimeout: () {
         throw TimeoutException('Connection timed out!');
       });

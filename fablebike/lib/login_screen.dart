@@ -29,15 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
     Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
     final result = await FacebookAuth.instance.login(loginBehavior: LoginBehavior.nativeWithFallback);
     if (result.status == LoginStatus.success) {
+      print(result.accessToken.token);
+      print(result.accessToken.applicationId);
       final userData = await FacebookAuth.instance.getUserData();
       final facebookUser = FacebookUser.fromJson(userData);
 
-      var reponse = await context.read<AuthenticationService>().signIn(email: facebookUser.email, password: "");
+      var reponse =
+          await context.read<AuthenticationService>().signInFacebook(email: facebookUser.email, password: "", facebookToken: result.accessToken.token);
 
       if (!reponse.success) {
         var oAuthUser = OAuthUser("", facebookUser.email, facebookUser.photo);
         oAuthUser.iconUrl = userData['picture']['data']['url'];
         oAuthUser.isFacebook = true;
+        oAuthUser.token = result.accessToken.token;
         Loader.hide();
         Navigator.pushNamed(context, OAuthRegisterScreen.route, arguments: oAuthUser);
       }
@@ -47,19 +51,34 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   loginWithGoogle() async {
-    var googleSignIn = GoogleSignIn();
+    var googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+        'https://www.googleapis.com/auth/contacts.readonly',
+      ],
+    );
     Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-    var googleAccount = await googleSignIn.signIn();
 
-    var response = await context.read<AuthenticationService>().signIn(email: googleAccount.email, password: "");
-    if (!response.success) {
-      var oAuthUser = OAuthUser("", googleAccount.email, googleAccount.photoUrl);
-      oAuthUser.iconUrl = googleAccount.photoUrl;
-      oAuthUser.isGoogle = true;
+    try {
+      var googleAccount = await googleSignIn.signIn().timeout(const Duration(seconds: 5));
+      if (googleAccount == null) {
+        Loader.hide();
+        return;
+      }
+
+      var response = await context.read<AuthenticationService>().signIn(email: googleAccount.email, password: "");
+      if (!response.success) {
+        var oAuthUser = OAuthUser("", googleAccount.email, googleAccount.photoUrl);
+        oAuthUser.iconUrl = googleAccount.photoUrl;
+        oAuthUser.isGoogle = true;
+        Loader.hide();
+        Navigator.pushNamed(context, OAuthRegisterScreen.route, arguments: oAuthUser);
+      } else {
+        Loader.hide();
+      }
+    } on Exception catch (e) {
       Loader.hide();
-      Navigator.pushNamed(context, OAuthRegisterScreen.route, arguments: oAuthUser);
-    } else {
-      Loader.hide();
+      return;
     }
   }
 
@@ -241,7 +260,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                               Expanded(
                                                   child: InkWell(
                                                       onTap: () async {
-                                                        await loginWithGoogle();
+                                                        try {
+                                                          var result = await loginWithGoogle();
+                                                        } on Exception catch (e) {
+                                                          Loader.hide();
+                                                          Navigator.pop(context);
+                                                        }
                                                       },
                                                       child: Image.asset(
                                                         'assets/images/search.png',

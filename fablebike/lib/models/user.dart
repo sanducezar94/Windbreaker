@@ -100,6 +100,7 @@ class AuthenticatedUser {
 class OAuthUser {
   String username;
   String email;
+  String token;
   String iconUrl;
   bool isFacebook;
   bool isGoogle;
