@@ -208,7 +208,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
           Expanded(
               child: Icon(
                 iconData,
-                color: Theme.of(context).primaryColorDark.withOpacity(0.7),
+                color: Theme.of(context).primaryColorDark.withOpacity(1),
                 size: 32,
               ),
               flex: 8),
@@ -356,7 +356,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     children: [
                                       Icon(
                                         Icons.place,
-                                        color: Theme.of(context).primaryColorDark.withOpacity(0.7),
+                                        color: Theme.of(context).primaryColorDark.withOpacity(1),
                                         size: 24,
                                       ),
                                       SizedBox(width: 5),
@@ -375,7 +375,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     children: [
                                       Icon(
                                         Icons.directions,
-                                        color: Theme.of(context).primaryColorDark.withOpacity(0.7),
+                                        color: Theme.of(context).primaryColorDark.withOpacity(1),
                                         size: 24,
                                       ),
                                       SizedBox(width: 5),
@@ -438,14 +438,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                     Expanded(
                         child: Container(
                             child: Carousel(
-                                objectives: widget.bikeRoute.objectives,
-                                context: context,
-                                onItemChanged: (int index) {
-                                  this.setState(() {
-                                    this.currentPoint = index;
-                                  });
-                                  goToPoint(widget.bikeRoute.objectives[index].coords);
-                                })),
+                          objectives: widget.bikeRoute.objectives,
+                          context: context,
+                        )),
                         flex: 20),
                     Spacer(flex: 1),
                   ],

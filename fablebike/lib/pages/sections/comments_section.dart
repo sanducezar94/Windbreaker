@@ -85,6 +85,7 @@ class _CommentSectionState extends State<CommentSection> {
                       child: TextFormField(
                         controller: commentController,
                         decoration: InputDecoration(
+                            hintStyle: TextStyle(color: Colors.grey),
                             suffixIcon: InkWell(
                               child: Icon(Icons.send),
                               onTap: () async {

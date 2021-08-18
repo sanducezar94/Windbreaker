@@ -332,7 +332,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                           flex: 30,
                         ),
                       ]),
-                      height: height,
+                      height: height + 80,
                     ),
                   )),
             )));

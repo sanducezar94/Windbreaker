@@ -405,6 +405,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                                 decoration: InputDecoration(
                                     fillColor: Colors.white,
                                     filled: true,
+                                    hintStyle: TextStyle(color: Colors.grey),
                                     contentPadding: EdgeInsets.symmetric(vertical: 0.0),
                                     prefixIcon: Icon(Icons.search),
                                     border: this._node.hasFocus
@@ -465,7 +466,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                             )
                         ],
                       )),
-                  top: 70),
+                  top: 40),
             ],
           ),
         )));
@@ -600,7 +601,7 @@ class _ObjectiveContainerState extends State<ObjectiveContainer> with TickerProv
                                         child: ElevatedButton(
                                           onPressed: () {
                                             var objectiveInfo = new ObjectiveInfo(objective: widget.objective, fromRoute: ModalRoute.of(context).settings.name);
-                                            Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+                                            //Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
                                           },
                                           child: Text(context.read<LanguageManager>().details),
                                           style: ElevatedButton.styleFrom(

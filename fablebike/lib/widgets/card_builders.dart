@@ -19,6 +19,455 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CardBuilder {
+  static double circularRadius = 16.0;
+  static Widget buildProfileBar(BuildContext context, String tab) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            children: [
+              Row(children: [
+                Text(
+                  tab,
+                  style: Theme.of(context).textTheme.headline1,
+                  textAlign: TextAlign.start,
+                )
+              ]),
+              SizedBox(height: 5),
+              Row(children: [
+                Text(
+                  "Bine ai venit, Cezar!",
+                  style: Theme.of(context).textTheme.subtitle1,
+                  textAlign: TextAlign.start,
+                )
+              ]),
+            ],
+          ),
+          flex: 3,
+        ),
+        Expanded(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 82,
+                height: 82,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(64.0)),
+                    color: Theme.of(context).primaryColor.withOpacity(0.25),
+                    border: Border.all(color: Color.fromRGBO(232, 242, 243, 1), width: 8)),
+              ),
+              ClipRRect(
+                child: Image.asset('assets/icons/avatar_icon.png', width: 64, height: 64, fit: BoxFit.contain),
+                borderRadius: BorderRadius.circular(48.0),
+              )
+            ],
+          ),
+          flex: 1,
+        )
+      ],
+    );
+  }
+
+  static Widget buildStars(BuildContext context, rating, applyShadow) {
+    return Row(children: [
+      for (var i = 0; i < 5; i++)
+        Container(
+          decoration: applyShadow
+              ? BoxDecoration(color: Colors.white.withOpacity(0), shape: BoxShape.circle, boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: .5,
+                  ),
+                ])
+              : null,
+          child: Icon(
+            Icons.star,
+            color: rating >= i ? Color.fromRGBO(255, 196, 107, 1) : Colors.grey,
+            size: 18,
+          ),
+        )
+    ]);
+  }
+
+  static Widget buildSmallObjectiveCarouselCard(BuildContext context, int index, Objective objective, bool noInfo) {
+    double width = MediaQuery.of(context).size.width;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
+    return Padding(
+        padding: index == 0 ? EdgeInsets.fromLTRB(0, 6, 16.0, 6) : EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
+        child: InkWell(
+            onTap: () {
+              var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+              //  Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+            },
+            child: Stack(
+              children: [
+                Container(
+                  height: 999,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(circularRadius * 2)),
+                      image: new DecorationImage(
+                        image: Image.asset('assets/images/bisericalemn_000.jpg').image,
+                        fit: BoxFit.cover,
+                      ),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                  width: width,
+                ),
+                Container(
+                  height: 999,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(circularRadius * 2)),
+                      color: Colors.white,
+                      gradient: LinearGradient(begin: FractionalOffset.topCenter, end: FractionalOffset.bottomCenter, colors: [
+                        Colors.white.withOpacity(0.0),
+                        Colors.black.withOpacity(0.5),
+                      ], stops: [
+                        0.5,
+                        0.75
+                      ]),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 2, blurRadius: 6, offset: Offset(0, 0))]),
+                  width: width,
+                ),
+                noInfo
+                    ? Positioned(
+                        bottom: 6,
+                        left: 24,
+                        child: Container(
+                          width: 200,
+                          height: 40,
+                          child: Column(children: [
+                            Expanded(
+                                child: Row(
+                                  children: [
+                                    Text('Biserica de lemn', style: Theme.of(context).textTheme.headline3),
+                                  ],
+                                ),
+                                flex: 6),
+                          ]),
+                        ),
+                      )
+                    : Positioned(
+                        child: Container(
+                          width: 200,
+                          height: 75,
+                          child: Column(children: [
+                            Expanded(
+                                child: Row(
+                                  children: [buildStars(context, 3, true)],
+                                ),
+                                flex: 4),
+                            Spacer(flex: 1),
+                            Expanded(
+                                child: Row(
+                                  children: [
+                                    Text('Biserica de lemn', style: Theme.of(context).textTheme.headline3),
+                                  ],
+                                ),
+                                flex: 6),
+                            Expanded(
+                                child: Row(
+                                  children: [
+                                    Text('Scris scris scris scris', style: Theme.of(context).textTheme.headline4),
+                                  ],
+                                ),
+                                flex: 6)
+                          ]),
+                        ),
+                        bottom: 24,
+                        left: 24)
+              ],
+            )));
+  }
+
+  static Widget buildlargeObjectiveCard(BuildContext context, Objective objective) {
+    double width = MediaQuery.of(context).size.width;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
+    return Padding(
+        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+        child: InkWell(
+            onTap: () {
+              var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+
+              /* Navigator.of(context).push(PageRouteBuilder(
+                  transitionDuration: Duration(microseconds: 1000),
+                  fullscreenDialog: true,
+                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+                    return ObjectiveScreen(objective: objective);
+                  },
+                  transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  }));*/
+              Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+            },
+            child: Stack(
+              children: [
+                InkWell(
+                    child: Hero(
+                        child: Container(
+                          height: height * 0.25,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
+                              image: new DecorationImage(
+                                image: Image.asset('assets/images/bisericalemn_000.jpg').image,
+                                fit: BoxFit.cover,
+                              ),
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                          width: width,
+                        ),
+                        tag: 'objective-hero' + objective.name),
+                    onTap: () {}),
+                Hero(
+                    child: Container(
+                      height: height * 0.25,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
+                          color: Colors.white,
+                          gradient: LinearGradient(begin: FractionalOffset.topCenter, end: FractionalOffset.bottomCenter, colors: [
+                            Colors.white.withOpacity(0.0),
+                            Colors.black.withOpacity(0.5),
+                          ], stops: [
+                            0.5,
+                            0.75
+                          ]),
+                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 2, blurRadius: 6, offset: Offset(0, 0))]),
+                      width: width,
+                    ),
+                    tag: 'obj-layer' + objective.name),
+                Positioned(
+                    child: Hero(
+                        child: Container(
+                          width: 200,
+                          height: 80,
+                          child: Column(children: [
+                            Spacer(flex: 1),
+                            Expanded(
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.cottage, color: Colors.white),
+                                  ],
+                                ),
+                                flex: 6),
+                            Expanded(
+                                child: Row(
+                                  children: [
+                                    Text('Biserica de lemn', style: Theme.of(context).textTheme.headline3),
+                                  ],
+                                ),
+                                flex: 6),
+                            Expanded(
+                                child: Row(
+                                  children: [
+                                    buildStars(context, 3, true),
+                                    SizedBox(width: 5),
+                                    Text('4.5 (10)', style: TextStyle(fontSize: 12.0, color: Colors.white))
+                                  ],
+                                ),
+                                flex: 4),
+                          ]),
+                        ),
+                        tag: 'obj-desc' + objective.name),
+                    bottom: 16,
+                    left: 24)
+              ],
+            )));
+  }
+
+  static Widget buildSmallRouteCard(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12.0),
+      child: Container(
+          width: 999,
+          height: height * 0.15,
+          decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
+              boxShadow: [BoxShadow(color: Theme.of(context).primaryColor, spreadRadius: 36, blurRadius: 24, offset: Offset(0, 13))]),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: Container(
+                            width: 999,
+                            height: height * 0.15,
+                            decoration: BoxDecoration(
+                                image: new DecorationImage(
+                              image: Image.asset('assets/icons/route.png').image,
+                              fit: BoxFit.cover,
+                            ))),
+                        flex: 1)
+                  ],
+                ),
+                flex: 3,
+              ),
+              Expanded(
+                child: Padding(
+                    child: Column(
+                      children: [
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Text('Traseul Mare', style: Theme.of(context).textTheme.bodyText1),
+                              ],
+                            ),
+                            flex: 2),
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
+                              ],
+                            ),
+                            flex: 1),
+                        SizedBox(
+                          height: 2,
+                        ),
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Align(
+                                      child: Image.asset('assets/icons/dt.png', width: 20, height: 24),
+                                      alignment: Alignment.centerLeft,
+                                    ),
+                                    flex: 4),
+                                Expanded(
+                                  flex: 8,
+                                  child: Align(
+                                    child: Text('252 Km',
+                                        style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.75), fontWeight: FontWeight.bold)),
+                                    alignment: Alignment.centerLeft,
+                                  ),
+                                ),
+                                Expanded(
+                                    child: Align(child: Image.asset('assets/icons/pin_tag.png', width: 20, height: 20), alignment: Alignment.center), flex: 4),
+                                Expanded(child: Image.asset('assets/icons/church_tag.png', width: 20, height: 20), flex: 4),
+                                Expanded(child: Image.asset('assets/icons/ruin_tag.png', width: 20, height: 20), flex: 4),
+                                Spacer(
+                                  flex: 1,
+                                )
+                              ],
+                            ),
+                            flex: 3)
+                      ],
+                    ),
+                    padding: EdgeInsets.fromLTRB(15, 4, 0, 0)),
+                flex: 4,
+              )
+            ],
+          )),
+    );
+  }
+
+  static Widget buildBigRouteCard(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(circularRadius),
+      child: Container(
+          width: width,
+          height: height * 0.2,
+          decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), spreadRadius: 36, blurRadius: 24, offset: Offset(0, 13))]),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: Container(
+                            width: 999,
+                            height: height * 0.15,
+                            decoration: BoxDecoration(
+                                image: new DecorationImage(
+                              image: Image.asset('assets/icons/route.png').image,
+                              fit: BoxFit.cover,
+                            ))),
+                        flex: 1)
+                  ],
+                ),
+                flex: 3,
+              ),
+              Expanded(
+                child: Padding(
+                    child: Column(
+                      children: [
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Text('Traseul Mare', style: Theme.of(context).textTheme.bodyText1),
+                              ],
+                            ),
+                            flex: 2),
+                        Expanded(
+                            child: Row(
+                              children: [buildStars(context, 4, false)],
+                            ),
+                            flex: 2),
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: RichText(
+                                      maxLines: 3,
+                                      text: TextSpan(
+                                        text: 'Scris scris scris cris scris scris scris Scris scris scris scris scris ',
+                                        style: Theme.of(context).textTheme.bodyText2,
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    flex: 1)
+                              ],
+                            ),
+                            flex: 4),
+                        SizedBox(
+                          height: 2,
+                        ),
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Align(
+                                      child: Image.asset('assets/icons/dt.png', width: 20, height: 24),
+                                      alignment: Alignment.centerLeft,
+                                    ),
+                                    flex: 4),
+                                Expanded(
+                                  flex: 8,
+                                  child: Align(
+                                    child: Text('252 Km',
+                                        style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.75), fontWeight: FontWeight.bold)),
+                                    alignment: Alignment.centerLeft,
+                                  ),
+                                ),
+                                Expanded(
+                                    child: Align(child: Image.asset('assets/icons/pin_tag.png', width: 20, height: 20), alignment: Alignment.center), flex: 4),
+                                Expanded(child: Image.asset('assets/icons/church_tag.png', width: 20, height: 20), flex: 4),
+                                Expanded(child: Image.asset('assets/icons/ruin_tag.png', width: 20, height: 20), flex: 4),
+                                Spacer(
+                                  flex: 1,
+                                )
+                              ],
+                            ),
+                            flex: 3)
+                      ],
+                    ),
+                    padding: EdgeInsets.fromLTRB(15, 4, 0, 4)),
+                flex: 4,
+              )
+            ],
+          )),
+    );
+  }
+
+  //------------------------------------------------------------------------------------
+
   static Widget buildAnnouncementBanner(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
@@ -184,7 +633,7 @@ class CardBuilder {
         child: InkWell(
             onTap: () {
               var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-              Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+              //Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
             },
             child: Container(
                 decoration: BoxDecoration(
@@ -262,65 +711,6 @@ class CardBuilder {
             )));
   }
 
-  static Widget buildSmallObjectiveCarouselCard(BuildContext context, Objective objective) {
-    double width = MediaQuery.of(context).size.width;
-    double height = max(656, MediaQuery.of(context).size.height - 80);
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: InkWell(
-            onTap: () {
-              var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-              Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
-            },
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
-                width: width,
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                                        child: ClipRRect(
-                                          child: Image.asset(
-                                            'assets/images/bisericalemn_000.jpg',
-                                            fit: BoxFit.cover,
-                                            height: double.infinity,
-                                          ),
-                                          borderRadius: BorderRadius.circular(16),
-                                        )),
-                                    flex: 1)
-                              ],
-                            ),
-                            flex: 12),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Text(objective.name, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyText1),
-                          ),
-                          flex: 6,
-                        )
-                      ],
-                    ),
-                    Align(
-                        alignment: FractionalOffset(0.5, 0.65),
-                        child: Image.asset(
-                          'assets/icons/church_marker.png',
-                          height: 40,
-                          width: 40,
-                          fit: BoxFit.contain,
-                        ))
-                  ],
-                ))));
-  }
-
   static Widget buildSmallObjectiveCardC(BuildContext context, Objective objective) {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
@@ -329,7 +719,7 @@ class CardBuilder {
         child: InkWell(
             onTap: () {
               var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-              Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+              //Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
             },
             child: Container(
                 decoration: BoxDecoration(
@@ -443,7 +833,7 @@ class CardBuilder {
                                     child: ElevatedButton(
                                       onPressed: () {
                                         var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-                                        Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+                                        //  Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
                                       },
                                       child: Text(context.read<LanguageManager>().details),
                                       style: ElevatedButton.styleFrom(

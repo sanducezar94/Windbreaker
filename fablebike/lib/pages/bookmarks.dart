@@ -4,6 +4,7 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/widgets/card_builders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
@@ -35,29 +36,18 @@ class _BookmarksScreen extends State<BookmarksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<AuthenticatedUser>(context);
+    Future<List<Objective>> _getNearbyObjectives(AuthenticatedUser user) async {
+      var db = await DatabaseService().database;
 
-    Widget _buildRoute(BuildContext context, Objective bookmark) {
-      return Card(
-        clipBehavior: Clip.antiAlias,
-        child: Column(children: [
-          ListTile(
-            leading: Icon(Icons.photo_album),
-            title: Text(bookmark.name),
-            subtitle: Text(bookmark.description),
-          ),
-          ButtonBar(alignment: MainAxisAlignment.start, children: [
-            ElevatedButton(
-                child: Text('Mai multe...'),
-                onPressed: () async {
-                  Navigator.pushNamed(context, 'objective', arguments: bookmark).then((value) {
-                    _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
-                  });
-                })
-          ]),
-        ]),
-      );
+      var objectiveRows = await db.query('Objective');
+      var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
+
+      return objectives.take(5).toList();
     }
+
+    var user = Provider.of<AuthenticatedUser>(context);
+    double smallDivider = 10.0;
+    double bigDivider = 20.0;
 
     if (!this._initialized) {
       _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
@@ -67,52 +57,66 @@ class _BookmarksScreen extends State<BookmarksScreen> {
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Scaffold(
-            appBar: AppBar(title: Text('Map')),
-            body: SingleChildScrollView(
-                child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: TextField(
-                    onChanged: (context) {
-                      _bloc.bookmarkEventSync
-                          .add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkSearchEvent, args: {'search_query': searchController.text}));
-                    },
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: const BorderRadius.all(Radius.circular(24.0))),
-                      prefixIcon: Icon(Icons.search),
-                      suffixIcon: this.searchController != null && this.searchController.text.length > 0
-                          ? IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  this.searchController.text = '';
-                                });
+        child: SafeArea(
+            child: Scaffold(
+                body: SingleChildScrollView(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                        child: Column(children: [
+                          CardBuilder.buildProfileBar(context, 'Obiective'),
+                          SizedBox(height: bigDivider),
+                          Container(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Material(
+                                      child: TextField(
+                                        decoration: InputDecoration(
+                                            prefixIcon: Icon(Icons.search),
+                                            fillColor: Colors.white,
+                                            hintStyle: TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.5)),
+                                            filled: true,
+                                            contentPadding: EdgeInsets.all(0),
+                                            border: OutlineInputBorder(
+                                                borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                            hintText: 'Cauta obiectiv...'),
+                                      ),
+                                      shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                      borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                      elevation: 10.0,
+                                    ),
+                                    flex: 1)
+                              ],
+                            ),
+                            height: 48,
+                            width: 999,
+                          ),
+                          SizedBox(height: bigDivider),
+                          Row(children: [
+                            Text(
+                              "Obiective populare",
+                              style: Theme.of(context).textTheme.headline2,
+                              textAlign: TextAlign.start,
+                            )
+                          ]),
+                          SizedBox(height: smallDivider),
+                          FutureBuilder<List<Objective>>(
+                              builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done) {
+                                  if (snapshot.hasData && snapshot.data != null) {
+                                    return Column(
+                                      children: [
+                                        for (var i = 0; i < 5; i++) CardBuilder.buildlargeObjectiveCard(context, snapshot.data[i]),
+                                      ],
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                } else {
+                                  return CircularProgressIndicator();
+                                }
                               },
-                              icon: Icon(Icons.cancel))
-                          : null,
-                      hintText: 'Cauta',
-                    ),
-                  ),
-                ),
-                StreamBuilder(
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if (snapshot.hasData) {
-                      List<Widget> children = [];
-                      var filteredList = snapshot.data;
-                      for (var i = 0; i < filteredList.length; i++) {
-                        children.add(_buildRoute(context, filteredList[i]));
-                      }
-                      return Column(children: children);
-                    } else {
-                      return Text('Loading...');
-                    }
-                  },
-                  initialData: [],
-                  stream: _bloc.output,
-                )
-              ],
-            ))));
+                              future: _getNearbyObjectives(user)),
+                        ]))))));
   }
 }

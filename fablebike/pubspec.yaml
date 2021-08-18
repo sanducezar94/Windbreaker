@@ -76,19 +76,21 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   fonts:
-    - family: Roboto
+    - family: Nunito
       fonts:
-        - asset: fonts/Roboto-Regular.ttf
-        - asset: fonts/Roboto-Light.ttf
-        - asset: fonts/Roboto-Bold.ttf
+        - asset: fonts/Nunito-Regular.ttf
+        - asset: fonts/Nunito-Light.ttf
+        - asset: fonts/Nunito-SemiBold.ttf
+          weight: 300
+        - asset: fonts/Nunito-Bold.ttf
           weight: 700
 
-    - family: OpenSans
+    - family: Latop
       fonts:
-        - asset: fonts/OpenSans-Regular.ttf
-        - asset: fonts/OpenSans-SemiBold.ttf
+        - asset: fonts/Lato-Regular.ttf
+        - asset: fonts/Lato-SemiBold.ttf
           weight: 300
-        - asset: fonts/OpenSans-Bold.ttf
+        - asset: fonts/Lato-Bold.ttf
           weight: 700         
 
   uses-material-design: true

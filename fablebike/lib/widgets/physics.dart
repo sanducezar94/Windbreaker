@@ -1,43 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
+import 'package:flutter/physics.dart';
 
-class SnapScrollPhysics extends ScrollPhysics {
+class CustomScrollPhysics extends ScrollPhysics {
   final double itemDimension;
 
-  SnapScrollPhysics({this.itemDimension, ScrollPhysics parent}) : super(parent: parent);
+  const CustomScrollPhysics({this.itemDimension, ScrollPhysics parent}) : super(parent: parent);
 
   @override
-  SnapScrollPhysics applyTo(ScrollPhysics ancestor) {
-    return SnapScrollPhysics(itemDimension: itemDimension, parent: buildParent(ancestor));
+  CustomScrollPhysics applyTo(ScrollPhysics ancestor) {
+    return CustomScrollPhysics(itemDimension: itemDimension, parent: buildParent(ancestor));
   }
 
-  double _getPage(ScrollPosition position) {
-    return position.pixels / itemDimension;
+  double _getPage(ScrollMetrics position, double portion) {
+    // <--
+    return (position.pixels + portion) / itemDimension;
+    // -->
   }
 
-  double _getPixels(double page) {
-    return page * itemDimension;
+  double _getPixels(double page, double portion) {
+    // <--
+    return (page * itemDimension) - portion;
+    // -->
   }
 
-  double _getTargetPixels(ScrollPosition position, Tolerance tolerance, double velocity) {
-    int page = _getPage(position).floor();
+  double _getTargetPixels(
+    ScrollMetrics position,
+    Tolerance tolerance,
+    double velocity,
+    double portion,
+  ) {
+    // <--
+    double page = _getPage(position, portion);
+    // -->
     if (velocity < -tolerance.velocity) {
-      page -= 1;
+      page -= 0.5;
     } else if (velocity > tolerance.velocity) {
-      page += 1;
+      page += 0.5;
     }
-    return _getPixels(page.roundToDouble());
+    // <--
+    return _getPixels(page.roundToDouble(), portion);
+    // -->
   }
 
   @override
   Simulation createBallisticSimulation(ScrollMetrics position, double velocity) {
     // If we're out of range and not headed back in range, defer to the parent
     // ballistics, which should put us back in range at a page boundary.
-    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) || (velocity >= 0.0 && position.pixels >= position.maxScrollExtent))
+    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) || (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
       return super.createBallisticSimulation(position, velocity);
+    }
+
     final Tolerance tolerance = this.tolerance;
-    double target = _getTargetPixels(position, tolerance, velocity);
-    if (target != position.pixels) return ScrollSpringSimulation(spring, position.pixels, target, velocity, tolerance: tolerance);
+    // <--
+    final portion = (position.extentInside - itemDimension) / 2;
+    final double target = _getTargetPixels(position, tolerance, velocity, portion);
+    // -->
+    if (target != position.pixels) {
+      return ScrollSpringSimulation(spring, position.pixels, target, velocity, tolerance: tolerance);
+    }
     return null;
   }
 

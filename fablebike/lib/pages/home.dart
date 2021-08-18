@@ -10,6 +10,7 @@ import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/widgets/carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
@@ -56,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   initState() {
     super.initState();
+    Loader.hide();
     user = context.read<AuthenticatedUser>();
     subscription = context.read<MainBloc>().output.listen((event) {
       if (event == Constants.HomeRefreshBookmarks) {
@@ -82,210 +84,102 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     var height = max(656, MediaQuery.of(context).size.height - 80);
-
+    var width = MediaQuery.of(context).size.width - 80;
+    double smallDivider = 10.0;
+    double bigDivider = 20.0;
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Scaffold(
-          appBar: AppBar(
-            title: Center(
-                child: Text(
-              context.read<LanguageManager>().appHome,
-              style: Theme.of(context).textTheme.headline3,
-            )),
-            shadowColor: Colors.white10,
-            backgroundColor: Colors.white,
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Column(
-                    children: [
-                      //SizedBox(height: 25),
-                      // _buildStatsRow(context),
-                      // SizedBox(height: 25),
-                      FutureBuilder(
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                return CardBuilder.buildAnnouncementBanner(context);
-                              } else {
-                                return CardBuilder.buildAnnouncementBannerShimmer(context);
-                              }
-                            } else {
-                              return CardBuilder.buildAnnouncementBannerShimmer(context);
-                            }
-                          },
-                          future: _getNearbyObjectives(user)),
-                      SizedBox(height: 25),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                        child: Row(children: [
-                          Icon(Icons.bookmarks_outlined),
-                          SizedBox(width: 5),
-                          Text(
-                            context.read<LanguageManager>().homeBookmarks,
-                            style: Theme.of(context).textTheme.headline5,
-                            textAlign: TextAlign.start,
-                          )
-                        ]),
+        child: SafeArea(
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                child: Column(
+                  children: [
+                    CardBuilder.buildProfileBar(context, 'Acasa'),
+                    SizedBox(height: bigDivider),
+                    Row(children: [
+                      Text(
+                        "Obiective salvate",
+                        style: Theme.of(context).textTheme.headline2,
+                        textAlign: TextAlign.start,
+                      )
+                    ]),
+                    SizedBox(height: smallDivider),
+                    StreamBuilder(
+                      builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
+                        if (snapshot.hasData) {
+                          if (snapshot.data.length == 0)
+                            return Padding(
+                              child: Row(
+                                children: [Text('Nu aveti puncte de interest salvate.', style: Theme.of(context).textTheme.headline4)],
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 20.0),
+                            );
+
+                          return Container(
+                              height: height * 0.425,
+                              width: 999,
+                              child: Carousel(
+                                objectives: snapshot.data,
+                                context: context,
+                                width: width,
+                              ));
+                        } else
+                          return Container();
+                      },
+                      initialData: null,
+                      stream: _bloc.output,
+                    ),
+                    SizedBox(height: bigDivider),
+                    Row(children: [
+                      Text(
+                        "Trasee vizitate recent",
+                        style: Theme.of(context).textTheme.headline2,
+                        textAlign: TextAlign.start,
                       ),
-                      SizedBox(height: 25),
-                      StreamBuilder(
-                        builder: (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.hasData) {
-                            if (snapshot.data.length == 0)
-                              return Padding(
-                                child: Row(
-                                  children: [Text('Nu aveti puncte de interest salvate.', style: Theme.of(context).textTheme.headline4)],
-                                ),
-                                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    ]),
+                    SizedBox(
+                      height: smallDivider,
+                    ),
+                    FutureBuilder<List<Objective>>(
+                        builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              return Column(
+                                children: [
+                                  for (var i = 0; i < 3; i++)
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 10),
+                                      child: Container(
+                                        child: CardBuilder.buildSmallRouteCard(context),
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor,
+                                            borderRadius: BorderRadius.all(Radius.circular(32.0)),
+                                            boxShadow: [
+                                              BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 16, blurRadius: 12, offset: Offset(0, 13))
+                                            ]),
+                                      ),
+                                    ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                ],
                               );
-                            return Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: max(210, 0.275 * height),
-                              child: ListView.separated(
-                                  itemBuilder: (context, index) => (index == 5 || index == snapshot.data.length + 1)
-                                      ? CardBuilder.buildSeeAllBookmarksCard(context)
-                                      : CardBuilder.buildSmallObjectiveCard(context, snapshot.data[index]),
-                                  padding: EdgeInsets.all(0),
-                                  separatorBuilder: (context, index) => Divider(
-                                        indent: 0,
-                                        thickness: 0,
-                                        endIndent: 0,
-                                      ),
-                                  itemCount: min(6, snapshot.data.length),
-                                  scrollDirection: Axis.horizontal),
-                            );
-                          } else {
-                            return Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: height * 0.275,
-                              child: ListView.separated(
-                                  itemBuilder: (context, index) => CardBuilder.buildSmallObjectiveShimmerCard(context),
-                                  padding: EdgeInsets.all(0),
-                                  separatorBuilder: (context, index) => Divider(
-                                        indent: 0,
-                                        thickness: 0,
-                                        endIndent: 0,
-                                      ),
-                                  itemCount: 5,
-                                  scrollDirection: Axis.horizontal),
-                            );
-                          }
-                        },
-                        initialData: null,
-                        stream: _bloc.output,
-                      ),
-                      SizedBox(height: 25),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                        child: Row(children: [
-                          Icon(Icons.fmd_good),
-                          SizedBox(width: 5),
-                          Text(
-                            context.read<LanguageManager>().homeNearbyObjectives,
-                            style: Theme.of(context).textTheme.headline5,
-                            textAlign: TextAlign.start,
-                          )
-                        ]),
-                      ),
-                      SizedBox(height: 25),
-                      FutureBuilder<List<Objective>>(
-                          builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                List<Widget> widgets = List.generate(snapshot.data.length > 5 ? 5 : snapshot.data.length, (index) {
-                                  return CardBuilder.buildLargeObjectiveCard(context, snapshot.data[index]);
-                                });
-                                widgets.add(CardBuilder.buildNearestObjectiveButton(context));
-                                return SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  child: Column(children: widgets),
-                                );
-                              } else {
-                                return CircularProgressIndicator();
-                              }
                             } else {
                               return CircularProgressIndicator();
                             }
-                          },
-                          future: _getNearbyObjectives(user)),
-                      SizedBox(height: 5)
-                    ],
-                  ),
-                ],
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                        future: _getNearbyObjectives(user)),
+                  ],
+                ),
               ),
             ),
           ),
         ));
   }
-}
-
-_buildStatsRow(BuildContext context) {
-  return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                  child: InkWell(
-                      onTap: () async {},
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'assets/icons/dt.png',
-                            fit: BoxFit.contain,
-                            height: 48,
-                          ),
-                          SizedBox(height: 5),
-                          Text(context.read<LanguageManager>().homeDistance, style: Theme.of(context).textTheme.bodyText2),
-                          SizedBox(height: 3),
-                          Text(context.read<AuthenticatedUser>().distanceTravelled.toString() + ' Km', style: Theme.of(context).textTheme.bodyText1)
-                        ],
-                      )),
-                  flex: 1),
-              Expanded(
-                  child: InkWell(
-                      onTap: () async {},
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'assets/icons/rf.png',
-                            fit: BoxFit.contain,
-                            height: 48,
-                          ),
-                          SizedBox(height: 5),
-                          Text(context.read<LanguageManager>().homeRoutes, style: Theme.of(context).textTheme.bodyText2),
-                          SizedBox(height: 3),
-                          Text(context.read<AuthenticatedUser>().finishedRoutes.toString(), style: Theme.of(context).textTheme.bodyText1)
-                        ],
-                      )),
-                  flex: 1),
-              Expanded(
-                  child: InkWell(
-                      onTap: () async {},
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'assets/icons/pv.png',
-                            fit: BoxFit.contain,
-                            height: 48,
-                          ),
-                          SizedBox(height: 5),
-                          Text(context.read<LanguageManager>().homeObjectives, style: Theme.of(context).textTheme.bodyText2),
-                          SizedBox(height: 3),
-                          Text(context.read<AuthenticatedUser>().objectivesVisited.toString(), style: Theme.of(context).textTheme.bodyText1)
-                        ],
-                      )),
-                  flex: 1)
-            ],
-          )
-        ],
-      ));
 }

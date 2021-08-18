@@ -364,7 +364,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     )
                   ],
                 ),
-                height: height - 160,
+                height: height - 80,
                 width: MediaQuery.of(context).size.width,
               ),
               padding: EdgeInsets.all(20.0),
