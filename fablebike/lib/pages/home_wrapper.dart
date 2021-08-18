@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
+import 'package:fablebike/pages/bookmarks.dart';
 import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class HomeWrapper extends StatefulWidget {
 
 class _HomeWrapperState extends State<HomeWrapper> {
   PageController _pageController = PageController();
-  List<Widget> _screens = [HomeScreen(), ExploreScreen(), RoutesScreen(), SettingsScreen()];
+  List<Widget> _screens = [HomeScreen(), BookmarksScreen(), RoutesScreen(), SettingsScreen()];
   int _selectedIndex = 0;
   StreamSubscription<String> subscription;
 

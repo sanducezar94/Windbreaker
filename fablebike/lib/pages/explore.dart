@@ -157,7 +157,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                   currentObjective = filteredList[i];
                                   getRoutes(filteredList[i]);
                                   goToPoint(LatLng(filteredList[i].latitude, filteredList[i].longitude));
-                                  expandAnimation(height * 0.675);
+                                  expandAnimation(height * 0.645);
                                   setState(() {
                                     loadResults = true;
                                   });
@@ -245,6 +245,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                     filled: true,
                                     contentPadding: EdgeInsets.symmetric(vertical: 0.0),
                                     prefixIcon: Icon(Icons.search),
+                                    hintStyle: TextStyle(color: Colors.grey),
                                     border: this._node.hasFocus
                                         ? OutlineInputBorder(
                                             borderSide: BorderSide.none,
@@ -282,7 +283,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                                                         child: Text(list[index].name),
                                                         onTap: () {
                                                           currentObjective = list[index];
-                                                          expandAnimation(height * 0.675);
+                                                          expandAnimation(height * 0.65);
                                                           searchController.text = list[index].name;
                                                           goToPoint(list[index].coords);
                                                           FocusScope.of(context).requestFocus(new FocusNode());
@@ -432,7 +433,7 @@ class _ObjectiveContainerState extends State<ObjectiveContainer> with TickerProv
                                         child: ElevatedButton(
                                           onPressed: () {
                                             var objectiveInfo = new ObjectiveInfo(objective: widget.objective, fromRoute: ModalRoute.of(context).settings.name);
-                                            Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+                                            //Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
                                           },
                                           child: Text(context.read<LanguageManager>().details),
                                           style: ElevatedButton.styleFrom(

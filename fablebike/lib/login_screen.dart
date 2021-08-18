@@ -52,15 +52,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   loginWithGoogle() async {
     var googleSignIn = GoogleSignIn(
-      scopes: [
-        'email',
-        'https://www.googleapis.com/auth/contacts.readonly',
-      ],
+      clientId: '978264265363-2frhghmprbss8p6fpdf90i4edqfpl3if.apps.googleusercontent.com',
     );
     Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
 
     try {
-      var googleAccount = await googleSignIn.signIn().timeout(const Duration(seconds: 5));
+      var googleAccount = await googleSignIn.signIn().timeout(const Duration(seconds: 25));
+      var test = await googleAccount.authentication;
+      print(test.accessToken);
       if (googleAccount == null) {
         Loader.hide();
         return;

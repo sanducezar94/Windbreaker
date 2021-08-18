@@ -13,7 +13,7 @@ import 'storage_service.dart';
 const SERVER_IP = 'lighthousestudio.ro';
 const AUTH = '/auth';
 const SIGNUP = '/auth/sign_up';
-const FACEBOOK_SIGNUP = '/auth/facebook';
+const FACEBOOK_SIGNUP = '/auth/oauth';
 const FILE_UPLOAD = '/auth/upload';
 const PERSISTENT_LOGIN = '/auth/persistent';
 
@@ -75,6 +75,8 @@ class AuthenticationService {
       dataUsage = dataUsageRow.first['value'] == '0' ? false : true;
       language = languageRow.first['value'] == 'RO' ? true : false;
     }
+    var dc = DateTime.now().subtract(Duration(hours: 128)).toIso8601String();
+    await db.delete('usericon', where: 'created_on <= ?', whereArgs: [dc]);
 
     var persistentUserRow = await db.query('SystemValue', where: 'key = ?', whereArgs: ['puseremail']);
 
@@ -118,9 +120,9 @@ class AuthenticationService {
     try {
       var client = http.Client();
       String authToken = base64Encode(utf8.encode(email + ':' + password));
-      var parameters = {'oauth_token': facebookToken};
-      var response = await client.get(Uri.https(SERVER_IP, AUTH, parameters), headers: {HttpHeaders.authorizationHeader: 'Basic ' + authToken}).timeout(
-          const Duration(seconds: 5), onTimeout: () {
+      var parameters = {'oauth_token': facebookToken, 'provider': 'FACEBOOK'};
+      var response = await client.get(Uri.https(SERVER_IP, FACEBOOK_SIGNUP, parameters),
+          headers: {HttpHeaders.authorizationHeader: 'Basic ' + authToken}).timeout(const Duration(seconds: 5), onTimeout: () {
         throw TimeoutException('Connection timed out!');
       });
 
