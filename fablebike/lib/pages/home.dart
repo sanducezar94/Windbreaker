@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
                 child: Column(
                   children: [
-                    CardBuilder.buildProfileBar(context, 'Acasa'),
+                    CardBuilder.buildProfileBar(context, 'Acasa', 'Bine ai venit, Cezar!'),
                     SizedBox(height: bigDivider),
                     Row(children: [
                       Text(
@@ -153,10 +153,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Padding(
                                       padding: EdgeInsets.symmetric(vertical: 10),
                                       child: Container(
-                                        child: CardBuilder.buildSmallRouteCard(context),
+                                        child: CardBuilder.buildSmallRouteCard(context, null, 99),
                                         decoration: BoxDecoration(
                                             color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.all(Radius.circular(32.0)),
+                                            borderRadius: BorderRadius.all(Radius.circular(12.0)),
                                             boxShadow: [
                                               BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 16, blurRadius: 12, offset: Offset(0, 13))
                                             ]),

@@ -63,7 +63,7 @@ class _BookmarksScreen extends State<BookmarksScreen> {
                     child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
                         child: Column(children: [
-                          CardBuilder.buildProfileBar(context, 'Obiective'),
+                          CardBuilder.buildProfileBar(context, 'Obiective', '35 obiective'),
                           SizedBox(height: bigDivider),
                           Container(
                             child: Row(
