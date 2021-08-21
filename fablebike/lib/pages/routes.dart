@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
@@ -6,6 +7,7 @@ import 'package:fablebike/models/filters.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/widgets/card_builders.dart';
 import 'package:fablebike/widgets/route_filter.dart';
+import 'package:fablebike/widgets/routes_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
@@ -65,128 +67,101 @@ class _RoutesScreenState extends State<RoutesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
+    double smallDivider = 10.0;
+    double bigDivider = 20.0;
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        color: Colors.white,
-        child: Scaffold(
-            appBar: AppBar(
-              shadowColor: Colors.white10,
-              backgroundColor: Colors.white,
-              centerTitle: true,
-              iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
-              title: Row(
-                children: [
-                  Expanded(
-                      child: TextField(
-                        onChanged: (context) {
-                          setState(() {});
-                        },
-                        onTap: () {
-                          if (sensibleSearch) {
-                            searchController.text = '';
-                            sensibleSearch = false;
-                          }
-                        },
-                        controller: searchController,
-                        decoration: InputDecoration(
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          prefixIconConstraints: BoxConstraints(minHeight: 10, minWidth: 10),
-                          prefixIcon: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Image(
-                                image: AssetImage('assets/icons/search_icon.png'),
-                                width: 24,
-                                height: 24,
-                              )),
-                          suffixIcon: this.searchController != null && this.searchController.text.length > 0
-                              ? IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      this.searchController.text = '';
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.cancel_outlined,
-                                    color: Theme.of(context).primaryColorDark,
-                                  ))
-                              : null,
-                          hintText: context.read<LanguageManager>().search,
-                        ),
-                      ),
-                      flex: 9),
-                  Expanded(
-                      child: InkWell(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                          Image(
-                            image: AssetImage('assets/icons/filter_icon.png'),
-                            width: 24,
-                            height: 24,
-                          )
-                        ]),
-                        onTap: () async {
-                          var filter = await showDialog(context: context, builder: (_) => RouteFilterDialog(filter: routeFilter));
-                          if (filter == null) return;
-                          setState(() {
-                            routeFilter = filter;
-                          });
-                        },
-                      ),
-                      flex: 1),
-                ],
-              ),
-            ),
-            body: SingleChildScrollView(
-                child: Column(
-              children: [
-                /* Padding(
-                  padding: EdgeInsets.fromLTRB(20.0, 0, 0, 0),
-                  child: Row(children: [
-                    Icon(Icons.map_outlined),
-                    SizedBox(width: 5),
-                    Text(
-                      context.read<LanguageManager>().routeAvailable,
-                      style: Theme.of(context).textTheme.headline5,
-                      textAlign: TextAlign.start,
-                    )
-                  ]),
-                ),*/
-                SizedBox(height: 15),
-                FutureBuilder<List<BikeRoute>>(
-                    builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
-                      List<Widget> children = [];
-                      if (snapshot.hasData) {
-                        var filteredList = snapshot.data;
-                        var filterQuery = this.searchController.text?.toLowerCase();
-                        if (filterQuery.indexOf('obiective:') > -1) {
-                          filteredList = snapshot.data.where((element) => element.objectives.where((obj) => obj.id == widget.objective.id).length > 0).toList();
-                        } else {
-                          filteredList = snapshot.data
-                              .where((c) =>
-                                  ((c.difficulty >= routeFilter.difficulty.start && c.difficulty <= routeFilter.difficulty.end) &&
-                                      (c.rating >= routeFilter.rating.start && c.rating <= routeFilter.rating.end) &&
-                                      (c.distance >= routeFilter.distance.start && c.distance <= routeFilter.distance.end)) &&
-                                  (c.name.toLowerCase().contains(filterQuery) || c.description.toLowerCase().contains(filterQuery)))
-                              .toList();
-                        }
-
-                        for (var i = 0; i < filteredList.length; i++) {
-                          children.add(CardBuilder.buildRouteCard(context, filteredList[i]));
-                        }
-                        return Column(children: children);
-                      } else {
-                        return Column(children: List.generate(3, (index) => CardBuilder.buildShimmerRouteCard(context)));
-                      }
-                    },
-                    future: this.getBikeRoutes),
-                SizedBox(height: 15),
-              ],
-            ))));
+        child: SafeArea(
+            child: Scaffold(
+                body: SingleChildScrollView(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                        child: Column(children: [
+                          CardBuilder.buildProfileBar(context, 'Trasee', '21+ trasee'),
+                          SizedBox(height: bigDivider),
+                          Container(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Material(
+                                      child: TextField(
+                                        decoration: InputDecoration(
+                                            prefixIcon: Icon(Icons.search),
+                                            fillColor: Colors.white,
+                                            hintStyle: TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.5)),
+                                            filled: true,
+                                            contentPadding: EdgeInsets.all(0),
+                                            border: OutlineInputBorder(
+                                                borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                            hintText: 'Cauta traseu...'),
+                                      ),
+                                      shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                                      borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                      elevation: 10.0,
+                                    ),
+                                    flex: 1)
+                              ],
+                            ),
+                            height: 48,
+                            width: 999,
+                          ),
+                          SizedBox(height: bigDivider),
+                          Row(children: [
+                            Text(
+                              "Trasee populare",
+                              style: Theme.of(context).textTheme.headline2,
+                              textAlign: TextAlign.start,
+                            )
+                          ]),
+                          Container(
+                            child: RouteCarousel(
+                              context: context,
+                              routes: [],
+                              width: width * 0.75,
+                            ),
+                            height: height * 0.175,
+                            width: 999,
+                          ),
+                          SizedBox(
+                            height: bigDivider,
+                          ),
+                          Row(children: [
+                            Text(
+                              "Toate traseele",
+                              style: Theme.of(context).textTheme.headline2,
+                              textAlign: TextAlign.start,
+                            )
+                          ]),
+                          SizedBox(height: smallDivider),
+                          FutureBuilder<List<BikeRoute>>(
+                              builder: (context, AsyncSnapshot<List<BikeRoute>> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done) {
+                                  if (snapshot.hasData && snapshot.data != null) {
+                                    return Column(
+                                      children: [
+                                        for (var i = 0; i < 5; i++)
+                                          Padding(
+                                            child: Container(
+                                              decoration: BoxDecoration(boxShadow: [
+                                                BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
+                                              ]),
+                                              child: CardBuilder.buildBigRouteCard(context),
+                                            ),
+                                            padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+                                          ),
+                                      ],
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                } else {
+                                  return CircularProgressIndicator();
+                                }
+                              },
+                              future: _getRoutes()),
+                        ]))))));
   }
 }

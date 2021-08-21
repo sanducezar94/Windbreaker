@@ -50,41 +50,49 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    BottomNavigationBar _buildBottomBar() {
-      double w = 40;
-      double h = 40;
+    Widget _buildBottomBar() {
+      double w = 32;
+      double h = 32;
 
-      return BottomNavigationBar(
-          onTap: _onItemTapped,
-          iconSize: 18,
-          type: BottomNavigationBarType.fixed,
-          showUnselectedLabels: true,
-          unselectedItemColor: Theme.of(context).accentColor,
-          selectedItemColor: Theme.of(context).primaryColor,
-          currentIndex: _selectedIndex,
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon:
-                  _selectedIndex == 0 ? Image.asset('assets/icons/home_h.png', width: w, height: h) : Image.asset('assets/icons/home.png', width: w, height: h),
-              label: context.read<LanguageManager>().appHome,
-            ),
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 1
-                  ? Image.asset('assets/icons/explore_h.png', width: w, height: h)
-                  : Image.asset('assets/icons/explore.png', width: w, height: h),
-              label: context.read<LanguageManager>().appExplore,
-            ),
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 2 ? Image.asset('assets/icons/poi_h.png', width: w, height: h) : Image.asset('assets/icons/poi.png', width: w, height: h),
-              label: context.read<LanguageManager>().appRoutes,
-            ),
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 3
-                  ? Image.asset('assets/icons/settings_h.png', width: w, height: h)
-                  : Image.asset('assets/icons/settings.png', width: w, height: h),
-              label: context.read<LanguageManager>().appSettings,
-            ),
-          ]);
+      return Container(
+        child: ClipRRect(
+            child: Container(
+                child: BottomNavigationBar(
+                    onTap: _onItemTapped,
+                    iconSize: 36,
+                    selectedIconTheme: IconThemeData(size: 42),
+                    type: BottomNavigationBarType.fixed,
+                    showUnselectedLabels: false,
+                    selectedLabelStyle: TextStyle(fontFamily: 'Lato', color: Colors.black),
+                    showSelectedLabels: true,
+                    unselectedItemColor: Theme.of(context).accentColor.withOpacity(0.5),
+                    selectedItemColor: Theme.of(context).primaryColorDark,
+                    currentIndex: _selectedIndex,
+                    items: <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_rounded),
+                    label: context.read<LanguageManager>().appHome,
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.explore_rounded),
+                    label: context.read<LanguageManager>().appExplore,
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.directions_bike_rounded),
+                    label: context.read<LanguageManager>().appRoutes,
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.settings_rounded),
+                    label: context.read<LanguageManager>().appSettings,
+                  ),
+                ])),
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
+        decoration: BoxDecoration(
+          boxShadow: <BoxShadow>[
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 3, spreadRadius: 6),
+          ],
+        ),
+      );
     }
 
     return Scaffold(

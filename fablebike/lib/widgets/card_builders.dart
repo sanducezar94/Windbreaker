@@ -20,7 +20,7 @@ import 'package:shimmer/shimmer.dart';
 
 class CardBuilder {
   static double circularRadius = 16.0;
-  static Widget buildProfileBar(BuildContext context, String tab) {
+  static Widget buildProfileBar(BuildContext context, String tab, String subtitle) {
     return Row(
       children: [
         Expanded(
@@ -36,7 +36,7 @@ class CardBuilder {
               SizedBox(height: 5),
               Row(children: [
                 Text(
-                  "Bine ai venit, Cezar!",
+                  subtitle,
                   style: Theme.of(context).textTheme.subtitle1,
                   textAlign: TextAlign.start,
                 )
@@ -69,7 +69,7 @@ class CardBuilder {
     );
   }
 
-  static Widget buildStars(BuildContext context, rating, applyShadow) {
+  static Widget buildStars(BuildContext context, rating, applyShadow, {double opacity: 1}) {
     return Row(children: [
       for (var i = 0; i < 5; i++)
         Container(
@@ -83,7 +83,7 @@ class CardBuilder {
               : null,
           child: Icon(
             Icons.star,
-            color: rating >= i ? Color.fromRGBO(255, 196, 107, 1) : Colors.grey,
+            color: rating >= i ? Color.fromRGBO(255, 196, 107, 1).withOpacity(opacity) : Colors.grey.withOpacity(opacity),
             size: 18,
           ),
         )
@@ -105,7 +105,7 @@ class CardBuilder {
                 Container(
                   height: 999,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(circularRadius * 2)),
+                      borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
                       image: new DecorationImage(
                         image: Image.asset('assets/images/bisericalemn_000.jpg').image,
                         fit: BoxFit.cover,
@@ -116,7 +116,7 @@ class CardBuilder {
                 Container(
                   height: 999,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(circularRadius * 2)),
+                      borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
                       color: Colors.white,
                       gradient: LinearGradient(begin: FractionalOffset.topCenter, end: FractionalOffset.bottomCenter, colors: [
                         Colors.white.withOpacity(0.0),
@@ -183,7 +183,7 @@ class CardBuilder {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0),
         child: InkWell(
             onTap: () {
               var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
@@ -239,14 +239,14 @@ class CardBuilder {
                           width: 200,
                           height: 80,
                           child: Column(children: [
-                            Spacer(flex: 1),
-                            Expanded(
+                            Spacer(flex: 6),
+                            /* Expanded(
                                 child: Row(
                                   children: [
                                     Icon(Icons.cottage, color: Colors.white),
                                   ],
                                 ),
-                                flex: 6),
+                                flex: 6),*/
                             Expanded(
                                 child: Row(
                                   children: [
@@ -267,24 +267,19 @@ class CardBuilder {
                         ),
                         tag: 'obj-desc' + objective.name),
                     bottom: 16,
-                    left: 24)
+                    left: 20)
               ],
             )));
   }
 
-  static Widget buildSmallRouteCard(BuildContext context) {
+  static Widget buildSmallRouteCard(BuildContext context, BikeRoute route, int index, {hasDescription: true}) {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12.0),
       child: Container(
           width: 999,
           height: height * 0.15,
-          decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
-              boxShadow: [BoxShadow(color: Theme.of(context).primaryColor, spreadRadius: 36, blurRadius: 24, offset: Offset(0, 13))]),
           child: Row(
             children: [
               Expanded(
@@ -295,10 +290,11 @@ class CardBuilder {
                             width: 999,
                             height: height * 0.15,
                             decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(topLeft: Radius.circular(circularRadius), bottomLeft: Radius.circular(circularRadius)),
                                 image: new DecorationImage(
-                              image: Image.asset('assets/icons/route.png').image,
-                              fit: BoxFit.cover,
-                            ))),
+                                  image: Image.asset('assets/icons/route.png').image,
+                                  fit: BoxFit.cover,
+                                ))),
                         flex: 1)
                   ],
                 ),
@@ -315,13 +311,14 @@ class CardBuilder {
                               ],
                             ),
                             flex: 2),
-                        Expanded(
-                            child: Row(
-                              children: [
-                                Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
-                              ],
-                            ),
-                            flex: 1),
+                        if (hasDescription)
+                          Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
+                                ],
+                              ),
+                              flex: 1),
                         SizedBox(
                           height: 2,
                         ),
@@ -338,7 +335,100 @@ class CardBuilder {
                                   flex: 8,
                                   child: Align(
                                     child: Text('252 Km',
-                                        style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.75), fontWeight: FontWeight.bold)),
+                                        style: TextStyle(
+                                            fontSize: hasDescription ? 14.0 : 12.0,
+                                            color: Theme.of(context).accentColor.withOpacity(0.75),
+                                            fontWeight: FontWeight.bold)),
+                                    alignment: Alignment.centerLeft,
+                                  ),
+                                ),
+                                Expanded(
+                                    child: Align(child: Image.asset('assets/icons/pin_tag.png', width: 20, height: 20), alignment: Alignment.center), flex: 4),
+                                Expanded(child: Image.asset('assets/icons/church_tag.png', width: 20, height: 20), flex: 4),
+                                Expanded(child: Image.asset('assets/icons/ruin_tag.png', width: 20, height: 20), flex: 4),
+                                Spacer(
+                                  flex: 1,
+                                )
+                              ],
+                            ),
+                            flex: 3)
+                      ],
+                    ),
+                    padding: EdgeInsets.fromLTRB(15, 4, 0, 0)),
+                flex: 4,
+              )
+            ],
+          )),
+    );
+  }
+
+  static Widget buildSmallRouteCard2(BuildContext context, BikeRoute route, int index, {hasDescription: true}) {
+    double width = MediaQuery.of(context).size.width;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
+
+    return ClipRRect(
+      child: Container(
+          width: 326,
+          height: height * 0.15,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: Container(
+                            width: 999,
+                            height: height * 0.15,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(topLeft: Radius.circular(circularRadius), bottomLeft: Radius.circular(circularRadius)),
+                                image: new DecorationImage(
+                                  image: Image.asset('assets/icons/route.png').image,
+                                  fit: BoxFit.cover,
+                                ))),
+                        flex: 1)
+                  ],
+                ),
+                flex: 3,
+              ),
+              Expanded(
+                child: Padding(
+                    child: Column(
+                      children: [
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Text('Traseul Mare', style: Theme.of(context).textTheme.bodyText1),
+                              ],
+                            ),
+                            flex: 2),
+                        if (hasDescription)
+                          Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
+                                ],
+                              ),
+                              flex: 1),
+                        SizedBox(
+                          height: 2,
+                        ),
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: Align(
+                                      child: Image.asset('assets/icons/dt.png', width: 20, height: 24),
+                                      alignment: Alignment.centerLeft,
+                                    ),
+                                    flex: 4),
+                                Expanded(
+                                  flex: 8,
+                                  child: Align(
+                                    child: Text('252 Km',
+                                        style: TextStyle(
+                                            fontSize: hasDescription ? 14.0 : 12.0,
+                                            color: Theme.of(context).accentColor.withOpacity(0.75),
+                                            fontWeight: FontWeight.bold)),
                                     alignment: Alignment.centerLeft,
                                   ),
                                 ),
@@ -774,78 +864,74 @@ class CardBuilder {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
     var user = Provider.of<AuthenticatedUser>(context);
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        child: InkWell(
-            onTap: () {},
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
-                height: height * 0.35,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                        child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                            child: ClipRRect(
-                              child: Image.asset('assets/images/bisericalemn_000.jpg', fit: BoxFit.cover),
-                              borderRadius: BorderRadius.circular(16),
-                            )),
-                        flex: 1),
-                    Expanded(
-                        child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-                            child: Column(
-                              children: [
-                                Row(children: [
-                                  Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        objective.name,
-                                        style: Theme.of(context).textTheme.bodyText1,
-                                      )),
-                                  Expanded(
-                                      flex: 1,
-                                      child: OutlinedButton(
-                                          onPressed: () async {
-                                            Navigator.pushNamed(context, RoutesScreen.route, arguments: objective);
-                                          },
-                                          style: OutlinedButton.styleFrom(
-                                              backgroundColor: Colors.white,
-                                              textStyle: TextStyle(fontSize: 14),
-                                              primary: Theme.of(context).hintColor,
-                                              side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).hintColor, width: 0),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                          child: Text(context.read<LanguageManager>().routes)))
-                                ]),
-                                Row(children: [
-                                  Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        "Loredsadasdasm ipsum dolor sit amet, onsectetur adipiscing elit. Curabitur risus ligula",
-                                        style: Theme.of(context).textTheme.bodyText2,
-                                      )),
-                                  Expanded(
-                                    flex: 1,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-                                        //  Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+    return InkWell(
+        onTap: () {},
+        child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                color: Colors.white,
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+            height: height * 0.35,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                    child: ClipRRect(
+                      child: Image.asset('assets/images/bisericalemn_000.jpg', fit: BoxFit.cover),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    flex: 1),
+                Expanded(
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                        child: Column(
+                          children: [
+                            Row(children: [
+                              Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    objective.name,
+                                    style: Theme.of(context).textTheme.bodyText1,
+                                  )),
+                              Expanded(
+                                  flex: 1,
+                                  child: OutlinedButton(
+                                      onPressed: () async {
+                                        Navigator.pushNamed(context, RoutesScreen.route, arguments: objective);
                                       },
-                                      child: Text(context.read<LanguageManager>().details),
-                                      style: ElevatedButton.styleFrom(
-                                          textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
-                                    ),
-                                  )
-                                ])
-                              ],
-                            )),
-                        flex: 1)
-                  ],
-                ))));
+                                      style: OutlinedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          textStyle: TextStyle(fontSize: 14),
+                                          primary: Theme.of(context).hintColor,
+                                          side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).hintColor, width: 0),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                                      child: Text(context.read<LanguageManager>().routes)))
+                            ]),
+                            Row(children: [
+                              Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    "Loredsadasdasm ipsum dolor sit amet, onsectetur adipiscing elit. Curabitur risus ligula",
+                                    style: Theme.of(context).textTheme.bodyText2,
+                                  )),
+                              Expanded(
+                                flex: 1,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+                                    //  Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+                                  },
+                                  child: Text(context.read<LanguageManager>().details),
+                                  style: ElevatedButton.styleFrom(
+                                      textStyle: TextStyle(fontSize: 14.0), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
+                                ),
+                              )
+                            ])
+                          ],
+                        )),
+                    flex: 1)
+              ],
+            )));
   }
 
   static buildNearestObjectiveButton(BuildContext context) {
