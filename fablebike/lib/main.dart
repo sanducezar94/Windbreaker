@@ -5,6 +5,7 @@ import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/explore.dart';
 import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
+import 'package:fablebike/pages/route_map.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fablebike/services/authentication_service.dart';
 import 'package:fablebike/services/database_service.dart';
@@ -124,12 +125,12 @@ class MyApp extends StatelessWidget {
               return RoutesScreen(objective: args);
             });
           }
-          if (settings.name == MapScreen.route) {
+          if (settings.name == RouteMapScreen.route) {
             final args = settings.arguments as BikeRoute;
 
             return MaterialPageRoute(
               builder: (context) {
-                return MapScreen(bikeRoute: args);
+                return RouteMapScreen(bikeRoute: args);
               },
             );
           }

@@ -25,7 +25,7 @@ import 'package:share_plus/share_plus.dart';
 LatLng myLocation = LatLng(46.45447, 27.72501);
 
 class MapScreen extends StatelessWidget {
-  static const route = '/map';
+  static const route = '/mapdsa';
 
   final BikeRoute bikeRoute;
 

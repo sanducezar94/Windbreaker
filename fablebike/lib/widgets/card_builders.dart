@@ -311,6 +311,11 @@ class CardBuilder {
                               ],
                             ),
                             flex: 2),
+                        Expanded(
+                            child: Row(
+                              children: [buildStars(context, 4, false)],
+                            ),
+                            flex: 2),
                         if (hasDescription)
                           Expanded(
                               child: Row(
@@ -399,6 +404,11 @@ class CardBuilder {
                               children: [
                                 Text('Traseul Mare', style: Theme.of(context).textTheme.bodyText1),
                               ],
+                            ),
+                            flex: 2),
+                        Expanded(
+                            child: Row(
+                              children: [buildStars(context, 4, false)],
                             ),
                             flex: 2),
                         if (hasDescription)

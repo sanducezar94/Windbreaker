@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/filters.dart';
+import 'package:fablebike/pages/route_map.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/widgets/card_builders.dart';
 import 'package:fablebike/widgets/route_filter.dart';
@@ -144,11 +145,16 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                       children: [
                                         for (var i = 0; i < 5; i++)
                                           Padding(
-                                            child: Container(
-                                              decoration: BoxDecoration(boxShadow: [
-                                                BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
-                                              ]),
-                                              child: CardBuilder.buildBigRouteCard(context),
+                                            child: InkWell(
+                                              child: Container(
+                                                decoration: BoxDecoration(boxShadow: [
+                                                  BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
+                                                ]),
+                                                child: CardBuilder.buildBigRouteCard(context),
+                                              ),
+                                              onTap: () {
+                                                Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: snapshot.data[i]);
+                                              },
                                             ),
                                             padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
                                           ),

@@ -145,18 +145,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
             body: SingleChildScrollView(
                 child: Column(
               children: [
-                /* Padding(
-                  padding: EdgeInsets.fromLTRB(20.0, 0, 0, 0),
-                  child: Row(children: [
-                    Icon(Icons.map_outlined),
-                    SizedBox(width: 5),
-                    Text(
-                      context.read<LanguageManager>().routeAvailable,
-                      style: Theme.of(context).textTheme.headline5,
-                      textAlign: TextAlign.start,
-                    )
-                  ]),
-                ),*/
                 SizedBox(height: 15),
                 FutureBuilder<List<BikeRoute>>(
                     builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
