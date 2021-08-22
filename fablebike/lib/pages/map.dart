@@ -123,16 +123,6 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     controller.forward();
   }
 
-  LatLng getcenter() {
-    var l = widget.bikeRoute.rtsCoordinates.length;
-    LatLng value = LatLng(0, 0);
-    for (var i = 0; i < widget.bikeRoute.rtsCoordinates.length; i++) {
-      value.latitude += widget.bikeRoute.rtsCoordinates[i].latitude / l;
-      value.longitude += widget.bikeRoute.rtsCoordinates[i].longitude / l;
-    }
-    return value;
-  }
-
   /* Future<double> getKmTraveled() async {
     double km = 0;
     for (var i = 0; i < widget.bikeRoute.rtsCoordinates.length - 1; i++) {

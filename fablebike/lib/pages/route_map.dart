@@ -1,25 +1,20 @@
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:fablebike/bloc/event_constants.dart';
-import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
+import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
-import 'package:fablebike/pages/objective_header_delegate.dart';
 import 'package:fablebike/pages/route_map_header_delegate.dart';
-import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/widgets/card_builders.dart';
+import 'package:fablebike/widgets/carousel.dart';
 import 'package:fablebike/widgets/routes_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:fablebike/pages/sections/comments_section.dart';
 
 class RouteMapScreen extends StatefulWidget {
   static const route = '/map';
@@ -48,11 +43,14 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
 
   int _stars = 0;
 
+  List<Objective> objectives = [];
+
   @override
   Duration get transitionDuration => const Duration(milliseconds: 3000);
 
   @override
   Widget build(BuildContext context) {
+    objectives.add(new Objective(id: 1, name: 'Test', description: 'Test'));
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
     var user = Provider.of<AuthenticatedUser>(context);
@@ -232,19 +230,19 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                   SizedBox(height: bigDivider),
                                   Row(children: [
                                     Text(
-                                      "Trasee catre obiectiv",
+                                      "Obiective de pe traseu",
                                       style: Theme.of(context).textTheme.headline2,
                                       textAlign: TextAlign.start,
                                     )
                                   ]),
                                   SizedBox(height: smallDivider),
                                   Container(
-                                    child: RouteCarousel(
+                                    child: Carousel(
                                       context: context,
-                                      routes: [],
-                                      width: width * 0.75,
+                                      objectives: objectives,
+                                      width: width * 0.55,
                                     ),
-                                    height: height * 0.175,
+                                    height: height * 0.3,
                                     width: 999,
                                   ),
                                   SizedBox(
@@ -359,7 +357,80 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                     width: 999,
                                     height: bigDivider * 1 + height * 0.65,
                                   ),
-                                  SizedBox(height: bigDivider * 4),
+                                  Row(children: [
+                                    Text(
+                                      context.read<LanguageManager>().routeEvaluate,
+                                      style: Theme.of(context).textTheme.headline2,
+                                      textAlign: TextAlign.start,
+                                    )
+                                  ]),
+                                  SizedBox(height: smallDivider),
+                                  Container(child: CardBuilder.buildInteractiveStars(context, 4, 48.0)),
+                                  SizedBox(height: bigDivider),
+                                  Row(children: [
+                                    Text(
+                                      "Despre ruta",
+                                      style: Theme.of(context).textTheme.headline2,
+                                      textAlign: TextAlign.start,
+                                    )
+                                  ]),
+                                  SizedBox(height: bigDivider),
+                                  //if (widget.bikeRoute.pinnedComment != null)
+                                  Container(
+                                    height: 80,
+                                    width: 999,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                        color: Colors.white,
+                                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 4, blurRadius: 8, offset: Offset(0, 3))]),
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: _buildComment(
+                                              context,
+                                              Comment(
+                                                  userId: 0,
+                                                  id: 0,
+                                                  text:
+                                                      'Scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris', // widget.bikeRoute.pinnedComment.comment,
+                                                  user: 'User', //widget.bikeRoute.pinnedComment.username,
+                                                  icon: ''),
+                                              false,
+                                              null),
+                                          flex: 1,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: bigDivider),
+                                  //if (widget.bikeRoute.pinnedComment != null)
+                                  Container(
+                                    height: 80,
+                                    width: 999,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                                        color: Colors.white,
+                                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 4, blurRadius: 8, offset: Offset(0, 3))]),
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: _buildComment(
+                                              context,
+                                              Comment(
+                                                  userId: 0,
+                                                  id: 0,
+                                                  text:
+                                                      'Scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris', // widget.bikeRoute.pinnedComment.comment,
+                                                  user: 'User', //widget.bikeRoute.pinnedComment.username,
+                                                  icon: ''),
+                                              false,
+                                              null),
+                                          flex: 1,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: bigDivider * 5),
                                 ],
                               ),
                               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0))
@@ -371,4 +442,39 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
               ))),
     );
   }
+}
+
+Widget _buildComment(BuildContext context, Comment comment, bool moreButton, VoidCallback onTap) {
+  var user = context.read<AuthenticatedUser>();
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+    child: ListTile(
+      minVerticalPadding: 10,
+      horizontalTitleGap: 15,
+      leading: !user.lowDataUsage
+          ? FutureBuilder<Uint8List>(
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: snapshot.data == null
+                        ? Image.asset('assets/icons/user.png', width: 80, height: 80)
+                        : Image.memory(snapshot.data, width: 80, height: 80),
+                  );
+                } else {
+                  return Image.asset('assets/icons/user.png', width: 80, height: 80);
+                }
+              },
+              future: getIcon(imageName: comment.icon, username: comment.user, userId: comment.userId))
+          : Image(image: AssetImage('assets/icons/user.png')),
+      title: Text(
+        comment.user,
+        style: Theme.of(context).textTheme.bodyText1,
+      ),
+      subtitle: Text(
+        comment.text,
+        style: Theme.of(context).textTheme.bodyText2,
+      ),
+    ),
+  );
 }

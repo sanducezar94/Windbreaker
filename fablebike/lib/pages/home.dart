@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Padding(
                                       padding: EdgeInsets.symmetric(vertical: 10),
                                       child: Container(
-                                        child: CardBuilder.buildSmallRouteCard(context, null, 99),
+                                        child: CardBuilder.buildBigRouteCard(context),
                                         decoration: BoxDecoration(
                                             color: Theme.of(context).cardColor,
                                             borderRadius: BorderRadius.all(Radius.circular(12.0)),

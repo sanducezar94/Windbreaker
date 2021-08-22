@@ -69,7 +69,7 @@ class CardBuilder {
     );
   }
 
-  static Widget buildStars(BuildContext context, rating, applyShadow, {double opacity: 1}) {
+  static Widget buildStars(BuildContext context, rating, applyShadow, {double opacity: 1, double size: 18}) {
     return Row(children: [
       for (var i = 0; i < 5; i++)
         Container(
@@ -84,9 +84,24 @@ class CardBuilder {
           child: Icon(
             Icons.star,
             color: rating >= i ? Color.fromRGBO(255, 196, 107, 1).withOpacity(opacity) : Colors.grey.withOpacity(opacity),
-            size: 18,
+            size: size,
           ),
         )
+    ]);
+  }
+
+  static Widget buildInteractiveStars(BuildContext context, rating, size) {
+    return Row(children: [
+      for (var i = 0; i < 5; i++)
+        Padding(
+            child: Container(
+              child: Icon(
+                Icons.star,
+                color: size >= i ? Theme.of(context).primaryColor : Colors.grey,
+                size: size,
+              ),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 10.0)),
     ]);
   }
 
@@ -187,16 +202,6 @@ class CardBuilder {
         child: InkWell(
             onTap: () {
               var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-
-              /* Navigator.of(context).push(PageRouteBuilder(
-                  transitionDuration: Duration(microseconds: 1000),
-                  fullscreenDialog: true,
-                  pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-                    return ObjectiveScreen(objective: objective);
-                  },
-                  transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-                    return FadeTransition(opacity: animation, child: child);
-                  }));*/
               Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
             },
             child: Stack(
@@ -279,8 +284,8 @@ class CardBuilder {
     return ClipRRect(
       child: Container(
           width: 999,
-          height: height * 0.15,
-          child: Row(
+          height: height * 0.25,
+          child: Column(
             children: [
               Expanded(
                 child: Column(
@@ -290,7 +295,7 @@ class CardBuilder {
                             width: 999,
                             height: height * 0.15,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(topLeft: Radius.circular(circularRadius), bottomLeft: Radius.circular(circularRadius)),
+                                borderRadius: BorderRadius.only(topLeft: Radius.circular(circularRadius), topRight: Radius.circular(circularRadius)),
                                 image: new DecorationImage(
                                   image: Image.asset('assets/icons/route.png').image,
                                   fit: BoxFit.cover,
@@ -298,7 +303,7 @@ class CardBuilder {
                         flex: 1)
                   ],
                 ),
-                flex: 3,
+                flex: 4,
               ),
               Expanded(
                 child: Padding(
@@ -313,17 +318,16 @@ class CardBuilder {
                             flex: 2),
                         Expanded(
                             child: Row(
-                              children: [buildStars(context, 4, false)],
+                              children: [buildStars(context, 4, false, size: 14.0)],
+                            ),
+                            flex: 1),
+                        Expanded(
+                            child: Row(
+                              children: [
+                                Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
+                              ],
                             ),
                             flex: 2),
-                        if (hasDescription)
-                          Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
-                                ],
-                              ),
-                              flex: 1),
                         SizedBox(
                           height: 2,
                         ),
@@ -335,31 +339,34 @@ class CardBuilder {
                                       child: Image.asset('assets/icons/dt.png', width: 20, height: 24),
                                       alignment: Alignment.centerLeft,
                                     ),
+                                    flex: 2),
+                                Expanded(
+                                    child: Align(
+                                      child: Text('252 Km',
+                                          style: TextStyle(
+                                              fontSize: hasDescription ? 14.0 : 12.0,
+                                              color: Theme.of(context).accentColor.withOpacity(0.75),
+                                              fontWeight: FontWeight.bold)),
+                                      alignment: Alignment.centerLeft,
+                                    ),
                                     flex: 4),
                                 Expanded(
-                                  flex: 8,
-                                  child: Align(
-                                    child: Text('252 Km',
-                                        style: TextStyle(
-                                            fontSize: hasDescription ? 14.0 : 12.0,
-                                            color: Theme.of(context).accentColor.withOpacity(0.75),
-                                            fontWeight: FontWeight.bold)),
-                                    alignment: Alignment.centerLeft,
-                                  ),
-                                ),
-                                Expanded(
-                                    child: Align(child: Image.asset('assets/icons/pin_tag.png', width: 20, height: 20), alignment: Alignment.center), flex: 4),
-                                Expanded(child: Image.asset('assets/icons/church_tag.png', width: 20, height: 20), flex: 4),
-                                Expanded(child: Image.asset('assets/icons/ruin_tag.png', width: 20, height: 20), flex: 4),
-                                Spacer(
-                                  flex: 1,
-                                )
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Image.asset('assets/icons/pin_tag.png', width: 20, height: 20),
+                                        Image.asset('assets/icons/church_tag.png', width: 20, height: 20),
+                                        Image.asset('assets/icons/ruin_tag.png', width: 20, height: 20),
+                                      ],
+                                    ),
+                                    flex: 7),
                               ],
                             ),
-                            flex: 3)
+                            flex: 2),
+                        SizedBox(height: 4)
                       ],
                     ),
-                    padding: EdgeInsets.fromLTRB(15, 4, 0, 0)),
+                    padding: EdgeInsets.fromLTRB(10, 4, 0, 0)),
                 flex: 4,
               )
             ],
@@ -373,8 +380,8 @@ class CardBuilder {
 
     return ClipRRect(
       child: Container(
-          width: 326,
-          height: height * 0.15,
+          width: 999,
+          height: height * 0.175,
           child: Row(
             children: [
               Expanded(
@@ -515,7 +522,7 @@ class CardBuilder {
                               children: [
                                 Expanded(
                                     child: RichText(
-                                      maxLines: 3,
+                                      maxLines: 2,
                                       text: TextSpan(
                                         text: 'Scris scris scris cris scris scris scris Scris scris scris scris scris ',
                                         style: Theme.of(context).textTheme.bodyText2,

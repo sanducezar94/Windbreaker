@@ -29,7 +29,7 @@ Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width
   List<Widget> carouselItems = [];
   final List<int> pages = List.generate(4, (index) => index);
   for (var i = 0; i < 7; i++) {
-    carouselItems.add(CardBuilder.buildSmallRouteCard2(context, null, i, hasDescription: false));
+    carouselItems.add(CardBuilder.buildSmallRouteCard(context, null, i, hasDescription: false));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -43,7 +43,7 @@ Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width
           itemBuilder: (context, index) => Padding(
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
                     color: Colors.white,
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 3, blurRadius: 12, offset: Offset(0, 0))]),
                 child: carouselItems[index],

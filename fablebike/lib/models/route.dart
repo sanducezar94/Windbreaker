@@ -84,6 +84,8 @@ class Objective {
   LatLng coords;
   bool is_bookmarked;
 
+  Objective({this.id, this.name, this.description});
+
   Map<String, dynamic> toMap() {
     return {'latitude': latitude, 'longitude': longitude, 'name': name, 'description': description, 'route_id': routeId};
   }

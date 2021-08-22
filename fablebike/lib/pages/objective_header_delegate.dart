@@ -133,7 +133,10 @@ class ObjectiveHeader implements SliverPersistentHeaderDelegate {
   }
 
   double titleOpacity(double shrinkOffset) {
-    return 1.0 - max(0.0, shrinkOffset + 0.2) / maxExtent;
+    var opac = max(0.0, 1.0 - max(0.0, shrinkOffset + 0.2) / maxExtent);
+    if (opac < 0.0) return 0.0;
+    if (opac > 1.0) return 1.0;
+    return opac;
   }
 
   @override
