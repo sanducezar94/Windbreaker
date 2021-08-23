@@ -1,4 +1,5 @@
 import 'package:fablebike/pages/objective.dart';
+import 'package:fablebike/pages/route_map.dart';
 import 'package:fablebike/widgets/physics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -27,9 +28,8 @@ class _RoteCarousel extends State<RouteCarousel> {
 
 Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width) {
   List<Widget> carouselItems = [];
-  final List<int> pages = List.generate(4, (index) => index);
-  for (var i = 0; i < 7; i++) {
-    carouselItems.add(CardBuilder.buildSmallRouteCard(context, null, i, hasDescription: false));
+  for (var i = 0; i < routes.length; i++) {
+    carouselItems.add(CardBuilder.buildSmallRouteCard(context, routes[i], i, hasDescription: false));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -41,18 +41,23 @@ Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width
         child: ListView.builder(
           clipBehavior: Clip.none,
           itemBuilder: (context, index) => Padding(
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 3, blurRadius: 12, offset: Offset(0, 0))]),
-                child: carouselItems[index],
-                width: width,
+              child: InkWell(
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      color: Colors.white,
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))]),
+                  child: carouselItems[index],
+                  width: width,
+                ),
+                onTap: () {
+                  Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: [routes[index]]);
+                },
               ),
               padding: index == 0 ? EdgeInsets.fromLTRB(0, 4, 10, 4) : EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0)),
           physics: CustomScrollPhysics(itemDimension: width + 20),
           scrollDirection: Axis.horizontal,
-          itemCount: 7,
+          itemCount: carouselItems.length,
         )),
     Spacer(
       flex: 1,

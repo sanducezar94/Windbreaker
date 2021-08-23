@@ -73,20 +73,21 @@ class CardBuilder {
     return Row(children: [
       for (var i = 0; i < 5; i++)
         Container(
-          decoration: applyShadow
-              ? BoxDecoration(color: Colors.white.withOpacity(0), shape: BoxShape.circle, boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: .5,
-                  ),
-                ])
-              : null,
-          child: Icon(
-            Icons.star,
-            color: rating >= i ? Color.fromRGBO(255, 196, 107, 1).withOpacity(opacity) : Colors.grey.withOpacity(opacity),
-            size: size,
-          ),
-        )
+            decoration: applyShadow
+                ? BoxDecoration(color: Colors.white.withOpacity(0), shape: BoxShape.circle, boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: .5,
+                    ),
+                  ])
+                : null,
+            child: Align(
+                child: Icon(
+                  Icons.star,
+                  color: rating >= i ? Color.fromRGBO(255, 196, 107, 1).withOpacity(opacity) : Colors.grey.withOpacity(opacity),
+                  size: size,
+                ),
+                alignment: Alignment.centerLeft))
     ]);
   }
 
@@ -109,23 +110,23 @@ class CardBuilder {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
-        padding: index == 0 ? EdgeInsets.fromLTRB(0, 6, 16.0, 6) : EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
+        padding: index == 0 ? EdgeInsets.fromLTRB(0, 6, 10.0, 6) : EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
         child: InkWell(
             onTap: () {
               var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-              //  Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
+              Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
             },
             child: Stack(
               children: [
                 Container(
                   height: 999,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
-                      image: new DecorationImage(
-                        image: Image.asset('assets/images/bisericalemn_000.jpg').image,
-                        fit: BoxFit.cover,
-                      ),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                    borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
+                    image: new DecorationImage(
+                      image: Image.asset('assets/images/bisericalemn_000.jpg').image,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                   width: width,
                 ),
                 Container(
@@ -140,21 +141,27 @@ class CardBuilder {
                         0.5,
                         0.75
                       ]),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 2, blurRadius: 6, offset: Offset(0, 0))]),
+                      boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.025), spreadRadius: 2, blurRadius: 6, offset: Offset(0, 0))]),
                   width: width,
                 ),
                 noInfo
                     ? Positioned(
                         bottom: 6,
-                        left: 24,
+                        left: 16,
                         child: Container(
-                          width: 200,
+                          width: 999,
                           height: 40,
                           child: Column(children: [
                             Expanded(
                                 child: Row(
                                   children: [
-                                    Text('Biserica de lemn', style: Theme.of(context).textTheme.headline3),
+                                    Expanded(
+                                        child: RichText(
+                                          maxLines: 2,
+                                          text: TextSpan(text: objective.name, style: Theme.of(context).textTheme.headline3),
+                                          textAlign: TextAlign.start,
+                                        ),
+                                        flex: 1)
                                   ],
                                 ),
                                 flex: 6),
@@ -163,33 +170,27 @@ class CardBuilder {
                       )
                     : Positioned(
                         child: Container(
-                          width: 200,
-                          height: 75,
+                          width: 999,
+                          height: height * 0.075,
                           child: Column(children: [
                             Expanded(
                                 child: Row(
-                                  children: [buildStars(context, 3, true)],
-                                ),
-                                flex: 4),
-                            Spacer(flex: 1),
-                            Expanded(
-                                child: Row(
                                   children: [
-                                    Text('Biserica de lemn', style: Theme.of(context).textTheme.headline3),
+                                    Expanded(
+                                        child: RichText(
+                                          maxLines: 2,
+                                          text: TextSpan(text: objective.name, style: Theme.of(context).textTheme.headline3),
+                                          textAlign: TextAlign.start,
+                                        ),
+                                        flex: 2)
                                   ],
                                 ),
-                                flex: 6),
-                            Expanded(
-                                child: Row(
-                                  children: [
-                                    Text('Scris scris scris scris', style: Theme.of(context).textTheme.headline4),
-                                  ],
-                                ),
-                                flex: 6)
+                                flex: 2),
+                            Expanded(child: buildStars(context, 3, true), flex: 1),
                           ]),
                         ),
-                        bottom: 24,
-                        left: 24)
+                        bottom: 20,
+                        left: 16)
               ],
             )));
   }
@@ -216,7 +217,9 @@ class CardBuilder {
                                 image: Image.asset('assets/images/bisericalemn_000.jpg').image,
                                 fit: BoxFit.cover,
                               ),
-                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                              boxShadow: [
+                                BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 3))
+                              ]),
                           width: width,
                         ),
                         tag: 'objective-hero' + objective.name),
@@ -234,7 +237,9 @@ class CardBuilder {
                             0.5,
                             0.75
                           ]),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.025), spreadRadius: 2, blurRadius: 6, offset: Offset(0, 0))]),
+                          boxShadow: [
+                            BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.025), spreadRadius: 2, blurRadius: 6, offset: Offset(0, 0))
+                          ]),
                       width: width,
                     ),
                     tag: 'obj-layer' + objective.name),
@@ -312,22 +317,21 @@ class CardBuilder {
                         Expanded(
                             child: Row(
                               children: [
-                                Text('Traseul Mare', style: Theme.of(context).textTheme.bodyText1),
+                                Expanded(
+                                    child: RichText(
+                                      maxLines: 2,
+                                      text: TextSpan(text: route.name, style: Theme.of(context).textTheme.bodyText1),
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    flex: 2)
                               ],
                             ),
-                            flex: 2),
+                            flex: 3),
                         Expanded(
                             child: Row(
                               children: [buildStars(context, 4, false, size: 14.0)],
                             ),
                             flex: 1),
-                        Expanded(
-                            child: Row(
-                              children: [
-                                Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
-                              ],
-                            ),
-                            flex: 2),
                         SizedBox(
                           height: 2,
                         ),
@@ -342,7 +346,7 @@ class CardBuilder {
                                     flex: 2),
                                 Expanded(
                                     child: Align(
-                                      child: Text('252 Km',
+                                      child: Text(route.distance.toStringAsFixed(0) + ' Km',
                                           style: TextStyle(
                                               fontSize: hasDescription ? 14.0 : 12.0,
                                               color: Theme.of(context).accentColor.withOpacity(0.75),
@@ -469,7 +473,7 @@ class CardBuilder {
     );
   }
 
-  static Widget buildBigRouteCard(BuildContext context) {
+  static Widget buildBigRouteCard(BuildContext context, BikeRoute bikeRoute) {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
 
@@ -481,7 +485,7 @@ class CardBuilder {
           decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), spreadRadius: 36, blurRadius: 24, offset: Offset(0, 13))]),
+              boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.5), spreadRadius: 36, blurRadius: 24, offset: Offset(0, 13))]),
           child: Row(
             children: [
               Expanded(
@@ -508,10 +512,24 @@ class CardBuilder {
                         Expanded(
                             child: Row(
                               children: [
-                                Text('Traseul Mare', style: Theme.of(context).textTheme.bodyText1),
+                                Expanded(
+                                    child: Align(
+                                        child: RichText(
+                                          maxLines: 2,
+                                          text: TextSpan(
+                                            text: bikeRoute.name,
+                                            style: Theme.of(context).textTheme.bodyText1,
+                                          ),
+                                          textAlign: TextAlign.start,
+                                        ),
+                                        alignment: Alignment.centerLeft),
+                                    flex: 1)
                               ],
                             ),
-                            flex: 2),
+                            flex: 4),
+                        SizedBox(
+                          height: 2,
+                        ),
                         Expanded(
                             child: Row(
                               children: [buildStars(context, 4, false)],
@@ -524,7 +542,7 @@ class CardBuilder {
                                     child: RichText(
                                       maxLines: 2,
                                       text: TextSpan(
-                                        text: 'Scris scris scris cris scris scris scris Scris scris scris scris scris ',
+                                        text: bikeRoute.description,
                                         style: Theme.of(context).textTheme.bodyText2,
                                       ),
                                       textAlign: TextAlign.start,
@@ -548,7 +566,7 @@ class CardBuilder {
                                 Expanded(
                                   flex: 8,
                                   child: Align(
-                                    child: Text('252 Km',
+                                    child: Text(bikeRoute.distance.toStringAsFixed(0) + ' Km',
                                         style: TextStyle(fontSize: 14, color: Theme.of(context).accentColor.withOpacity(0.75), fontWeight: FontWeight.bold)),
                                     alignment: Alignment.centerLeft,
                                   ),
@@ -565,7 +583,7 @@ class CardBuilder {
                             flex: 3)
                       ],
                     ),
-                    padding: EdgeInsets.fromLTRB(15, 4, 0, 4)),
+                    padding: EdgeInsets.fromLTRB(14, 4, 15, 4)),
                 flex: 4,
               )
             ],
@@ -584,7 +602,7 @@ class CardBuilder {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(16.0)),
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 5, offset: Offset(0, 3))]),
+              boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), spreadRadius: 3, blurRadius: 5, offset: Offset(0, 3))]),
           height: 0.25 * height,
           child: Column(
             mainAxisSize: MainAxisSize.max,

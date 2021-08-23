@@ -37,6 +37,26 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
     return rows.length > 0;
   }
 
+  Future<List<BikeRoute>> _getRoutes() async {
+    var database = await DatabaseService().database;
+    var routes = await database.query('route');
+
+    List<BikeRoute> bikeRoutes = List.generate(routes.length, (i) {
+      return BikeRoute.fromJson(routes[i]);
+    });
+    List<BikeRoute> returnList = [];
+    for (var i = 0; i < bikeRoutes.length; i++) {
+      var objToRoutesRow =
+          await database.query('objectivetoroute', where: 'objective_id = ? and route_id = ?', whereArgs: [widget.objective.id, bikeRoutes[i].id]);
+
+      if (objToRoutesRow.length > 0) {
+        returnList.add(bikeRoutes[i]);
+      }
+    }
+
+    return returnList;
+  }
+
   @override
   Duration get transitionDuration => const Duration(milliseconds: 3000);
 
@@ -64,7 +84,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           child: ClipRRect(
                         child: Hero(
                             child: Container(
-                              height: height * 0.6,
+                              height: height * 0.75,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(0.0), bottomRight: Radius.circular(0.0)),
                                   image: new DecorationImage(
@@ -78,7 +98,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                       )),
                       Hero(
                           child: Container(
-                            height: height * 0.6,
+                            height: height * 0.75,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(12)),
                                 color: Colors.white,
@@ -165,7 +185,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           left: 20),
                     ],
                   ),
-                  height: height * 0.65,
+                  height: height * 0.75,
                   width: 999,
                 ),
                 Padding(
@@ -198,14 +218,22 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                             textAlign: TextAlign.start,
                           )
                         ]),
-                        Container(
-                          child: RouteCarousel(
-                            context: context,
-                            routes: [],
-                            width: width * 0.45,
-                          ),
-                          height: height * 0.45,
-                          width: 999,
+                        FutureBuilder<List<BikeRoute>>(
+                          builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              return Container(
+                                child: RouteCarousel(
+                                  context: context,
+                                  routes: snapshot.data,
+                                  width: width * 0.45,
+                                ),
+                                height: height * 0.45,
+                                width: 999,
+                              );
+                            } else
+                              return CircularProgressIndicator();
+                          },
+                          future: _getRoutes(),
                         ),
                         Row(children: [
                           Text(

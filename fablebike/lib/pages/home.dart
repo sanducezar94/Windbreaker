@@ -37,6 +37,15 @@ class _HomeScreenState extends State<HomeScreen> {
   AuthenticatedUser user;
   final _bloc = BookmarkBloc();
 
+  Future<List<BikeRoute>> _getRecentRoutes(AuthenticatedUser user) async {
+    var db = await DatabaseService().database;
+
+    var routeRows = await db.query('route');
+    var routes = List.generate(routeRows.length, (index) => BikeRoute.fromJson(routeRows[index]));
+
+    return [];
+  }
+
   Future<List<Objective>> _getNearbyObjectives(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
 
@@ -111,15 +120,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
                         if (snapshot.hasData) {
                           if (snapshot.data.length == 0)
-                            return Padding(
-                              child: Row(
-                                children: [Text('Nu aveti puncte de interest salvate.', style: Theme.of(context).textTheme.headline4)],
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: 20.0),
+                            return Row(
+                              children: [Text('Nu aveti niciun obiectiv salvat.', style: Theme.of(context).textTheme.subtitle1)],
                             );
 
                           return Container(
-                              height: height * 0.425,
+                              height: height * 0.275,
                               width: 999,
                               child: Carousel(
                                 objectives: snapshot.data,
@@ -135,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: bigDivider),
                     Row(children: [
                       Text(
-                        "Trasee vizitate recent",
+                        "Obiective aflate in apropiere",
                         style: Theme.of(context).textTheme.headline2,
                         textAlign: TextAlign.start,
                       ),
@@ -147,18 +153,67 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
                           if (snapshot.connectionState == ConnectionState.done) {
                             if (snapshot.hasData && snapshot.data != null) {
+                              return Container(
+                                  height: height * 0.275,
+                                  width: 999,
+                                  child: Carousel(
+                                    objectives: snapshot.data,
+                                    context: context,
+                                    width: width,
+                                  ));
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        },
+                        future: _getNearbyObjectives(user)),
+                    SizedBox(height: bigDivider),
+                    Row(children: [
+                      Text(
+                        "Trasee vizitate recent",
+                        style: Theme.of(context).textTheme.headline2,
+                        textAlign: TextAlign.start,
+                      ),
+                    ]),
+                    SizedBox(
+                      height: smallDivider,
+                    ),
+                    FutureBuilder<List<BikeRoute>>(
+                        builder: (context, AsyncSnapshot<List<BikeRoute>> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              if (snapshot.data.length == 0)
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [Text('Nu ati fost pe niciun traseu recent.', style: Theme.of(context).textTheme.subtitle1)],
+                                    ),
+                                    SizedBox(
+                                      height: smallDivider,
+                                    ),
+                                    Row(
+                                      children: [Text('Vezi toate traseele', style: TextStyle(color: Theme.of(context).primaryColorDark, fontSize: 18.0))],
+                                    )
+                                  ],
+                                );
                               return Column(
                                 children: [
                                   for (var i = 0; i < 3; i++)
                                     Padding(
                                       padding: EdgeInsets.symmetric(vertical: 10),
                                       child: Container(
-                                        child: CardBuilder.buildBigRouteCard(context),
+                                        child: CardBuilder.buildBigRouteCard(context, snapshot.data[i]),
                                         decoration: BoxDecoration(
                                             color: Theme.of(context).cardColor,
                                             borderRadius: BorderRadius.all(Radius.circular(12.0)),
                                             boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 16, blurRadius: 12, offset: Offset(0, 13))
+                                              BoxShadow(
+                                                  color: Theme.of(context).shadowColor.withOpacity(0.05),
+                                                  spreadRadius: 16,
+                                                  blurRadius: 12,
+                                                  offset: Offset(0, 13))
                                             ]),
                                       ),
                                     ),
@@ -174,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             return CircularProgressIndicator();
                           }
                         },
-                        future: _getNearbyObjectives(user)),
+                        future: _getRecentRoutes(user)),
                   ],
                 ),
               ),

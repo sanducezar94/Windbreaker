@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:fablebike/models/comments.dart';
 import 'package:flutter/foundation.dart';
@@ -28,6 +29,16 @@ class BikeRoute {
   List<Objective> objectives;
 
   BikeRoute(this.id, this.name, this.description, this.rating, this.ascent, this.descent, this.difficulty, this.rtsCoordinates);
+
+  @override
+  int compareTo(BikeRoute other) {
+    if (this.rating == null || other == null) return null;
+
+    if (this.rating > other.rating) return -1;
+    if (this.rating < other.rating) return 1;
+    if (this.rating == other.rating) return 0;
+    return null;
+  }
 
   Map<String, dynamic> toMap() {
     return {'id': id, 'name': name, 'description': description, 'rating': rating, 'ratingCount': ratingCount};

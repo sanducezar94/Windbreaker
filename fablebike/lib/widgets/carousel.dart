@@ -34,19 +34,22 @@ Widget _buildCarousel(BuildContext context, List<Objective> objectives, double w
   final List<int> pages = List.generate(4, (index) => index);
   for (var i = 0; i < objectives.length; i++) {
     carouselItems.add(CardBuilder.buildSmallObjectiveCarouselCard(context, i, objectives[i], noInfo));
-    carouselItems.add(CardBuilder.buildSmallObjectiveCarouselCard(context, i, objectives[i], noInfo));
-    carouselItems.add(CardBuilder.buildSmallObjectiveCarouselCard(context, i, objectives[i], noInfo));
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
     Expanded(
         flex: 1,
         child: ListView.builder(
+          clipBehavior: Clip.none,
           padding: EdgeInsets.all(0),
-          itemBuilder: (context, index) => Container(child: carouselItems[index], width: width),
+          itemBuilder: (context, index) => Container(
+            child: carouselItems[index],
+            width: width,
+            decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 6, blurRadius: 9, offset: Offset(0, 3))]),
+          ),
           physics: CustomScrollPhysics(itemDimension: width),
           scrollDirection: Axis.horizontal,
-          itemCount: 6,
+          itemCount: objectives.length,
         ))
   ]);
 }

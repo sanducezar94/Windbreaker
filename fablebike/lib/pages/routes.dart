@@ -43,17 +43,17 @@ class _RoutesScreenState extends State<RoutesScreen> {
     }
   }
 
-  Future<List<BikeRoute>> _getRoutes() async {
+  Future<List<BikeRoute>> _getRoutes({bool mostPopular: false}) async {
     var database = await DatabaseService().database;
     var routes = await database.query('route');
 
     List<BikeRoute> bikeRoutes = List.generate(routes.length, (i) {
       return BikeRoute.fromJson(routes[i]);
     });
-
+    double meanRating = 0;
     for (var i = 0; i < bikeRoutes.length; i++) {
       var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id]);
-
+      meanRating += bikeRoutes[i].rating / bikeRoutes.length;
       List<Objective> objectives = [];
       for (var i = 0; i < objToRoutes.length; i++) {
         var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
@@ -62,7 +62,21 @@ class _RoutesScreenState extends State<RoutesScreen> {
       }
       bikeRoutes[i].objectives = objectives;
     }
+    if (mostPopular) {
+      var popularRoutes = bikeRoutes;
+      popularRoutes.sort((a, b) {
+        if (a == null || b == null) return null;
+        var aWeight = (a.rating * a.ratingCount + meanRating * 10) / (a.rating + 10);
+        var bWeight = (b.rating * b.ratingCount + meanRating * 10) / (b.rating + 10);
 
+        if (aWeight > bWeight) return -1;
+        if (bWeight < aWeight) return 1;
+        if (aWeight == bWeight) return 0;
+        return null;
+      });
+
+      return popularRoutes;
+    }
     return bikeRoutes;
   }
 
@@ -117,15 +131,27 @@ class _RoutesScreenState extends State<RoutesScreen> {
                               textAlign: TextAlign.start,
                             )
                           ]),
-                          Container(
-                            child: RouteCarousel(
-                              context: context,
-                              routes: [],
-                              width: width * 0.45,
-                            ),
-                            height: height * 0.45,
-                            width: 999,
-                          ),
+                          FutureBuilder<List<BikeRoute>>(
+                              builder: (context, AsyncSnapshot<List<BikeRoute>> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done) {
+                                  if (snapshot.hasData && snapshot.data != null) {
+                                    return Container(
+                                      child: RouteCarousel(
+                                        context: context,
+                                        routes: snapshot.data,
+                                        width: width * 0.45,
+                                      ),
+                                      height: height * 0.45,
+                                      width: 999,
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                } else {
+                                  return CircularProgressIndicator();
+                                }
+                              },
+                              future: _getRoutes(mostPopular: true)),
                           Row(children: [
                             Text(
                               "Toate traseele",
@@ -140,14 +166,18 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                   if (snapshot.hasData && snapshot.data != null) {
                                     return Column(
                                       children: [
-                                        for (var i = 0; i < 5; i++)
+                                        for (var i = 0; i < snapshot.data.length; i++)
                                           Padding(
                                             child: InkWell(
                                               child: Container(
                                                 decoration: BoxDecoration(boxShadow: [
-                                                  BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
+                                                  BoxShadow(
+                                                      color: Theme.of(context).shadowColor.withOpacity(0.125),
+                                                      spreadRadius: 6,
+                                                      blurRadius: 9,
+                                                      offset: Offset(0, 0))
                                                 ]),
-                                                child: CardBuilder.buildBigRouteCard(context),
+                                                child: CardBuilder.buildBigRouteCard(context, snapshot.data[i]),
                                               ),
                                               onTap: () {
                                                 Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: snapshot.data[i]);

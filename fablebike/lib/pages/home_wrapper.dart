@@ -62,34 +62,34 @@ class _HomeWrapperState extends State<HomeWrapper> {
                     iconSize: 36,
                     selectedIconTheme: IconThemeData(size: 42),
                     type: BottomNavigationBarType.fixed,
-                    showUnselectedLabels: false,
+                    showUnselectedLabels: true,
                     selectedLabelStyle: TextStyle(fontFamily: 'Lato', color: Colors.black),
                     showSelectedLabels: true,
-                    unselectedItemColor: Theme.of(context).accentColor.withOpacity(0.5),
-                    selectedItemColor: Theme.of(context).primaryColorDark,
+                    unselectedItemColor: Theme.of(context).accentColor.withOpacity(0.75),
+                    selectedItemColor: Theme.of(context).accentColor,
                     currentIndex: _selectedIndex,
                     items: <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.home_rounded),
+                    icon: _selectedIndex == 0 ? Icon(Icons.home) : Icon(Icons.home_outlined),
                     label: context.read<LanguageManager>().appHome,
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.explore_rounded),
+                    icon: _selectedIndex == 1 ? Icon(Icons.explore) : Icon(Icons.explore_outlined),
                     label: context.read<LanguageManager>().appExplore,
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.directions_bike_rounded),
+                    icon: _selectedIndex == 2 ? Icon(Icons.map) : Icon(Icons.map_outlined),
                     label: context.read<LanguageManager>().appRoutes,
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.settings_rounded),
+                    icon: _selectedIndex == 3 ? Icon(Icons.settings) : Icon(Icons.settings_outlined),
                     label: context.read<LanguageManager>().appSettings,
                   ),
                 ])),
             borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
         decoration: BoxDecoration(
           boxShadow: <BoxShadow>[
-            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 3, spreadRadius: 6),
+            BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), blurRadius: 3, spreadRadius: 6),
           ],
         ),
       );

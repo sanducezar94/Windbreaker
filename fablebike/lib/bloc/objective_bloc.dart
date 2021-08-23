@@ -53,7 +53,6 @@ class ObjectiveBloc {
   }
 
   void dispose() {
-    _objectiveEventController.close();
     _objectiveStateController.close();
   }
 }
