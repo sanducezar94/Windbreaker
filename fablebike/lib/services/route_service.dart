@@ -8,7 +8,7 @@ import 'database_service.dart';
 import 'storage_service.dart';
 
 //const SERVER_IP = '192.168.100.24:8080';
-const SERVER_IP = 'lighthousestudio.ro';
+const SERVER_IP = 'lighthousestudio.ro/api/fablebike';
 const API_ENDPOINT = '/route';
 
 class RouteService {

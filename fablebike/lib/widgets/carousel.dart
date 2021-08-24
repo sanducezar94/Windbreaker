@@ -45,7 +45,8 @@ Widget _buildCarousel(BuildContext context, List<Objective> objectives, double w
           itemBuilder: (context, index) => Container(
             child: carouselItems[index],
             width: width,
-            decoration: BoxDecoration(boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 6, blurRadius: 9, offset: Offset(0, 3))]),
+            decoration: BoxDecoration(
+                boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), spreadRadius: 6, blurRadius: 9, offset: Offset(0, 3))]),
           ),
           physics: CustomScrollPhysics(itemDimension: width),
           scrollDirection: Axis.horizontal,

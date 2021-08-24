@@ -4,6 +4,36 @@ import 'dart:typed_data';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
+class RatingInfo {
+  int objectId;
+  double rating;
+  int ratingCount;
+
+  RatingInfo(this.objectId, this.rating, this.ratingCount);
+
+  RatingInfo.empty() {}
+
+  Map<String, dynamic> toMap() {
+    return {
+      'objectId': objectId,
+      'rating': rating,
+      'ratingCount': ratingCount,
+    };
+  }
+
+  factory RatingInfo.fromMap(Map<String, dynamic> map) {
+    return RatingInfo(
+      map['object_id'] ?? 0,
+      map['rating'] ?? 0.0,
+      map['rating_count'] ?? 0,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory RatingInfo.fromJson(String source) => RatingInfo.fromMap(json.decode(source));
+}
+
 class AuthenticatedUser {
   int id;
   String username;
@@ -12,11 +42,11 @@ class AuthenticatedUser {
   String icon;
   String roleTokens;
 
-  List<int> ratedRoutes;
-  List<int> ratedComments;
-
   bool lowDataUsage;
   bool isRomanianLanguage;
+
+  List<RatingInfo> objectives;
+  List<RatingInfo> routes;
 
   double distanceTravelled;
   int finishedRoutes;
@@ -40,21 +70,21 @@ class AuthenticatedUser {
     isRomanianLanguage = true;
   }
 
-  AuthenticatedUser(
+  AuthenticatedUser({
     this.id,
     this.username,
     this.email,
     this.token,
     this.icon,
     this.roleTokens,
-    this.ratedRoutes,
-    this.ratedComments,
     this.lowDataUsage,
     this.isRomanianLanguage,
+    this.objectives,
+    this.routes,
     this.distanceTravelled,
     this.finishedRoutes,
     this.objectivesVisited,
-  );
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -64,10 +94,10 @@ class AuthenticatedUser {
       'token': token,
       'icon': icon,
       'roleTokens': roleTokens,
-      'ratedRoutes': ratedRoutes,
-      'ratedComments': ratedComments,
       'lowDataUsage': lowDataUsage,
       'isRomanianLanguage': isRomanianLanguage,
+      'objectives': objectives?.map((x) => x.toMap())?.toList(),
+      'routes': routes?.map((x) => x.toMap())?.toList(),
       'distanceTravelled': distanceTravelled,
       'finishedRoutes': finishedRoutes,
       'objectivesVisited': objectivesVisited,
@@ -76,19 +106,19 @@ class AuthenticatedUser {
 
   factory AuthenticatedUser.fromMap(Map<String, dynamic> map) {
     return AuthenticatedUser(
-      map['id'] ?? 0,
-      map['username'] ?? '',
-      map['email'] ?? '',
-      map['token'] ?? '',
-      map['icon'] ?? '',
-      map['roleTokens'] ?? '',
-      List<int>.from(map['ratedRoutes'] ?? const []),
-      List<int>.from(map['ratedComments'] ?? const []),
-      map['lowDataUsage'] ?? false,
-      map['isRomanianLanguage'] ?? false,
-      map['distanceTravelled'] ?? 0.0,
-      map['finishedRoutes'] ?? 0,
-      map['objectivesVisited'] ?? 0,
+      id: map['id'] ?? 0,
+      username: map['username'] ?? '',
+      email: map['email'] ?? '',
+      token: map['token'] ?? '',
+      icon: map['icon'] ?? '',
+      roleTokens: map['roleTokens'] ?? '',
+      lowDataUsage: map['lowDataUsage'] ?? false,
+      isRomanianLanguage: map['isRomanianLanguage'] ?? false,
+      objectives: List<RatingInfo>.from(map['login_data']['objectives']?.map((x) => RatingInfo.fromMap(x) ?? RatingInfo.empty()) ?? const []),
+      routes: List<RatingInfo>.from(map['login_data']['routes']?.map((x) => RatingInfo.fromMap(x) ?? RatingInfo.empty()) ?? const []),
+      distanceTravelled: map['distanceTravelled'] ?? 0.0,
+      finishedRoutes: map['finishedRoutes'] ?? 0,
+      objectivesVisited: map['objectivesVisited'] ?? 0,
     );
   }
 

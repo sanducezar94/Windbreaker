@@ -11,11 +11,11 @@ import 'storage_service.dart';
 
 //const SERVER_IP = '192.168.1.251:8080';
 const SERVER_IP = 'lighthousestudio.ro';
-const AUTH = '/auth';
-const SIGNUP = '/auth/sign_up';
-const FACEBOOK_SIGNUP = '/auth/oauth';
-const FILE_UPLOAD = '/auth/upload';
-const PERSISTENT_LOGIN = '/auth/persistent';
+const AUTH = '/api/fablebike/auth';
+const SIGNUP = '/api/fablebike/auth/sign_up';
+const FACEBOOK_SIGNUP = '/api/fablebike/auth/oauth';
+const FILE_UPLOAD = '/api/fablebike/auth/upload';
+const PERSISTENT_LOGIN = '/api/fablebike/auth/persistent';
 
 class AuthenticationService {
   StreamController sc = new StreamController<AuthenticatedUser>();
@@ -77,6 +77,16 @@ class AuthenticationService {
     }
     var dc = DateTime.now().subtract(Duration(hours: 128)).toIso8601String();
     await db.delete('usericon', where: 'created_on <= ?', whereArgs: [dc]);
+
+    for (var i = 0; i < loggedUser.routes.length; i++) {
+      await db.update('Route', {'rating': loggedUser.routes[i].rating, 'rating_count': loggedUser.routes[i].ratingCount},
+          where: 'id = ?', whereArgs: [loggedUser.routes[i].objectId]);
+    }
+
+    for (var i = 0; i < loggedUser.objectives.length; i++) {
+      await db.update('Objective', {'rating': loggedUser.objectives[i].rating, 'rating_count': loggedUser.objectives[i].ratingCount},
+          where: 'id = ?', whereArgs: [loggedUser.objectives[i].objectId]);
+    }
 
     var persistentUserRow = await db.query('SystemValue', where: 'key = ?', whereArgs: ['puseremail']);
 

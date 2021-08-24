@@ -95,10 +95,23 @@ class Objective {
   LatLng coords;
   bool is_bookmarked;
 
+  double rating;
+  int ratingCount;
+  int userRating;
+
   Objective({this.id, this.name, this.description});
 
   Map<String, dynamic> toMap() {
-    return {'latitude': latitude, 'longitude': longitude, 'name': name, 'description': description, 'route_id': routeId};
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+      'name': name,
+      'description': description,
+      'route_id': routeId,
+      'rating': rating,
+      'rating_count': ratingCount,
+      'user_rating': userRating
+    };
   }
 
   Objective.fromJson(Map<String, dynamic> json)
@@ -110,7 +123,10 @@ class Objective {
         image = json['image'],
         name = json['name'],
         description = json['description'],
-        coords = LatLng(json['latitude'], json['longitude']);
+        coords = LatLng(json['latitude'], json['longitude']),
+        rating = json['rating'],
+        ratingCount = json['rating_count'],
+        userRating = json['user_rating'];
 }
 
 class ObjectiveInfo {

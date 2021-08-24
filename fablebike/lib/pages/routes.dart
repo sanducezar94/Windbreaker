@@ -62,6 +62,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
       }
       bikeRoutes[i].objectives = objectives;
     }
+    await database.delete('route', where: 'id = ?', whereArgs: [0]);
     if (mostPopular) {
       var popularRoutes = bikeRoutes;
       popularRoutes.sort((a, b) {

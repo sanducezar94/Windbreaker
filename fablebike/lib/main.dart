@@ -8,7 +8,6 @@ import 'package:fablebike/pages/home_wrapper.dart';
 import 'package:fablebike/pages/route_map.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fablebike/services/authentication_service.dart';
-import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/pages/bookmarks.dart';
@@ -17,18 +16,14 @@ import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
 
 import './pages/home.dart';
-import './pages/map.dart';
 import './pages/routes.dart';
 import 'oauth_signup.dart';
 import 'login_screen.dart';
 import 'models/user.dart';
 import 'signup.dart';
-
-const SERVER_IP = '192.168.100.24:8080';
 
 Future<void> main() async {
   if (kIsWeb) {

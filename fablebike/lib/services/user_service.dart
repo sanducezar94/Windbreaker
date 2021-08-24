@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'storage_service.dart';
 
 //const SERVER_IP = '192.168.1.251:8080';
-const SERVER_IP = 'lighthousestudio.ro';
+const SERVER_IP = 'lighthousestudio.ro/api/fablebike';
 const FILE_UPLOAD = '/auth/user_icon';
 const FILE_GET = '/auth/user_icon';
 
