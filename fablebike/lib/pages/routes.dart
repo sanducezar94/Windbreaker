@@ -3,10 +3,12 @@ import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/constants/language.dart';
+import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/filters.dart';
 import 'package:fablebike/pages/route_map.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/card_builders.dart';
+import 'package:fablebike/services/route_service.dart';
+import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/route_filter.dart';
 import 'package:fablebike/widgets/routes_carousel.dart';
 import 'package:flutter/material.dart';
@@ -51,9 +53,15 @@ class _RoutesScreenState extends State<RoutesScreen> {
       return BikeRoute.fromJson(routes[i]);
     });
     double meanRating = 0;
+    double routeCount = 0;
     for (var i = 0; i < bikeRoutes.length; i++) {
       var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [bikeRoutes[i].id]);
-      meanRating += bikeRoutes[i].rating / bikeRoutes.length;
+
+      if (bikeRoutes[i].rating > 0) {
+        meanRating += bikeRoutes[i].rating;
+        routeCount += 1;
+      }
+
       List<Objective> objectives = [];
       for (var i = 0; i < objToRoutes.length; i++) {
         var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
@@ -62,16 +70,28 @@ class _RoutesScreenState extends State<RoutesScreen> {
       }
       bikeRoutes[i].objectives = objectives;
     }
-    await database.delete('route', where: 'id = ?', whereArgs: [0]);
+
+    meanRating = meanRating / routeCount;
+
     if (mostPopular) {
       var popularRoutes = bikeRoutes;
       popularRoutes.sort((a, b) {
+        var ratingLimit = 10;
         if (a == null || b == null) return null;
-        var aWeight = (a.rating * a.ratingCount + meanRating * 10) / (a.rating + 10);
-        var bWeight = (b.rating * b.ratingCount + meanRating * 10) / (b.rating + 10);
+        if (a.ratingCount < ratingLimit || b.rating < ratingLimit) {
+          if (a.rating > b.rating) return -1;
+          if (a.rating < b.rating) return 1;
+          if (a.rating == b.rating) return 0;
+          return null;
+        }
+        var aWeight = (a.rating * a.ratingCount + meanRating * ratingLimit) / (a.rating + ratingLimit);
+        var bWeight = (b.rating * b.ratingCount + meanRating * ratingLimit) / (b.rating + ratingLimit);
+
+        if (a.rating == 0) return 1;
+        if (b.rating == 0) return -1;
 
         if (aWeight > bWeight) return -1;
-        if (bWeight < aWeight) return 1;
+        if (bWeight > aWeight) return 1;
         if (aWeight == bWeight) return 0;
         return null;
       });
@@ -140,16 +160,34 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                       child: RouteCarousel(
                                         context: context,
                                         routes: snapshot.data,
-                                        width: width * 0.45,
+                                        width: width * 0.4,
                                       ),
                                       height: height * 0.45,
                                       width: 999,
                                     );
                                   } else {
-                                    return CircularProgressIndicator();
+                                    return Container(
+                                      child: RouteCarousel(
+                                        context: context,
+                                        routes: snapshot.data,
+                                        width: width * 0.4,
+                                        isShimer: true,
+                                      ),
+                                      height: height * 0.45,
+                                      width: 999,
+                                    );
                                   }
                                 } else {
-                                  return CircularProgressIndicator();
+                                  return Container(
+                                    child: RouteCarousel(
+                                      context: context,
+                                      routes: snapshot.data,
+                                      width: width * 0.4,
+                                      isShimer: true,
+                                    ),
+                                    height: height * 0.45,
+                                    width: 999,
+                                  );
                                 }
                               },
                               future: _getRoutes(mostPopular: true)),
@@ -180,8 +218,57 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                                 ]),
                                                 child: CardBuilder.buildBigRouteCard(context, snapshot.data[i]),
                                               ),
-                                              onTap: () {
-                                                Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: snapshot.data[i]);
+                                              onTap: () async {
+                                                try {
+                                                  var route = snapshot.data[i];
+                                                  Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+                                                  var database = await DatabaseService().database;
+                                                  var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
+
+                                                  var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
+
+                                                  var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [route.id]);
+
+                                                  List<Objective> objectives = [];
+                                                  for (var i = 0; i < objToRoutes.length; i++) {
+                                                    var objRow =
+                                                        await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
+                                                    if (objRow.length > 1 || objRow.length == 0) continue;
+                                                    objectives.add(Objective.fromJson(objRow.first));
+                                                  }
+
+                                                  var bikeRoute = new BikeRoute.fromJson(routes.first);
+                                                  bikeRoute.coordinates = List.generate(coords.length, (i) {
+                                                    return Coordinates.fromJson(coords[i]);
+                                                  });
+                                                  bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
+                                                  bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
+                                                  bikeRoute.objectives = objectives;
+
+                                                  var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
+
+                                                  if (serverRoute != null) {
+                                                    await database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount},
+                                                        where: 'id = ?', whereArgs: [bikeRoute.id]);
+                                                    bikeRoute.rating = serverRoute.rating;
+                                                    bikeRoute.ratingCount = serverRoute.ratingCount;
+                                                    bikeRoute.commentCount = serverRoute.commentCount;
+                                                    bikeRoute.userRating = serverRoute.userRating;
+                                                  }
+
+                                                  var db = await DatabaseService().database;
+
+                                                  var pinnedRouteRow = await db.query('routepinnedcomment', where: 'route_id = ?', whereArgs: [bikeRoute.id]);
+                                                  if (pinnedRouteRow.length > 0) {
+                                                    bikeRoute.pinnedComment = RoutePinnedComment.fromMap(pinnedRouteRow.first);
+                                                  }
+                                                  Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: bikeRoute).then((value) {
+                                                    setState(() {});
+                                                  });
+                                                  Loader.hide();
+                                                } on Exception catch (e) {
+                                                  Loader.hide();
+                                                }
                                               },
                                             ),
                                             padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),

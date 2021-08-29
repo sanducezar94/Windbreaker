@@ -5,13 +5,13 @@ import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
-import 'package:fablebike/pages/route_map_header_delegate.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/card_builders.dart';
+import 'package:fablebike/services/route_service.dart';
+import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/carousel.dart';
-import 'package:fablebike/widgets/routes_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
@@ -41,9 +41,6 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
   var hoverPoint = LatLng(0, 0);
   var currentTab = 'poi';
   LatLng center = LatLng(0, 0);
-
-  int _stars = 0;
-
   List<Objective> objectives = [];
 
   Future<List<Objective>> _getObjectives() async {
@@ -186,7 +183,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                 Expanded(
                                     child: Row(
                                       children: [
-                                        Text('Biserica de lemn',
+                                        Text(widget.bikeRoute.name,
                                             style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.white)),
                                       ],
                                     ),
@@ -194,10 +191,11 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                 Expanded(
                                     child: Row(
                                       children: [
-                                        CardBuilder.buildStars(context, 3, true, opacity: 1, size: 24),
+                                        CardBuilder.buildStars(context, widget.bikeRoute.rating, true, opacity: 1, size: 24),
                                         SizedBox(width: 5),
                                         Align(
-                                          child: Text('4.5 (10)', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.white)),
+                                          child: Text(widget.bikeRoute.rating.toStringAsFixed(1) + ' (' + widget.bikeRoute.ratingCount.toString() + ')',
+                                              style: TextStyle(fontSize: 12.0, color: Colors.white)),
                                           alignment: Alignment.center,
                                         )
                                       ],
@@ -213,7 +211,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
               ),
               Stack(
                 children: [
-                  Positioned(
+                  /* Positioned(
                       child: Opacity(
                         child: Container(
                           width: width * 1.2,
@@ -229,7 +227,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                         opacity: 0.2,
                       ),
                       bottom: 0,
-                      left: -40),
+                      left: -40),*/
                   Padding(
                       child: Column(
                         children: [
@@ -358,7 +356,16 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                   width: 999,
                                 );
                               } else {
-                                return CircularProgressIndicator();
+                                return Container(
+                                  child: Carousel(
+                                    context: context,
+                                    objectives: snapshot.data,
+                                    width: width * 0.75,
+                                    isShimmer: true,
+                                  ),
+                                  height: height * 0.25,
+                                  width: 999,
+                                );
                               }
                             },
                             future: _getObjectives(),
@@ -492,7 +499,29 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                             )
                           ]),
                           SizedBox(height: smallDivider),
-                          Container(child: CardBuilder.buildInteractiveStars(context, 4, 48.0)),
+                          Container(
+                              child: CardBuilder.buildInteractiveStars(context, widget.bikeRoute.rating, 48.0, callBack: (int rating) async {
+                            Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+                            var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
+
+                            if (newRating == null || newRating == 0.0) {
+                              Loader.hide();
+                              return;
+                            }
+                            widget.bikeRoute.rating = newRating;
+                            if (widget.bikeRoute.userRating == 0) widget.bikeRoute.ratingCount += 1;
+
+                            var db = await DatabaseService().database;
+                            await db.update('route', {'rating': newRating, 'rating_count': widget.bikeRoute.ratingCount},
+                                where: 'id = ?', whereArgs: [widget.bikeRoute.id]);
+                            Loader.hide();
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                duration: const Duration(milliseconds: 800),
+                                backgroundColor: Theme.of(context).primaryColor,
+                                content: Text('Votul a fost inregistrat cu succes!')));
+                            setState(() {});
+                          })),
                           SizedBox(height: bigDivider),
                           Row(children: [
                             Text(
@@ -530,32 +559,6 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                           ),
                           SizedBox(height: bigDivider),
                           //if (widget.bikeRoute.pinnedComment != null)
-                          Container(
-                            height: 80,
-                            width: 999,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(16.0)), color: Colors.white, boxShadow: [
-                              BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), spreadRadius: 4, blurRadius: 12, offset: Offset(0, 3))
-                            ]),
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: _buildComment(
-                                      context,
-                                      Comment(
-                                          userId: 0,
-                                          id: 0,
-                                          text:
-                                              'Scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris', // widget.bikeRoute.pinnedComment.comment,
-                                          user: 'User', //widget.bikeRoute.pinnedComment.username,
-                                          icon: ''),
-                                      false,
-                                      null),
-                                  flex: 1,
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: bigDivider),
                           Row(children: [
                             Expanded(
                               flex: 1,
@@ -584,7 +587,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                   )),
                             ),
                           ]),
-                          SizedBox(height: height * 0.15),
+                          /* SizedBox(height: height * 0.15),*/
                         ],
                       ),
                       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0))

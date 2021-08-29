@@ -1,20 +1,16 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:fablebike/bloc/event_constants.dart';
-import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
-import 'package:fablebike/pages/objective_header_delegate.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/card_builders.dart';
+import 'package:fablebike/services/objective_service.dart';
+import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/routes_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:sqflite/sqflite.dart';
 
 class ObjectiveScreen extends StatefulWidget {
   static const route = 'objective';
@@ -172,9 +168,10 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                                   Expanded(
                                       child: Row(
                                         children: [
-                                          CardBuilder.buildStars(context, 3, true),
+                                          CardBuilder.buildStars(context, widget.objective.rating, true),
                                           SizedBox(width: 5),
-                                          Text('4.5 (10)', style: TextStyle(fontSize: 12.0, color: Colors.white))
+                                          Text(widget.objective.rating.toStringAsFixed(1) + ' (' + widget.objective.ratingCount.toString() + ')',
+                                              style: TextStyle(fontSize: 12.0, color: Colors.white))
                                         ],
                                       ),
                                       flex: 4),
@@ -304,7 +301,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                                                           ]),
                                                           boxShadow: [
                                                             BoxShadow(
-                                                                color: Colors.black.withOpacity(0.025), spreadRadius: 2, blurRadius: 6, offset: Offset(0, 0))
+                                                                color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
                                                           ]),
                                                       width: width,
                                                     ),
@@ -336,78 +333,85 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         ),
                         Row(children: [
                           Text(
+                            context.read<LanguageManager>().routeEvaluate,
+                            style: Theme.of(context).textTheme.headline2,
+                            textAlign: TextAlign.start,
+                          )
+                        ]),
+                        SizedBox(height: smallDivider),
+                        Container(
+                            child: CardBuilder.buildInteractiveStars(context, widget.objective.rating, 48.0, callBack: (int rating) async {
+                          Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+                          var newRating = await ObjectiveService().rateObjective(rating: rating, objective_id: widget.objective.id);
+
+                          if (newRating == null || newRating == 0.0) {
+                            Loader.hide();
+                            return;
+                          }
+                          widget.objective.rating = newRating;
+                          if (widget.objective.userRating == 0) widget.objective.ratingCount += 1;
+
+                          var db = await DatabaseService().database;
+                          await db.update('objective', {'rating': newRating, 'rating_count': widget.objective.ratingCount},
+                              where: 'id = ?', whereArgs: [widget.objective.id]);
+                          Loader.hide();
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              duration: const Duration(milliseconds: 800),
+                              backgroundColor: Theme.of(context).primaryColor,
+                              content: Text('Votul a fost inregistrat cu succes!')));
+                          setState(() {});
+                        })),
+                        SizedBox(height: bigDivider),
+                        Row(children: [
+                          Text(
                             "Contact",
                             style: Theme.of(context).textTheme.headline2,
                             textAlign: TextAlign.start,
                           )
                         ]),
                         SizedBox(height: bigDivider),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        Row(
                           children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Image.asset('assets/icons/fb_h.png'),
-                                    ),
-                                    flex: 1),
-                                Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Image.asset('assets/icons/web_h.png'),
-                                    ),
-                                    flex: 1),
-                                Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Image.asset('assets/icons/phone_h.png'),
-                                    ),
-                                    flex: 1),
-                                Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Image.asset('assets/icons/mail.png'),
-                                    ),
-                                    flex: 1),
-                                Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Image.asset('assets/icons/insta.png'),
-                                    ),
-                                    flex: 1),
-                                Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Image.asset('assets/icons/yt.png'),
-                                    ),
-                                    flex: 1),
-                              ],
+                            SizedBox(width: 16),
+                            Icon(Icons.web_outlined, size: 42, color: Theme.of(context).primaryColor),
+                            SizedBox(width: 10),
+                            Text(
+                              "www.bisericadepedeal.ro",
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColor),
+                              textAlign: TextAlign.start,
+                            )
+                          ],
+                        ),
+                        SizedBox(height: smallDivider),
+                        Row(
+                          children: [
+                            SizedBox(width: 16),
+                            Icon(Icons.facebook_outlined, size: 42, color: Theme.of(context).primaryColor),
+                            SizedBox(width: 10),
+                            Text(
+                              "Biserica de pe deal",
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColor),
+                              textAlign: TextAlign.start,
+                            )
+                          ],
+                        ),
+                        SizedBox(height: smallDivider),
+                        Row(
+                          children: [
+                            SizedBox(width: 16),
+                            Icon(Icons.web_outlined, size: 42, color: Theme.of(context).primaryColor),
+                            SizedBox(width: 10),
+                            Text(
+                              "www.bisericadepedeal.ro",
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColor),
+                              textAlign: TextAlign.start,
                             )
                           ],
                         ),
                         SizedBox(
                           height: bigDivider,
                         ),
-                        Row(children: [
-                          Text(
-                            "www.bisericadepedeal.ro",
-                            style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorDark),
-                            textAlign: TextAlign.start,
-                          )
-                        ]),
-                        SizedBox(height: smallDivider),
-                        Row(children: [
-                          Text(
-                            "+40 7555 123 455",
-                            style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorDark),
-                            textAlign: TextAlign.start,
-                          )
-                        ]),
-                        SizedBox(height: smallDivider),
                       ],
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0)),

@@ -4,11 +4,15 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/widgets/card_builders.dart';
+import 'package:fablebike/services/objective_service.dart';
+import 'package:fablebike/widgets/card_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
+
+import 'objective copy.dart';
 
 class BookmarksScreen extends StatefulWidget {
   static const route = '/bookmarks';
@@ -106,7 +110,39 @@ class _BookmarksScreen extends State<BookmarksScreen> {
                                   if (snapshot.hasData && snapshot.data != null) {
                                     return Column(
                                       children: [
-                                        for (var i = 0; i < 5; i++) CardBuilder.buildlargeObjectiveCard(context, snapshot.data[i]),
+                                        for (var i = 0; i < 5; i++)
+                                          InkWell(
+                                            child: CardBuilder.buildlargeObjectiveCard(context, snapshot.data[i]),
+                                            onTap: () async {
+                                              try {
+                                                var objective = snapshot.data[i];
+                                                Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+                                                var database = await DatabaseService().database;
+                                                var serverObjective = await ObjectiveService().getObjective(objective_id: objective.id);
+
+                                                if (serverObjective != null) {
+                                                  await database.update(
+                                                      'objective', {'rating': serverObjective.rating, 'rating_count': serverObjective.ratingCount},
+                                                      where: 'id = ?', whereArgs: [objective.id]);
+                                                  objective.rating = serverObjective.rating;
+                                                  objective.ratingCount = serverObjective.ratingCount;
+                                                  objective.userRating = serverObjective.userRating;
+                                                }
+
+                                                var db = await DatabaseService().database;
+
+                                                var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+                                                Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo).then((value) {
+                                                  setState(() {});
+                                                });
+                                                ;
+
+                                                Loader.hide();
+                                              } on Exception catch (e) {
+                                                Loader.hide();
+                                              }
+                                            },
+                                          ),
                                       ],
                                     );
                                   } else {

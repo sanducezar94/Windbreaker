@@ -55,41 +55,43 @@ class _HomeWrapperState extends State<HomeWrapper> {
       double h = 32;
 
       return Container(
-        child: ClipRRect(
-            child: Container(
-                child: BottomNavigationBar(
-                    onTap: _onItemTapped,
-                    iconSize: 36,
-                    selectedIconTheme: IconThemeData(size: 42),
-                    type: BottomNavigationBarType.fixed,
-                    showUnselectedLabels: true,
-                    selectedLabelStyle: TextStyle(fontFamily: 'Lato', color: Colors.black),
-                    showSelectedLabels: true,
-                    unselectedItemColor: Theme.of(context).accentColor.withOpacity(0.75),
-                    selectedItemColor: Theme.of(context).accentColor,
-                    currentIndex: _selectedIndex,
-                    items: <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: _selectedIndex == 0 ? Icon(Icons.home) : Icon(Icons.home_outlined),
-                    label: context.read<LanguageManager>().appHome,
-                  ),
-                  BottomNavigationBarItem(
-                    icon: _selectedIndex == 1 ? Icon(Icons.explore) : Icon(Icons.explore_outlined),
-                    label: context.read<LanguageManager>().appExplore,
-                  ),
-                  BottomNavigationBarItem(
-                    icon: _selectedIndex == 2 ? Icon(Icons.map) : Icon(Icons.map_outlined),
-                    label: context.read<LanguageManager>().appRoutes,
-                  ),
-                  BottomNavigationBarItem(
-                    icon: _selectedIndex == 3 ? Icon(Icons.settings) : Icon(Icons.settings_outlined),
-                    label: context.read<LanguageManager>().appSettings,
-                  ),
-                ])),
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
+        child: Padding(
+            child: ClipRRect(
+                child: Container(
+                    child: BottomNavigationBar(
+                        onTap: _onItemTapped,
+                        iconSize: 36,
+                        selectedIconTheme: IconThemeData(size: 42),
+                        type: BottomNavigationBarType.fixed,
+                        showUnselectedLabels: true,
+                        selectedLabelStyle: TextStyle(fontFamily: 'Lato', color: Colors.black),
+                        showSelectedLabels: true,
+                        unselectedItemColor: Theme.of(context).accentColor.withOpacity(0.75),
+                        selectedItemColor: Theme.of(context).primaryColor,
+                        currentIndex: _selectedIndex,
+                        items: <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                        icon: _selectedIndex == 0 ? Icon(Icons.home) : Icon(Icons.home_outlined),
+                        label: context.read<LanguageManager>().appHome,
+                      ),
+                      BottomNavigationBarItem(
+                        icon: _selectedIndex == 1 ? Icon(Icons.explore) : Icon(Icons.explore_outlined),
+                        label: context.read<LanguageManager>().appExplore,
+                      ),
+                      BottomNavigationBarItem(
+                        icon: _selectedIndex == 2 ? Icon(Icons.map) : Icon(Icons.map_outlined),
+                        label: context.read<LanguageManager>().appRoutes,
+                      ),
+                      BottomNavigationBarItem(
+                        icon: _selectedIndex == 3 ? Icon(Icons.settings) : Icon(Icons.settings_outlined),
+                        label: context.read<LanguageManager>().appSettings,
+                      ),
+                    ])),
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(0.0), topRight: Radius.circular(0.0))),
+            padding: EdgeInsets.symmetric(horizontal: 10)),
         decoration: BoxDecoration(
           boxShadow: <BoxShadow>[
-            BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), blurRadius: 3, spreadRadius: 6),
+            BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), blurRadius: 3, spreadRadius: 6),
           ],
         ),
       );

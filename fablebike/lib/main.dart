@@ -58,20 +58,21 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Cu bicicleta pe drumuri de poveste',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
             fontFamily: 'Lato',
             scaffoldBackgroundColor: Color.fromRGBO(252, 254, 255, 1),
-            primaryColor: Color.fromRGBO(134, 203, 255, 1),
+            primaryColor: Color.fromRGBO(20, 148, 166, 1),
             cardColor: Color.fromRGBO(252, 254, 255, 1),
             hintColor: Color.fromRGBO(64, 86, 84, 0.5),
             accentColor: Color.fromRGBO(64, 86, 84, 1),
-            primaryColorDark: Color.fromRGBO(132, 186, 217, 1),
+            primaryColorDark: Color.fromRGBO(24, 145, 129, 1),
             shadowColor: Color.fromRGBO(2, 41, 63, 1),
             //primaryColorDark: Color.fromRGBO(78, 177, 177, 1),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(fontSize: 16),
-                  primary: Color.fromRGBO(134, 203, 255, 1),
+                  primary: Color.fromRGBO(24, 145, 129, 1),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
             ),
             textTheme: TextTheme(

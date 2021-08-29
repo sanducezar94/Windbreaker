@@ -123,7 +123,7 @@ class Objective {
         image = json['image'],
         name = json['name'],
         description = json['description'],
-        coords = LatLng(json['latitude'], json['longitude']),
+        coords = json['latitude'] == null || json['longitude'] == null ? LatLng(0.0, 0.0) : LatLng(json['latitude'], json['longitude']),
         rating = json['rating'],
         ratingCount = json['rating_count'],
         userRating = json['user_rating'];
