@@ -63,9 +63,9 @@ class _HomeWrapperState extends State<HomeWrapper> {
                         iconSize: 36,
                         selectedIconTheme: IconThemeData(size: 42),
                         type: BottomNavigationBarType.fixed,
-                        showUnselectedLabels: true,
+                        showUnselectedLabels: false,
                         selectedLabelStyle: TextStyle(fontFamily: 'Lato', color: Colors.black),
-                        showSelectedLabels: true,
+                        showSelectedLabels: false,
                         unselectedItemColor: Theme.of(context).accentColor.withOpacity(0.75),
                         selectedItemColor: Theme.of(context).primaryColor,
                         currentIndex: _selectedIndex,
@@ -88,7 +88,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
                       ),
                     ])),
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(0.0), topRight: Radius.circular(0.0))),
-            padding: EdgeInsets.symmetric(horizontal: 10)),
+            padding: EdgeInsets.symmetric(horizontal: 0)),
         decoration: BoxDecoration(
           boxShadow: <BoxShadow>[
             BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), blurRadius: 3, spreadRadius: 6),

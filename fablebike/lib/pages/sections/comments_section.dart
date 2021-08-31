@@ -78,40 +78,25 @@ class _CommentSectionState extends State<CommentSection> {
                 )),
             Container(
               width: width,
-              child: Column(
-                children: [
-                  Padding(
-                    child: Material(
-                      child: TextFormField(
-                        controller: commentController,
-                        decoration: InputDecoration(
-                            hintStyle: TextStyle(color: Colors.grey),
-                            suffixIcon: InkWell(
-                              child: Icon(Icons.send),
-                              onTap: () async {
-                                var result = await CommentService().addComment(route: widget.bikeRoute.id, message: commentController.text);
-                                if (result != null) {
-                                  this.comments.insert(0, result);
-                                  this.setState(() {
-                                    forceRemake = true;
-                                    widget.bikeRoute.commentCount += 1;
-                                  });
-                                }
-                                commentController.text = '';
-                              },
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                            hintText: 'Comentariu nou...'),
-                      ),
-                      shadowColor: Theme.of(context).accentColor.withOpacity(0.35),
-                      borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                      elevation: 10.0,
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 14),
-                  )
-                ],
+              height: 60,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: Material(
+                  shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                  elevation: 12.0,
+                  borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                  child: TextFormField(
+                    textAlignVertical: TextAlignVertical.bottom,
+                    style: Theme.of(context).textTheme.subtitle1,
+                    controller: commentController,
+                    decoration: InputDecoration(
+                        hintStyle: Theme.of(context).textTheme.subtitle1,
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                        hintText: 'Comentariu nou...'),
+                  ),
+                ),
               ),
             ),
             FutureBuilder(
@@ -181,16 +166,16 @@ Widget _buildComment(BuildContext context, Comment comment, bool moreButton, Voi
 
   if (moreButton) {
     return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-        child: Center(
-            child: ElevatedButton(
-          onPressed: onTap,
-          child: Icon(Icons.add_circle_outline),
-          style: ElevatedButton.styleFrom(
-            shape: CircleBorder(),
-            padding: EdgeInsets.all(12),
-          ),
-        )));
+        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+        child: Align(
+            alignment: Alignment.centerLeft,
+            child: InkWell(
+              child: Text(
+                'Vezi mai multe comentarii',
+                style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColor),
+              ),
+              onTap: onTap,
+            )));
   } else {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
@@ -215,11 +200,11 @@ Widget _buildComment(BuildContext context, Comment comment, bool moreButton, Voi
             : Image(image: AssetImage('assets/icons/user.png')),
         title: Text(
           comment.user,
-          style: Theme.of(context).textTheme.headline5,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
         subtitle: Text(
           comment.text,
-          style: Theme.of(context).textTheme.headline4,
+          style: Theme.of(context).textTheme.bodyText2,
         ),
       ),
     );

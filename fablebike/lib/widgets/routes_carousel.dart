@@ -34,9 +34,6 @@ Widget _buildShimmerCarousel(BuildContext context, double width) {
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-    Spacer(
-      flex: 1,
-    ),
     Expanded(
         flex: 6,
         child: ListView.builder(
@@ -50,14 +47,11 @@ Widget _buildShimmerCarousel(BuildContext context, double width) {
                 child: carouselItems[index],
                 width: width,
               ),
-              padding: index == 0 ? EdgeInsets.fromLTRB(0, 4, 10, 4) : EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0)),
+              padding: index == 0 ? EdgeInsets.fromLTRB(0, 0, 10, 4) : EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0)),
           physics: CustomScrollPhysics(itemDimension: width + 20),
           scrollDirection: Axis.horizontal,
           itemCount: carouselItems.length,
         )),
-    Spacer(
-      flex: 1,
-    ),
   ]);
 }
 
@@ -68,9 +62,6 @@ Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width
   }
 
   return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-    Spacer(
-      flex: 1,
-    ),
     Expanded(
         flex: 6,
         child: ListView.builder(
@@ -94,8 +85,5 @@ Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width
           scrollDirection: Axis.horizontal,
           itemCount: carouselItems.length,
         )),
-    Spacer(
-      flex: 1,
-    ),
   ]);
 }

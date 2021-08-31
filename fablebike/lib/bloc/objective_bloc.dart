@@ -2,7 +2,7 @@ import 'package:fablebike/models/route.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'dart:async';
 
-enum ObjectiveEventType { ObjectiveInitializeEvent, ObjectiveSearchEvent }
+enum ObjectiveEventType { ObjectiveInitializeEvent, ObjectiveSearchEvent, ObjectiveRateEvent }
 
 class ObjectiveBlocEvent {
   final ObjectiveEventType eventType;
@@ -40,6 +40,11 @@ class ObjectiveBloc {
         var searchQuery = event.args['search_query'].toString().toLowerCase();
         _returnList = _initialObjectives.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
         break;
+      case ObjectiveEventType.ObjectiveRateEvent:
+        var objective = _initialObjectives.where((c) => c.id == event.args['id']).first;
+        if (objective != null) objective.rating = event.args['rating'];
+        _returnList = _initialObjectives;
+        break;
     }
     _input.add(_returnList);
   }
@@ -47,12 +52,13 @@ class ObjectiveBloc {
   Future<List<Objective>> _getAllObjectives() async {
     var db = await DatabaseService().database;
 
-    var objectiveRows = await db.rawQuery('SELECT * FROM objective');
+    var objectiveRows = await db.query('objective');
     var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
     return objectives;
   }
 
   void dispose() {
+    _objectiveEventController.close();
     _objectiveStateController.close();
   }
 }

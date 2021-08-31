@@ -159,7 +159,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                             height: 48,
                             child: Icon(Icons.arrow_back, color: Colors.white),
                           ),
-                          onTap: () => Navigator.pop(context),
+                          onTap: () => Navigator.of(context).pop(widget.bikeRoute.rating),
                         )),
                     Positioned(
                         top: 84,
@@ -171,7 +171,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                             height: 48,
                             child: Icon(Icons.share, color: Colors.white),
                           ),
-                          onTap: () => Navigator.pop(context),
+                          onTap: () => Navigator.of(context).pop(widget.bikeRoute.rating),
                         )),
                     Positioned(
                         child: Hero(
@@ -179,19 +179,19 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                               width: width,
                               height: 96,
                               child: Column(children: [
-                                Spacer(flex: 1),
+                                Spacer(flex: 7),
                                 Expanded(
                                     child: Row(
                                       children: [
                                         Text(widget.bikeRoute.name,
-                                            style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.white)),
+                                            style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.white)),
                                       ],
                                     ),
                                     flex: 8),
                                 Expanded(
                                     child: Row(
                                       children: [
-                                        CardBuilder.buildStars(context, widget.bikeRoute.rating, true, opacity: 1, size: 24),
+                                        CardBuilder.buildStars(context, widget.bikeRoute.rating, true, opacity: 1),
                                         SizedBox(width: 5),
                                         Align(
                                           child: Text(widget.bikeRoute.rating.toStringAsFixed(1) + ' (' + widget.bikeRoute.ratingCount.toString() + ')',
@@ -522,6 +522,19 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                 content: Text('Votul a fost inregistrat cu succes!')));
                             setState(() {});
                           })),
+                          SizedBox(height: smallDivider),
+                          Row(children: [
+                            Padding(
+                                child: Text(
+                                    widget.bikeRoute.userRating == null || widget.bikeRoute.userRating == 0.0
+                                        ? 'Nu ai evaluat inca traseul.'
+                                        : 'Ai acordat ' +
+                                            widget.bikeRoute.userRating.toString() +
+                                            (widget.bikeRoute.userRating == 1 ? ' stea' : ' stele') +
+                                            ' acestui traseu!',
+                                    style: Theme.of(context).textTheme.subtitle1),
+                                padding: EdgeInsets.symmetric(horizontal: 16.0))
+                          ]),
                           SizedBox(height: bigDivider),
                           Row(children: [
                             Text(
@@ -531,45 +544,48 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                             )
                           ]),
                           SizedBox(height: bigDivider),
-                          //if (widget.bikeRoute.pinnedComment != null)
-                          Container(
-                            height: 80,
-                            width: 999,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(16.0)), color: Colors.white, boxShadow: [
-                              BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), spreadRadius: 4, blurRadius: 12, offset: Offset(0, 3))
-                            ]),
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: _buildComment(
-                                      context,
-                                      Comment(
-                                          userId: 0,
-                                          id: 0,
-                                          text:
-                                              'Scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris scris', // widget.bikeRoute.pinnedComment.comment,
-                                          user: 'User', //widget.bikeRoute.pinnedComment.username,
-                                          icon: ''),
-                                      false,
-                                      null),
-                                  flex: 1,
-                                )
-                              ],
+                          if (widget.bikeRoute.pinnedComment != null)
+                            Container(
+                              height: 80,
+                              width: 999,
+                              decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(16.0)), color: Colors.white, boxShadow: [
+                                BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), spreadRadius: 4, blurRadius: 12, offset: Offset(0, 3))
+                              ]),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                        child: _buildComment(
+                                            context,
+                                            Comment(
+                                                userId: 0,
+                                                id: 0,
+                                                text: widget.bikeRoute.pinnedComment.comment,
+                                                user: widget.bikeRoute.pinnedComment.username,
+                                                icon: ''),
+                                            false,
+                                            null),
+                                        padding: EdgeInsets.symmetric(vertical: 0.0)),
+                                    flex: 1,
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                          SizedBox(height: bigDivider),
-                          //if (widget.bikeRoute.pinnedComment != null)
+                          if (widget.bikeRoute.pinnedComment != null) SizedBox(height: bigDivider),
                           Row(children: [
+                            SizedBox(
+                              width: 16,
+                            ),
                             Expanded(
                               flex: 1,
                               child: Align(
-                                  alignment: Alignment.center,
+                                  alignment: Alignment.centerLeft,
                                   child: InkWell(
                                     child: Text(
                                       'Vezi toate comentariile (' +
                                           (widget.bikeRoute.commentCount != null ? widget.bikeRoute.commentCount : 0).toString() +
                                           ')',
-                                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColorDark),
+                                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
                                       textAlign: TextAlign.start,
                                     ),
                                     onTap: () {
@@ -587,7 +603,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                   )),
                             ),
                           ]),
-                          /* SizedBox(height: height * 0.15),*/
+                          SizedBox(height: bigDivider),
                         ],
                       ),
                       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0))
@@ -602,7 +618,7 @@ Widget _buildComment(BuildContext context, Comment comment, bool moreButton, Voi
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
     child: ListTile(
-      minVerticalPadding: 10,
+      minVerticalPadding: 0,
       horizontalTitleGap: 15,
       leading: !user.lowDataUsage
           ? FutureBuilder<Uint8List>(

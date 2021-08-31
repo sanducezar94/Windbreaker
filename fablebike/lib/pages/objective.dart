@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:fablebike/bloc/event_constants.dart';
+import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
@@ -11,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ObjectiveScreen extends StatefulWidget {
   static const route = 'objective';
@@ -24,12 +27,10 @@ class ObjectiveScreen extends StatefulWidget {
 }
 
 class _ObjectiveScreenState extends State<ObjectiveScreen> {
-  bool is_bookmarked = false;
   Future<bool> _getObjectiveData(int userId, int objectiveId) async {
     var db = await DatabaseService().database;
 
     var rows = await db.query('objectivebookmark', where: 'user_id = ? and objective_id = ?', whereArgs: [userId, objectiveId]);
-    this.is_bookmarked = rows.length > 0;
     return rows.length > 0;
   }
 
@@ -123,61 +124,97 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           top: 84,
                           left: 20,
                           child: InkWell(
-                            child: Container(
-                              decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.45)),
-                              width: 48,
-                              height: 48,
-                              child: Icon(Icons.arrow_back, color: Colors.white),
-                            ),
-                            onTap: () => Navigator.pop(context),
-                          )),
+                              child: Container(
+                                decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.45)),
+                                width: 48,
+                                height: 48,
+                                child: Icon(Icons.arrow_back, color: Colors.white),
+                              ),
+                              onTap: () => Navigator.of(context).pop(widget.objective.rating))),
                       Positioned(
                           top: 84,
                           right: 20,
                           child: InkWell(
-                            child: Container(
-                              decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.45)),
-                              width: 48,
-                              height: 48,
-                              child: Icon(Icons.share, color: Colors.white),
-                            ),
-                            onTap: () => Navigator.pop(context),
-                          )),
-                      Positioned(
-                          child: Hero(
                               child: Container(
-                                width: width,
-                                height: 96,
-                                child: Column(children: [
-                                  Spacer(flex: 1),
-                                  Expanded(
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.cottage, color: Colors.white),
-                                        ],
-                                      ),
-                                      flex: 6),
-                                  Expanded(
-                                      child: Row(
-                                        children: [
-                                          Text('Biserica de lemn',
-                                              style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.white)),
-                                        ],
-                                      ),
-                                      flex: 8),
-                                  Expanded(
-                                      child: Row(
-                                        children: [
-                                          CardBuilder.buildStars(context, widget.objective.rating, true),
-                                          SizedBox(width: 5),
-                                          Text(widget.objective.rating.toStringAsFixed(1) + ' (' + widget.objective.ratingCount.toString() + ')',
-                                              style: TextStyle(fontSize: 12.0, color: Colors.white))
-                                        ],
-                                      ),
-                                      flex: 4),
-                                ]),
+                                decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.45)),
+                                width: 48,
+                                height: 48,
+                                child: Icon(Icons.share, color: Colors.white),
                               ),
-                              tag: 'obj-desc' + widget.objective.name),
+                              onTap: () => Navigator.of(context).pop(widget.objective.rating))),
+                      Positioned(
+                          top: 84,
+                          right: 80,
+                          child: FutureBuilder<bool>(
+                              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                                  widget.objective.is_bookmarked = snapshot.data;
+                                  return InkWell(
+                                      child: Container(
+                                        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.45)),
+                                        width: 48,
+                                        height: 48,
+                                        child: Icon(widget.objective.is_bookmarked ? Icons.bookmark : Icons.bookmark_add_outlined, color: Colors.white),
+                                      ),
+                                      onTap: () async {
+                                        try {
+                                          var db = await DatabaseService().database;
+
+                                          if (widget.objective.is_bookmarked) {
+                                            await db.delete('objectivebookmark',
+                                                where: 'user_id = ? and objective_id = ?', whereArgs: [user.id, widget.objective.id]);
+                                          } else {
+                                            await db.insert('objectivebookmark', {'user_id': user.id, 'objective_id': widget.objective.id},
+                                                conflictAlgorithm: ConflictAlgorithm.replace);
+                                          }
+
+                                          Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.HomeRefreshBookmarks);
+                                          widget.objective.is_bookmarked = !widget.objective.is_bookmarked;
+                                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                              duration: const Duration(milliseconds: 800),
+                                              backgroundColor: widget.objective.is_bookmarked ? Theme.of(context).primaryColor : Theme.of(context).errorColor,
+                                              content: widget.objective.is_bookmarked ? Text('Obiectivul a fost salvat.') : Text('Obiectivul a fost sters.')));
+                                          setState(() {});
+                                        } on Exception {}
+                                      });
+                                } else
+                                  return CircularProgressIndicator();
+                              },
+                              future: _getObjectiveData(user.id, widget.objective.id))),
+                      Positioned(
+                          child: Container(
+                            width: width,
+                            height: 96,
+                            child: Column(children: [
+                              Spacer(flex: 1),
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.cottage, color: Colors.white),
+                                    ],
+                                  ),
+                                  flex: 6),
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(widget.objective.name,
+                                          style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.white)),
+                                    ],
+                                  ),
+                                  flex: 8),
+                              Expanded(
+                                  child: Row(
+                                    children: [
+                                      CardBuilder.buildStars(context, widget.objective.rating, true),
+                                      SizedBox(width: 5),
+                                      Text(widget.objective.rating.toStringAsFixed(1) + ' (' + widget.objective.ratingCount.toString() + ')',
+                                          style: TextStyle(fontSize: 12.0, color: Colors.white))
+                                    ],
+                                  ),
+                                  flex: 4),
+                            ]),
+                          ),
                           bottom: 32,
                           left: 20),
                     ],
@@ -195,7 +232,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                             textAlign: TextAlign.start,
                           )
                         ]),
-                        SizedBox(height: bigDivider),
+                        SizedBox(height: smallDivider),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: RichText(
@@ -215,6 +252,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                             textAlign: TextAlign.start,
                           )
                         ]),
+                        SizedBox(height: smallDivider),
                         FutureBuilder<List<BikeRoute>>(
                           builder: (BuildContext context, AsyncSnapshot<List<BikeRoute>> snapshot) {
                             if (snapshot.connectionState == ConnectionState.done) {
@@ -222,16 +260,26 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                                 child: RouteCarousel(
                                   context: context,
                                   routes: snapshot.data,
-                                  width: width * 0.45,
+                                  width: width * 0.4,
                                 ),
-                                height: height * 0.45,
+                                height: height * 0.35,
                                 width: 999,
                               );
                             } else
-                              return CircularProgressIndicator();
+                              return Container(
+                                child: RouteCarousel(
+                                  context: context,
+                                  routes: snapshot.data,
+                                  width: width * 0.44,
+                                  isShimer: true,
+                                ),
+                                height: height * 0.35,
+                                width: 999,
+                              );
                           },
                           future: _getRoutes(),
                         ),
+                        SizedBox(height: bigDivider),
                         Row(children: [
                           Text(
                             "Poze",
@@ -239,7 +287,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                             textAlign: TextAlign.start,
                           )
                         ]),
-                        SizedBox(height: bigDivider),
+                        SizedBox(height: smallDivider),
                         Container(
                           child: Row(
                             children: [
@@ -360,8 +408,23 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                               duration: const Duration(milliseconds: 800),
                               backgroundColor: Theme.of(context).primaryColor,
                               content: Text('Votul a fost inregistrat cu succes!')));
-                          setState(() {});
+                          setState(() {
+                            widget.objective.userRating = rating;
+                          });
                         })),
+                        SizedBox(height: smallDivider),
+                        Row(children: [
+                          Padding(
+                              child: Text(
+                                  widget.objective.userRating == null || widget.objective.userRating == 0.0
+                                      ? 'Nu ai evaluat inca obiectivul.'
+                                      : 'Ai acordat ' +
+                                          widget.objective.userRating.toString() +
+                                          (widget.objective.userRating == 1 ? ' stea' : ' stele') +
+                                          ' acestui obiectiv!',
+                                  style: Theme.of(context).textTheme.subtitle1),
+                              padding: EdgeInsets.symmetric(horizontal: 16.0))
+                        ]),
                         SizedBox(height: bigDivider),
                         Row(children: [
                           Text(
@@ -370,7 +433,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                             textAlign: TextAlign.start,
                           )
                         ]),
-                        SizedBox(height: bigDivider),
+                        SizedBox(height: smallDivider),
                         Row(
                           children: [
                             SizedBox(width: 16),

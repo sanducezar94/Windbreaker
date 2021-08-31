@@ -1,11 +1,12 @@
 import 'dart:ui';
 
 import 'package:colorful_safe_area/colorful_safe_area.dart';
-import 'package:fablebike/bloc/bookmarks_bloc.dart';
+import 'package:fablebike/bloc/objective_bloc.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/objective_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
+import 'package:fablebike/widgets/shimmer_card_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fablebike/models/route.dart';
@@ -24,12 +25,14 @@ class BookmarksScreen extends StatefulWidget {
 
 class _BookmarksScreen extends State<BookmarksScreen> {
   TextEditingController searchController = TextEditingController();
-  final _bloc = BookmarkBloc();
-  bool _initialized = false;
+  final _bloc = ObjectiveBloc();
+  AuthenticatedUser _user;
 
   @override
   void initState() {
     super.initState();
+    _user = context.read<AuthenticatedUser>();
+    _bloc.objectiveEventSync.add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveInitializeEvent, args: {'user_id': _user.id}));
   }
 
   @override
@@ -40,23 +43,8 @@ class _BookmarksScreen extends State<BookmarksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Future<List<Objective>> _getNearbyObjectives(AuthenticatedUser user) async {
-      var db = await DatabaseService().database;
-
-      var objectiveRows = await db.query('Objective');
-      var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
-
-      return objectives.take(5).toList();
-    }
-
-    var user = Provider.of<AuthenticatedUser>(context);
     double smallDivider = 10.0;
     double bigDivider = 20.0;
-
-    if (!this._initialized) {
-      _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
-      this._initialized = true;
-    }
 
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
@@ -75,6 +63,11 @@ class _BookmarksScreen extends State<BookmarksScreen> {
                                 Expanded(
                                     child: Material(
                                       child: TextField(
+                                        controller: searchController,
+                                        onChanged: (context) {
+                                          _bloc.objectiveEventSync.add(ObjectiveBlocEvent(
+                                              eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
+                                        },
                                         decoration: InputDecoration(
                                             prefixIcon: Icon(Icons.search),
                                             fillColor: Colors.white,
@@ -104,55 +97,55 @@ class _BookmarksScreen extends State<BookmarksScreen> {
                             )
                           ]),
                           SizedBox(height: smallDivider),
-                          FutureBuilder<List<Objective>>(
-                              builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
-                                if (snapshot.connectionState == ConnectionState.done) {
-                                  if (snapshot.hasData && snapshot.data != null) {
-                                    return Column(
-                                      children: [
-                                        for (var i = 0; i < 5; i++)
-                                          InkWell(
-                                            child: CardBuilder.buildlargeObjectiveCard(context, snapshot.data[i]),
-                                            onTap: () async {
-                                              try {
-                                                var objective = snapshot.data[i];
-                                                Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-                                                var database = await DatabaseService().database;
-                                                var serverObjective = await ObjectiveService().getObjective(objective_id: objective.id);
+                          StreamBuilder<List<Objective>>(
+                            builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
+                              if (snapshot.hasData && snapshot.data != null && snapshot.data.length > 0) {
+                                var objectives = snapshot.data;
+                                return Column(
+                                  children: [
+                                    for (var i = 0; i < objectives.length; i++)
+                                      InkWell(
+                                        child: CardBuilder.buildlargeObjectiveCard(context, objectives[i]),
+                                        onTap: () async {
+                                          try {
+                                            var objective = snapshot.data[i];
+                                            Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+                                            var database = await DatabaseService().database;
+                                            var serverObjective = await ObjectiveService().getObjective(objective_id: objective.id);
 
-                                                if (serverObjective != null) {
-                                                  await database.update(
-                                                      'objective', {'rating': serverObjective.rating, 'rating_count': serverObjective.ratingCount},
-                                                      where: 'id = ?', whereArgs: [objective.id]);
-                                                  objective.rating = serverObjective.rating;
-                                                  objective.ratingCount = serverObjective.ratingCount;
-                                                  objective.userRating = serverObjective.userRating;
-                                                }
+                                            if (serverObjective != null) {
+                                              await database.update(
+                                                  'objective', {'rating': serverObjective.rating, 'rating_count': serverObjective.ratingCount},
+                                                  where: 'id = ?', whereArgs: [objective.id]);
+                                              objective.rating = serverObjective.rating;
+                                              objective.ratingCount = serverObjective.ratingCount;
+                                              objective.userRating = serverObjective.userRating;
+                                            }
 
-                                                var db = await DatabaseService().database;
+                                            var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
+                                            Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo).then((newRating) {
+                                              if (newRating != null)
+                                                _bloc.objectiveEventSync.add(ObjectiveBlocEvent(
+                                                    eventType: ObjectiveEventType.ObjectiveRateEvent, args: {'id': objective.id, 'rating': newRating}));
+                                              _bloc.objectiveEventSync.add(ObjectiveBlocEvent(
+                                                  eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
+                                            });
 
-                                                var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-                                                Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo).then((value) {
-                                                  setState(() {});
-                                                });
-                                                ;
-
-                                                Loader.hide();
-                                              } on Exception catch (e) {
-                                                Loader.hide();
-                                              }
-                                            },
-                                          ),
-                                      ],
-                                    );
-                                  } else {
-                                    return CircularProgressIndicator();
-                                  }
-                                } else {
-                                  return CircularProgressIndicator();
-                                }
-                              },
-                              future: _getNearbyObjectives(user)),
+                                            Loader.hide();
+                                          } on Exception catch (e) {
+                                            Loader.hide();
+                                          }
+                                        },
+                                      ),
+                                  ],
+                                );
+                              } else {
+                                return Column(children: [for (var i = 0; i < 5; i++) ShimmerCardBuilder.buildlargeObjectiveCard(context)]);
+                              }
+                            },
+                            initialData: [],
+                            stream: _bloc.output,
+                          ),
                         ]))))));
   }
 }

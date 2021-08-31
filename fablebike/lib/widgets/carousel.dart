@@ -11,8 +11,9 @@ class Carousel extends StatefulWidget {
   final BuildContext context;
   final bool isShimmer;
   final double width;
+  final Function callBack;
 
-  Carousel({Key key, this.context, this.objectives, this.width, this.isShimmer: false}) : super(key: key);
+  Carousel({Key key, this.context, this.objectives, this.width, this.callBack, this.isShimmer: false}) : super(key: key);
 
   @override
   _Carousel createState() => _Carousel();

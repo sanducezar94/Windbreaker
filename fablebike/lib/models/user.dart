@@ -23,7 +23,7 @@ class RatingInfo {
 
   factory RatingInfo.fromMap(Map<String, dynamic> map) {
     return RatingInfo(
-      map['object_id'] ?? 0,
+      map['id'] ?? 0,
       map['rating'] ?? 0.0,
       map['rating_count'] ?? 0,
     );

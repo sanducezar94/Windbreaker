@@ -82,7 +82,7 @@ class MyApp extends StatelessWidget {
               headline3: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Lato'),
               headline4: TextStyle(fontSize: 16.0, color: Colors.white70, fontFamily: 'Lato'),
               subtitle2: TextStyle(fontSize: 14.0, color: Color.fromRGBO(64, 86, 84, 1).withOpacity(1), fontFamily: 'Nunito'),
-              bodyText2: TextStyle(fontSize: 12.0, color: Color.fromRGBO(64, 86, 84, 1).withOpacity(0.8), fontFamily: 'Nunito'),
+              bodyText2: TextStyle(fontSize: 14.0, color: Color.fromRGBO(64, 86, 84, 1).withOpacity(0.8), fontFamily: 'Nunito'),
               bodyText1: TextStyle(fontSize: 17.0, color: Color.fromRGBO(64, 86, 84, 1), fontWeight: FontWeight.bold, fontFamily: 'Lato'),
             )),
         home: AuthenticationWrapper(),

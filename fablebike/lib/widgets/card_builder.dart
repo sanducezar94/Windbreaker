@@ -1,25 +1,11 @@
 import 'dart:math';
-
-import 'package:fablebike/bloc/event_constants.dart';
-import 'package:fablebike/bloc/main_bloc.dart';
-import 'package:fablebike/constants/language.dart';
-import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/route.dart';
-import 'package:fablebike/models/user.dart';
-import 'package:fablebike/pages/bookmarks.dart';
-import 'package:fablebike/pages/map.dart';
 import 'package:fablebike/pages/objective.dart';
-import 'package:fablebike/pages/routes.dart';
-import 'package:fablebike/services/database_service.dart';
-import 'package:fablebike/services/route_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
-import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 
 class CardBuilder {
-  static double circularRadius = 16.0;
+  static double circularRadius = 12.0;
   static Widget buildProfileBar(BuildContext context, String tab, String subtitle) {
     return Row(
       children: [
@@ -36,7 +22,7 @@ class CardBuilder {
               SizedBox(height: 5),
               Row(children: [
                 Text(
-                  "Bine ai venit!", //subtitle,
+                  subtitle,
                   style: Theme.of(context).textTheme.subtitle1,
                   textAlign: TextAlign.start,
                 )
@@ -45,26 +31,7 @@ class CardBuilder {
           ),
           flex: 3,
         ),
-        Expanded(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 82,
-                height: 82,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(64.0)),
-                    color: Theme.of(context).primaryColor.withOpacity(0.25),
-                    border: Border.all(color: Color.fromRGBO(232, 242, 243, 1), width: 8)),
-              ),
-              ClipRRect(
-                child: Image.asset('assets/icons/avatar_icon.png', width: 64, height: 64, fit: BoxFit.contain),
-                borderRadius: BorderRadius.circular(48.0),
-              )
-            ],
-          ),
-          flex: 1,
-        )
+        Spacer(flex: 1)
       ],
     );
   }
@@ -190,7 +157,15 @@ class CardBuilder {
                                   ],
                                 ),
                                 flex: 2),
-                            Expanded(child: buildStars(context, objective.rating, true), flex: 1),
+                            Expanded(
+                                child: Row(
+                              children: [
+                                buildStars(context, objective.rating, true),
+                                SizedBox(width: 5),
+                                Text(objective.rating.toStringAsFixed(1) + ' (' + objective.ratingCount.toString() + ')',
+                                    style: TextStyle(fontSize: 12.0, color: Colors.white))
+                              ],
+                            ))
                           ]),
                         ),
                         bottom: 20,
@@ -239,39 +214,37 @@ class CardBuilder {
                 ),
                 tag: 'obj-layer' + objective.name),
             Positioned(
-                child: Hero(
-                    child: Container(
-                      width: 999,
-                      height: 80,
-                      child: Column(children: [
-                        Spacer(flex: 6),
-                        /* Expanded(
+                child: Container(
+                  width: 999,
+                  height: 80,
+                  child: Column(children: [
+                    Spacer(flex: 6),
+                    /* Expanded(
                                 child: Row(
                                   children: [
                                     Icon(Icons.cottage, color: Colors.white),
                                   ],
                                 ),
                                 flex: 6),*/
-                        Expanded(
-                            child: Row(
-                              children: [
-                                Text(objective.name, style: Theme.of(context).textTheme.headline3),
-                              ],
-                            ),
-                            flex: 6),
-                        Expanded(
-                            child: Row(
-                              children: [
-                                buildStars(context, objective.rating, true),
-                                SizedBox(width: 5),
-                                Text(objective.rating.toStringAsFixed(1) + ' (' + objective.ratingCount.toString() + ')',
-                                    style: TextStyle(fontSize: 12.0, color: Colors.white))
-                              ],
-                            ),
-                            flex: 4),
-                      ]),
-                    ),
-                    tag: 'obj-desc' + objective.name),
+                    Expanded(
+                        child: Row(
+                          children: [
+                            Text(objective.name, style: Theme.of(context).textTheme.headline3),
+                          ],
+                        ),
+                        flex: 6),
+                    Expanded(
+                        child: Row(
+                          children: [
+                            buildStars(context, objective.rating, true),
+                            SizedBox(width: 5),
+                            Text(objective.rating.toStringAsFixed(1) + ' (' + objective.ratingCount.toString() + ')',
+                                style: TextStyle(fontSize: 12.0, color: Colors.white))
+                          ],
+                        ),
+                        flex: 4),
+                  ]),
+                ),
                 bottom: 16,
                 left: 20)
           ],
@@ -336,20 +309,14 @@ class CardBuilder {
                               children: [
                                 Expanded(
                                     child: Align(
-                                      child: Image.asset('assets/icons/dt.png', width: 20, height: 24),
-                                      alignment: Alignment.centerLeft,
-                                    ),
-                                    flex: 2),
-                                Expanded(
-                                    child: Align(
                                       child: Text(route.distance.toStringAsFixed(0) + ' Km',
                                           style: TextStyle(
                                               fontSize: hasDescription ? 14.0 : 12.0,
                                               color: Theme.of(context).accentColor.withOpacity(0.75),
                                               fontWeight: FontWeight.bold)),
-                                      alignment: Alignment.centerLeft,
+                                      alignment: Alignment.center,
                                     ),
-                                    flex: 4),
+                                    flex: 6),
                                 Expanded(
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -359,7 +326,8 @@ class CardBuilder {
                                         Image.asset('assets/icons/ruin_tag.png', width: 20, height: 20),
                                       ],
                                     ),
-                                    flex: 7),
+                                    flex: 12),
+                                Spacer(flex: 1)
                               ],
                             ),
                             flex: 4),
@@ -368,101 +336,6 @@ class CardBuilder {
                     ),
                     padding: EdgeInsets.fromLTRB(10, 4, 0, 0)),
                 flex: 5,
-              )
-            ],
-          )),
-    );
-  }
-
-  static Widget buildSmallRouteCard2(BuildContext context, BikeRoute route, int index, {hasDescription: true}) {
-    double width = MediaQuery.of(context).size.width;
-    double height = max(656, MediaQuery.of(context).size.height - 80);
-
-    return ClipRRect(
-      child: Container(
-          width: 999,
-          height: height * 0.175,
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Expanded(
-                        child: Container(
-                            width: 999,
-                            height: height * 0.15,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(topLeft: Radius.circular(circularRadius), bottomLeft: Radius.circular(circularRadius)),
-                                image: new DecorationImage(
-                                  image: Image.asset('assets/icons/route.png').image,
-                                  fit: BoxFit.cover,
-                                ))),
-                        flex: 1)
-                  ],
-                ),
-                flex: 3,
-              ),
-              Expanded(
-                child: Padding(
-                    child: Column(
-                      children: [
-                        Expanded(
-                            child: Row(
-                              children: [
-                                Text('Traseul Mare', style: Theme.of(context).textTheme.bodyText1),
-                              ],
-                            ),
-                            flex: 2),
-                        Expanded(
-                            child: Row(
-                              children: [buildStars(context, route.rating, false)],
-                            ),
-                            flex: 2),
-                        if (hasDescription)
-                          Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Scris scris scris scris scris ', style: Theme.of(context).textTheme.bodyText2),
-                                ],
-                              ),
-                              flex: 1),
-                        SizedBox(
-                          height: 2,
-                        ),
-                        Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: Align(
-                                      child: Image.asset('assets/icons/dt.png', width: 20, height: 24),
-                                      alignment: Alignment.centerLeft,
-                                    ),
-                                    flex: 4),
-                                Expanded(
-                                  flex: 8,
-                                  child: Align(
-                                    child: Text('252 Km',
-                                        style: TextStyle(
-                                            fontSize: hasDescription ? 14.0 : 12.0,
-                                            color: Theme.of(context).accentColor.withOpacity(0.75),
-                                            fontWeight: FontWeight.bold)),
-                                    alignment: Alignment.centerLeft,
-                                  ),
-                                ),
-                                Expanded(
-                                    child: Align(child: Image.asset('assets/icons/pin_tag.png', width: 20, height: 20), alignment: Alignment.center), flex: 4),
-                                Expanded(child: Image.asset('assets/icons/church_tag.png', width: 20, height: 20), flex: 4),
-                                Expanded(child: Image.asset('assets/icons/ruin_tag.png', width: 20, height: 20), flex: 4),
-                                Spacer(
-                                  flex: 1,
-                                )
-                              ],
-                            ),
-                            flex: 3)
-                      ],
-                    ),
-                    padding: EdgeInsets.fromLTRB(15, 4, 0, 0)),
-                flex: 4,
               )
             ],
           )),
@@ -586,164 +459,5 @@ class CardBuilder {
             ],
           )),
     );
-  }
-
-  //------------------------------------------------------------------------------------
-
-  static Widget buildAnnouncementBanner(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = max(656, MediaQuery.of(context).size.height - 80);
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(16.0)),
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), spreadRadius: 3, blurRadius: 5, offset: Offset(0, 3))]),
-          height: 0.25 * height,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              SizedBox(height: 10.0),
-              Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Text(
-                              'Anunt Important',
-                              style: Theme.of(context).textTheme.headline1,
-                            ))
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Text(
-                              'Anunt Important',
-                              style: Theme.of(context).textTheme.headline2,
-                            ))
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Spacer(flex: 1),
-                        Expanded(
-                            flex: 1,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8.0),
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                child: Text(context.read<LanguageManager>().details),
-                              ),
-                            ))
-                      ],
-                    )
-                  ],
-                ),
-              )
-            ],
-          ),
-        ));
-  }
-
-  static Widget buildAnnouncementBannerShimmer(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = max(656, MediaQuery.of(context).size.height - 80);
-    return Shimmer.fromColors(
-        highlightColor: Colors.white,
-        baseColor: Colors.black.withOpacity(0.01),
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                color: Colors.white,
-              ),
-              height: 0.2 * height,
-            )));
-  }
-
-  static Widget buildSmallObjectiveShimmerCard(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = max(656, MediaQuery.of(context).size.height - 80);
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: InkWell(
-            onTap: () {},
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(18.0)),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 4))]),
-                width: 0.35 * width,
-                height: max(200, 0.275 * height),
-                child: Stack(
-                  children: [
-                    Shimmer.fromColors(
-                      highlightColor: Colors.white,
-                      baseColor: Colors.black12,
-                      child: Column(
-                        children: [
-                          Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                                child: Shimmer.fromColors(
-                                    highlightColor: Colors.white,
-                                    baseColor: Colors.black26,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black26,
-                                        borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                                      ),
-                                    )),
-                              ),
-                              flex: 2),
-                          Container(
-                              height: 1 / 10 * height,
-                              child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                  child: Column(children: [
-                                    Expanded(
-                                      child: Container(
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black12,
-                                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                                        ),
-                                      ),
-                                    ),
-                                    Spacer(
-                                      flex: 1,
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black12,
-                                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                                        ),
-                                      ),
-                                    ),
-                                    Spacer(
-                                      flex: 2,
-                                    ),
-                                  ])))
-                        ],
-                      ),
-                    ),
-                  ],
-                ))));
   }
 }
