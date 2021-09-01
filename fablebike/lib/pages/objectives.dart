@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/bloc/objective_bloc.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/objective_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
@@ -13,17 +14,15 @@ import 'package:fablebike/models/route.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
 
-import 'objective copy.dart';
-
-class BookmarksScreen extends StatefulWidget {
+class ObjectivesScreen extends StatefulWidget {
   static const route = '/bookmarks';
-  BookmarksScreen({Key key}) : super(key: key);
+  ObjectivesScreen({Key key}) : super(key: key);
 
   @override
-  _BookmarksScreen createState() => _BookmarksScreen();
+  _ObjectivesScreen createState() => _ObjectivesScreen();
 }
 
-class _BookmarksScreen extends State<BookmarksScreen> {
+class _ObjectivesScreen extends State<ObjectivesScreen> {
   TextEditingController searchController = TextEditingController();
   final _bloc = ObjectiveBloc();
   AuthenticatedUser _user;
@@ -45,7 +44,7 @@ class _BookmarksScreen extends State<BookmarksScreen> {
   Widget build(BuildContext context) {
     double smallDivider = 10.0;
     double bigDivider = 20.0;
-
+    var user = Provider.of<AuthenticatedUser>(context);
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -105,7 +104,10 @@ class _BookmarksScreen extends State<BookmarksScreen> {
                                   children: [
                                     for (var i = 0; i < objectives.length; i++)
                                       InkWell(
-                                        child: CardBuilder.buildlargeObjectiveCard(context, objectives[i]),
+                                        child: CardBuilder.buildlargeObjectiveCard(context, objectives[i], bookmarkCallback: (id) {
+                                          _bloc.objectiveEventSync.add(
+                                              ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveToggleBookmark, args: {'id': id, 'user_id': user.id}));
+                                        }),
                                         onTap: () async {
                                           try {
                                             var objective = snapshot.data[i];

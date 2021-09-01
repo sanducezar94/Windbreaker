@@ -5,12 +5,12 @@ import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/explore.dart';
 import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
+import 'package:fablebike/pages/objectives.dart';
 import 'package:fablebike/pages/route_map.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fablebike/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:fablebike/pages/image_picker.dart';
-import 'package:fablebike/pages/bookmarks.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/settings.dart';
@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
           SignUpScreen.route: (context) => SignUpScreen(),
           ExploreScreen.route: (context) => ExploreScreen(),
           SettingsScreen.route: (context) => SettingsScreen(),
-          BookmarksScreen.route: (context) => BookmarksScreen(),
+          ObjectivesScreen.route: (context) => ObjectivesScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == ObjectiveScreen.route) {

@@ -3,14 +3,12 @@ import 'dart:async';
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
-import 'package:fablebike/pages/bookmarks.dart';
 import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
-import 'explore.dart';
 import 'home.dart';
+import 'objectives.dart';
 
 class HomeWrapper extends StatefulWidget {
   HomeWrapper({Key key}) : super(key: key);
@@ -21,7 +19,7 @@ class HomeWrapper extends StatefulWidget {
 
 class _HomeWrapperState extends State<HomeWrapper> {
   PageController _pageController = PageController();
-  List<Widget> _screens = [HomeScreen(), BookmarksScreen(), RoutesScreen(), SettingsScreen()];
+  List<Widget> _screens = [HomeScreen(), ObjectivesScreen(), RoutesScreen(), SettingsScreen()];
   int _selectedIndex = 0;
   StreamSubscription<String> subscription;
 

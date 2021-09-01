@@ -155,7 +155,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
           _bloc.objectiveEventSync.add(RouteBlocEvent(eventType: RouteEventType.RouteRateEvent, args: {'id': bikeRoute.id, 'rating': finalRating}));
           _bloc.objectiveEventSync.add(RouteBlocEvent(eventType: RouteEventType.RouteSearchEvent, args: {'search_query': searchController.text}));
         }
-        //setState(() {});
       });
       Loader.hide();
     } on Exception catch (e) {

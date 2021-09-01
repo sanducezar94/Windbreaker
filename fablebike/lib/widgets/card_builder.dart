@@ -174,7 +174,7 @@ class CardBuilder {
             )));
   }
 
-  static Widget buildlargeObjectiveCard(BuildContext context, Objective objective) {
+  static Widget buildlargeObjectiveCard(BuildContext context, Objective objective, {Function bookmarkCallback}) {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
     return Padding(
@@ -213,6 +213,18 @@ class CardBuilder {
                   width: width,
                 ),
                 tag: 'obj-layer' + objective.name),
+            Positioned(
+                top: 16,
+                right: 20,
+                child: InkWell(
+                  onTap: () => bookmarkCallback(objective.id),
+                  child: Container(
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.45)),
+                    width: 36,
+                    height: 36,
+                    child: Icon(objective.is_bookmarked ? Icons.bookmark : Icons.bookmark_outline, size: 20, color: Colors.white),
+                  ),
+                )),
             Positioned(
                 child: Container(
                   width: 999,

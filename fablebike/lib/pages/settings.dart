@@ -64,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     double height = max(656, MediaQuery.of(context).size.height - 80);
     double smallDivider = 12.5;
     double bigDivider = 25.0;
-    var buttonRadius = Radius.circular(8.0);
+    var buttonRadius = Radius.circular(16.0);
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -81,7 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(children: [
                     Text(
                       context.read<LanguageManager>().settingAccount,
-                      style: Theme.of(context).textTheme.headline1,
+                      style: Theme.of(context).textTheme.headline2,
                       textAlign: TextAlign.start,
                     )
                   ]),
@@ -127,7 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(children: [
                     Text(
                       context.read<LanguageManager>().settingPreferences,
-                      style: Theme.of(context).textTheme.headline1,
+                      style: Theme.of(context).textTheme.headline2,
                       textAlign: TextAlign.start,
                     )
                   ]),
@@ -257,7 +257,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(children: [
                     Text(
                       'Altele',
-                      style: Theme.of(context).textTheme.headline1,
+                      style: Theme.of(context).textTheme.headline2,
                       textAlign: TextAlign.start,
                     )
                   ]),
@@ -277,7 +277,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               )),
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                              primary: Theme.of(context).primaryColorDark, shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(buttonRadius))),
+                              elevation: 4,
+                              primary: Theme.of(context).primaryColorDark,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(buttonRadius))),
                         ),
                       )
                     ],
@@ -302,7 +304,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                              primary: Theme.of(context).primaryColorDark, shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(buttonRadius))),
+                              elevation: 4,
+                              primary: Theme.of(context).primaryColorDark,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(buttonRadius))),
                         ),
                         flex: 2,
                       )
@@ -317,11 +321,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Provider.of<AuthenticationService>(context, listen: false).signOut();
                           },
                           style: OutlinedButton.styleFrom(
+                              shadowColor: Theme.of(context).shadowColor.withOpacity(0.3),
+                              elevation: 7,
                               backgroundColor: Colors.white,
                               textStyle: TextStyle(fontSize: 14),
                               primary: Theme.of(context).primaryColor,
                               side: BorderSide(style: BorderStyle.solid, color: Theme.of(context).primaryColorDark, width: 1),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
                           child: Align(
                               alignment: Alignment.center,
                               child: Padding(

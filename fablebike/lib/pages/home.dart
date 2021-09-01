@@ -6,6 +6,7 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/bloc/bookmarks_bloc.dart';
 import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
+import 'package:fablebike/bloc/objective_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
@@ -17,9 +18,6 @@ import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong/latlong.dart';
 import 'package:fablebike/widgets/card_builder.dart';
-
-import 'package:fablebike/services/math_service.dart' as mapMath;
-import 'package:sqflite/sqflite.dart';
 
 LatLng myLocation = LatLng(46.45447, 27.72501);
 
@@ -36,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<String> subscription;
   AuthenticatedUser user;
   final _bloc = BookmarkBloc();
+  final _objectiveBloc = ObjectiveBloc();
 
   Future<List<BikeRoute>> _getRecentRoutes(AuthenticatedUser user) async {
     var db = await DatabaseService().database;
@@ -46,23 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return [];
   }
 
-  Future<List<Objective>> _getNearbyObjectives(AuthenticatedUser user) async {
-    var db = await DatabaseService().database;
-
-    var bookmarkRows = await db.rawQuery('SELECT * FROM objectivebookmark pb INNER JOIN objective p ON p.id = pb.objective_id WHERE pb.user_id = ${user.id}');
-    var bookmarks = List.generate(bookmarkRows.length, (i) => Objective.fromJson(bookmarkRows[i]));
-
-    var objectiveRows = await db.query('Objective');
-    var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
-
-    if (bookmarks.length > 0) {
-      objectives.forEach((element) {
-        element.is_bookmarked = bookmarks.where((el) => el.id == element.id).isNotEmpty;
-      });
-    }
-    return objectives.where((c) => mapMath.calculateDistance(myLocation.latitude, myLocation.longitude, c.latitude, c.longitude) < 10).toList();
-  }
-
   @override
   initState() {
     super.initState();
@@ -71,10 +53,14 @@ class _HomeScreenState extends State<HomeScreen> {
     subscription = context.read<MainBloc>().output.listen((event) {
       if (event == Constants.HomeRefreshBookmarks) {
         _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
+        _objectiveBloc.objectiveEventSync
+            .add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveGetNearby, args: {'user_id': user.id, 'location': myLocation}));
       }
     });
 
     _bloc.bookmarkEventSync.add(BookmarkBlocEvent(eventType: BookmarkEventType.BookmarkInitializeEvent, args: {'user_id': user.id}));
+    _objectiveBloc.objectiveEventSync
+        .add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveGetNearby, args: {'user_id': user.id, 'location': myLocation}));
   }
 
   @override
@@ -149,26 +135,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(
                       height: smallDivider,
                     ),
-                    FutureBuilder<List<Objective>>(
-                        builder: (context, AsyncSnapshot<List<Objective>> snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            if (snapshot.hasData && snapshot.data != null) {
-                              return Container(
-                                  height: height * 0.275,
-                                  width: 999,
-                                  child: Carousel(
-                                    objectives: snapshot.data,
-                                    context: context,
-                                    width: width,
-                                  ));
-                            } else {
-                              return CircularProgressIndicator();
-                            }
-                          } else {
-                            return CircularProgressIndicator();
-                          }
-                        },
-                        future: _getNearbyObjectives(user)),
+                    StreamBuilder(
+                      builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return Container(
+                              height: height * 0.275,
+                              width: 999,
+                              child: Carousel(
+                                objectives: snapshot.data,
+                                context: context,
+                                width: width,
+                              ));
+                        } else {
+                          return CircularProgressIndicator();
+                        }
+                      },
+                      initialData: null,
+                      stream: _objectiveBloc.output,
+                    ),
                     SizedBox(height: bigDivider),
                     Row(children: [
                       Text(

@@ -1,8 +1,12 @@
+import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/pages/route_map.dart';
+import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/physics.dart';
 import 'package:fablebike/widgets/shimmer_card_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import '../models/route.dart';
 import 'card_builder.dart';
 
@@ -76,8 +80,8 @@ Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width
                   child: carouselItems[index],
                   width: width,
                 ),
-                onTap: () {
-                  Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: [routes[index]]);
+                onTap: () async {
+                  await _goToRoute(routes[index], context);
                 },
               ),
               padding: index == 0 ? EdgeInsets.fromLTRB(0, 4, 10, 4) : EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0)),
@@ -86,4 +90,52 @@ Widget _buildCarousel(BuildContext context, List<BikeRoute> routes, double width
           itemCount: carouselItems.length,
         )),
   ]);
+}
+
+_goToRoute(BikeRoute route, BuildContext context) async {
+  try {
+    Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+    var database = await DatabaseService().database;
+    var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
+
+    var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
+
+    var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [route.id]);
+
+    List<Objective> objectives = [];
+    for (var i = 0; i < objToRoutes.length; i++) {
+      var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
+      if (objRow.length > 1 || objRow.length == 0) continue;
+      objectives.add(Objective.fromJson(objRow.first));
+    }
+
+    var bikeRoute = new BikeRoute.fromJson(routes.first);
+    bikeRoute.coordinates = List.generate(coords.length, (i) {
+      return Coordinates.fromJson(coords[i]);
+    });
+    bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
+    bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
+    bikeRoute.objectives = objectives;
+
+    var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
+
+    if (serverRoute != null) {
+      await database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount}, where: 'id = ?', whereArgs: [bikeRoute.id]);
+      bikeRoute.rating = serverRoute.rating;
+      bikeRoute.ratingCount = serverRoute.ratingCount;
+      bikeRoute.commentCount = serverRoute.commentCount;
+      bikeRoute.userRating = serverRoute.userRating;
+    }
+
+    var db = await DatabaseService().database;
+
+    var pinnedRouteRow = await db.query('routepinnedcomment', where: 'route_id = ?', whereArgs: [bikeRoute.id]);
+    if (pinnedRouteRow.length > 0) {
+      bikeRoute.pinnedComment = RoutePinnedComment.fromMap(pinnedRouteRow.first);
+    }
+    Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: bikeRoute);
+    Loader.hide();
+  } on Exception catch (e) {
+    Loader.hide();
+  }
 }

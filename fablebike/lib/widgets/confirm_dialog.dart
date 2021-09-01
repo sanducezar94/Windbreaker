@@ -31,7 +31,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         ],
         title: Center(child: Text('Goleste cache-ul')),
         content: Container(
-            height: MediaQuery.of(context).size.height * 0.15,
+            height: MediaQuery.of(context).size.height * 0.1,
             width: MediaQuery.of(context).size.width,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,7 +44,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                       textAlign: TextAlign.start,
                       text: TextSpan(
                           text: 'Datele precum obiectivele salvate, preferintele si cautarile anterioare vor fi sterse permanent!',
-                          style: Theme.of(context).textTheme.headline3),
+                          style: Theme.of(context).textTheme.bodyText1),
                       maxLines: 5,
                     ),
                     flex: 10),

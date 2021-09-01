@@ -11,6 +11,7 @@ import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -83,19 +84,19 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
         point: hoverPoint));
     for (var i = 0; i < widget.bikeRoute.objectives.length; i++) {
       markers.add(Marker(
-          width: i == currentPoint ? 40 : 32,
-          height: i == currentPoint ? 40 : 32,
+          width: i == currentPoint ? 48 : 40,
+          height: i == currentPoint ? 48 : 40,
           builder: (ctx) => Transform.rotate(
               angle: -this.rotation * 3.14159 / 180,
               child: Container(child: Image(image: AssetImage('assets/icons/' + widget.bikeRoute.objectives[i].icon + '_pin.png')))),
-          point: widget.bikeRoute.objectives[i].coords));
+          point: LatLng(widget.bikeRoute.objectives[i].coords.latitude + 0.0135, widget.bikeRoute.objectives[i].coords.longitude)));
     }
 
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Scaffold(
-            resizeToAvoidBottomInset: false,
+            resizeToAvoidBottomInset: true,
             body: SingleChildScrollView(
                 child: Column(children: [
               Container(
@@ -211,23 +212,6 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
               ),
               Stack(
                 children: [
-                  /* Positioned(
-                      child: Opacity(
-                        child: Container(
-                          width: width * 1.2,
-                          height: height * 0.15,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(0.0), bottomRight: Radius.circular(0.0)),
-                            image: new DecorationImage(
-                              image: Image.asset('assets/icons/bg_finish.png').image,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                        opacity: 0.2,
-                      ),
-                      bottom: 0,
-                      left: -40),*/
                   Padding(
                       child: Column(
                         children: [
@@ -289,13 +273,13 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                           maxZoom: 10.0,
                                           urlTemplate: 'assets/map/{z}/{x}/{y}.png',
                                         ),
-                                        /* PolylineLayerOptions(
-                                                  polylines: [
-                                                    Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Colors.blue),
-                                                  ],
-                                                ),*/
+                                        PolylineLayerOptions(
+                                          polylines: [
+                                            Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Theme.of(context).primaryColor),
+                                          ],
+                                        ),
                                         //LocationMarkerLayerOptions(),
-                                        // MarkerLayerOptions(markers: markers),
+                                        MarkerLayerOptions(markers: markers),
                                       ],
                                     ),
                                     Positioned(
@@ -509,6 +493,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                               return;
                             }
                             widget.bikeRoute.rating = newRating;
+                            widget.bikeRoute.userRating = rating;
                             if (widget.bikeRoute.userRating == 0) widget.bikeRoute.ratingCount += 1;
 
                             var db = await DatabaseService().database;

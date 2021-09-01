@@ -52,100 +52,133 @@ class _CommentSectionState extends State<CommentSection> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height - 80;
-    return Container(
-        height: height * 0.8,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                child: Row(
+    return Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: Container(
+            height: height * 0.8,
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
+            child: Padding(
+                child: Stack(
                   children: [
-                    SizedBox(width: 5),
-                    InkWell(
-                      child: Icon(Icons.arrow_back),
-                      onTap: () {
-                        Navigator.of(context).pop(12);
-                      },
-                    ),
-                    SizedBox(width: 20),
-                    Text(
-                      'Comentarii',
-                      style: Theme.of(context).textTheme.headline3,
+                    Positioned(
+                        bottom: 0,
+                        child: ConstrainedBox(
+                            constraints: new BoxConstraints(minWidth: width, maxWidth: width, minHeight: 80, maxHeight: 160),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                                BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), spreadRadius: 5, blurRadius: 10, offset: Offset(0, 0))
+                              ]),
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
+                                  child: Row(
+                                    children: [
+                                      Spacer(flex: 1),
+                                      Expanded(
+                                          child: Material(
+                                            shadowColor: Theme.of(context).accentColor.withOpacity(0.4),
+                                            elevation: 12.0,
+                                            borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                            child: TextField(
+                                              maxLines: null,
+                                              textAlignVertical: TextAlignVertical.center,
+                                              style: Theme.of(context).textTheme.subtitle1,
+                                              controller: commentController,
+                                              decoration: InputDecoration(
+                                                  hintStyle: Theme.of(context).textTheme.subtitle1,
+                                                  fillColor: Colors.white,
+                                                  filled: true,
+                                                  contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                                                  border: OutlineInputBorder(
+                                                      borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                                  hintText: 'Comentariu nou...'),
+                                            ),
+                                          ),
+                                          flex: 20),
+                                      Spacer(flex: 1),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          child: Icon(Icons.send_outlined),
+                                          onPressed: () async {},
+                                          style: ElevatedButton.styleFrom(
+                                              primary: Theme.of(context).primaryColorDark,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(128.0)))),
+                                        ),
+                                        flex: 4,
+                                      )
+                                    ],
+                                  )),
+                            ))),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                            child: Row(
+                              children: [
+                                SizedBox(width: 5),
+                                InkWell(
+                                  child: Icon(Icons.arrow_back),
+                                  onTap: () {
+                                    Navigator.of(context).pop(12);
+                                  },
+                                ),
+                                SizedBox(width: 20),
+                                Text(
+                                  'Comentarii',
+                                  style: Theme.of(context).textTheme.headline2,
+                                )
+                              ],
+                            )),
+                        FutureBuilder(
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.done) {
+                                if (snapshot.hasData) {
+                                  if (snapshot.data.page == this.page) {
+                                    this.comments.addAll(snapshot.data.comments);
+                                    this.page++;
+                                    previousContainer = null;
+                                  } else if (previousContainer != null && !forceRemake) {
+                                    return previousContainer;
+                                  }
+
+                                  forceRemake = false;
+                                  previousContainer = Container(
+                                      height: height * 0.6,
+                                      child: Padding(
+                                        child: ListView.separated(
+                                            itemBuilder: (context, index) => _buildComment(
+                                                context,
+                                                index < this.comments.length ? this.comments[index] : null,
+                                                index == this.comments.length,
+                                                index == this.comments.length
+                                                    ? () {
+                                                        _getNextPageComments();
+                                                      }
+                                                    : null),
+                                            separatorBuilder: (context, index) {
+                                              return Divider(
+                                                indent: 0,
+                                                thickness: 0,
+                                              );
+                                            },
+                                            itemCount: this.comments.length + 1),
+                                        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                      ));
+
+                                  return previousContainer;
+                                } else {
+                                  return previousContainer != null ? previousContainer : CircularProgressIndicator();
+                                }
+                              } else {
+                                return previousContainer != null ? previousContainer : CircularProgressIndicator();
+                              }
+                            },
+                            future: this.getComments),
+                      ],
                     )
                   ],
-                )),
-            Container(
-              width: width,
-              height: 60,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                child: Material(
-                  shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                  elevation: 12.0,
-                  borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                  child: TextFormField(
-                    textAlignVertical: TextAlignVertical.bottom,
-                    style: Theme.of(context).textTheme.subtitle1,
-                    controller: commentController,
-                    decoration: InputDecoration(
-                        hintStyle: Theme.of(context).textTheme.subtitle1,
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                        hintText: 'Comentariu nou...'),
-                  ),
                 ),
-              ),
-            ),
-            FutureBuilder(
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasData) {
-                      if (snapshot.data.page == this.page) {
-                        this.comments.addAll(snapshot.data.comments);
-                        this.page++;
-                        previousContainer = null;
-                      } else if (previousContainer != null && !forceRemake) {
-                        return previousContainer;
-                      }
-
-                      forceRemake = false;
-                      previousContainer = Container(
-                          height: height * 0.6,
-                          child: Padding(
-                            child: ListView.separated(
-                                itemBuilder: (context, index) => _buildComment(
-                                    context,
-                                    index < this.comments.length ? this.comments[index] : null,
-                                    index == this.comments.length,
-                                    index == this.comments.length
-                                        ? () {
-                                            _getNextPageComments();
-                                          }
-                                        : null),
-                                separatorBuilder: (context, index) {
-                                  return Divider(
-                                    indent: 0,
-                                    thickness: 0,
-                                  );
-                                },
-                                itemCount: this.comments.length + 1),
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          ));
-
-                      return previousContainer;
-                    } else {
-                      return previousContainer != null ? previousContainer : CircularProgressIndicator();
-                    }
-                  } else {
-                    return previousContainer != null ? previousContainer : CircularProgressIndicator();
-                  }
-                },
-                future: this.getComments),
-          ],
-        ));
+                padding: EdgeInsets.symmetric(vertical: 6.0))));
   }
 }
 

@@ -402,6 +402,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           var db = await DatabaseService().database;
                           await db.update('objective', {'rating': newRating, 'rating_count': widget.objective.ratingCount},
                               where: 'id = ?', whereArgs: [widget.objective.id]);
+                          Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.HomeRefreshBookmarks);
                           Loader.hide();
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
