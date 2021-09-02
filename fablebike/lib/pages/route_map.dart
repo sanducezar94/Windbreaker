@@ -5,6 +5,8 @@ import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/pages/sections/gradient_icon.dart';
+import 'package:fablebike/pages/sections/map_elevation.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
@@ -90,6 +92,38 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
               angle: -this.rotation * 3.14159 / 180,
               child: Container(child: Image(image: AssetImage('assets/icons/' + widget.bikeRoute.objectives[i].icon + '_pin.png')))),
           point: LatLng(widget.bikeRoute.objectives[i].coords.latitude + 0.0135, widget.bikeRoute.objectives[i].coords.longitude)));
+    }
+
+    _buildMapStat(IconData iconData, String title, String value) {
+      return Row(
+        children: [
+          Expanded(
+              child: Column(
+                children: [GradientIcon(iconData, 40)],
+              ),
+              flex: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    value,
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                ),
+              ],
+            ),
+            flex: 20,
+          )
+        ],
+      );
     }
 
     return ColorfulSafeArea(
@@ -242,6 +276,42 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                           SizedBox(height: bigDivider),
                           Row(children: [
                             Text(
+                              "Informatii",
+                              style: Theme.of(context).textTheme.headline2,
+                              textAlign: TextAlign.start,
+                            )
+                          ]),
+                          SizedBox(
+                            height: bigDivider,
+                          ),
+                          Container(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMapStat(Icons.directions_bike, 'Distanta', '240 km'),
+                                  ),
+                                  Expanded(
+                                    child: _buildMapStat(Icons.access_time, 'Durata', '30 minute"'),
+                                  )
+                                ],
+                              ),
+                              height: height * 0.075),
+                          SizedBox(height: bigDivider),
+                          Container(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMapStat(Icons.call_made_outlined, 'Elev. max', '889 m.'),
+                                  ),
+                                  Expanded(
+                                    child: _buildMapStat(Icons.call_received_outlined, 'Elev. min', '120 m.'),
+                                  )
+                                ],
+                              ),
+                              height: height * 0.075),
+                          SizedBox(height: bigDivider),
+                          Row(children: [
+                            Text(
                               "Harta",
                               style: Theme.of(context).textTheme.headline2,
                               textAlign: TextAlign.start,
@@ -275,7 +345,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                         ),
                                         PolylineLayerOptions(
                                           polylines: [
-                                            Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Theme.of(context).primaryColor),
+                                            Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Theme.of(context).splashColor),
                                           ],
                                         ),
                                         //LocationMarkerLayerOptions(),
@@ -484,7 +554,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                           ]),
                           SizedBox(height: smallDivider),
                           Container(
-                              child: CardBuilder.buildInteractiveStars(context, widget.bikeRoute.rating, 48.0, callBack: (int rating) async {
+                              child: CardBuilder.buildInteractiveStars(context, widget.bikeRoute.userRating, 48.0, callBack: (int rating) async {
                             Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
                             var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
 

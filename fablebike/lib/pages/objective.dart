@@ -5,6 +5,7 @@ import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/objective_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
@@ -388,7 +389,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         ]),
                         SizedBox(height: smallDivider),
                         Container(
-                            child: CardBuilder.buildInteractiveStars(context, widget.objective.rating, 48.0, callBack: (int rating) async {
+                            child: CardBuilder.buildInteractiveStars(context, widget.objective.userRating, 48.0, callBack: (int rating) async {
                           Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
                           var newRating = await ObjectiveService().rateObjective(rating: rating, objective_id: widget.objective.id);
 
@@ -434,41 +435,41 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                             textAlign: TextAlign.start,
                           )
                         ]),
-                        SizedBox(height: smallDivider),
+                        SizedBox(height: bigDivider),
                         Row(
                           children: [
                             SizedBox(width: 16),
-                            Icon(Icons.web_outlined, size: 42, color: Theme.of(context).primaryColor),
-                            SizedBox(width: 10),
+                            GradientIcon(Icons.phone, 36),
+                            SizedBox(width: 20),
                             Text(
                               "www.bisericadepedeal.ro",
-                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColor),
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorDark),
                               textAlign: TextAlign.start,
                             )
                           ],
                         ),
-                        SizedBox(height: smallDivider),
+                        SizedBox(height: smallDivider * 1.5),
                         Row(
                           children: [
                             SizedBox(width: 16),
-                            Icon(Icons.facebook_outlined, size: 42, color: Theme.of(context).primaryColor),
-                            SizedBox(width: 10),
+                            GradientIcon(Icons.facebook, 36),
+                            SizedBox(width: 20),
                             Text(
                               "Biserica de pe deal",
-                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColor),
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorDark),
                               textAlign: TextAlign.start,
                             )
                           ],
                         ),
-                        SizedBox(height: smallDivider),
+                        SizedBox(height: smallDivider * 1.5),
                         Row(
                           children: [
                             SizedBox(width: 16),
-                            Icon(Icons.web_outlined, size: 42, color: Theme.of(context).primaryColor),
-                            SizedBox(width: 10),
+                            GradientIcon(Icons.contact_mail, 36),
+                            SizedBox(width: 20),
                             Text(
                               "www.bisericadepedeal.ro",
-                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColor),
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorDark),
                               textAlign: TextAlign.start,
                             )
                           ],

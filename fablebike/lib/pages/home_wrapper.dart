@@ -4,8 +4,10 @@ import 'package:fablebike/bloc/event_constants.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/routes.dart';
+import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:fablebike/pages/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'home.dart';
 import 'objectives.dart';
@@ -58,8 +60,8 @@ class _HomeWrapperState extends State<HomeWrapper> {
                 child: Container(
                     child: BottomNavigationBar(
                         onTap: _onItemTapped,
-                        iconSize: 36,
-                        selectedIconTheme: IconThemeData(size: 42),
+                        iconSize: 42,
+                        selectedIconTheme: IconThemeData(size: 46),
                         type: BottomNavigationBarType.fixed,
                         showUnselectedLabels: false,
                         selectedLabelStyle: TextStyle(fontFamily: 'Lato', color: Colors.black),
@@ -69,19 +71,39 @@ class _HomeWrapperState extends State<HomeWrapper> {
                         currentIndex: _selectedIndex,
                         items: <BottomNavigationBarItem>[
                       BottomNavigationBarItem(
-                        icon: _selectedIndex == 0 ? Icon(Icons.home) : Icon(Icons.home_outlined),
+                        icon: _selectedIndex == 0
+                            ? GradientIcon(
+                                Icons.home,
+                                42,
+                              )
+                            : Icon(Icons.home_outlined),
                         label: context.read<LanguageManager>().appHome,
                       ),
                       BottomNavigationBarItem(
-                        icon: _selectedIndex == 1 ? Icon(Icons.explore) : Icon(Icons.explore_outlined),
+                        icon: _selectedIndex == 1
+                            ? GradientIcon(
+                                Icons.explore,
+                                42,
+                              )
+                            : Icon(Icons.explore_outlined),
                         label: context.read<LanguageManager>().appExplore,
                       ),
                       BottomNavigationBarItem(
-                        icon: _selectedIndex == 2 ? Icon(Icons.map) : Icon(Icons.map_outlined),
+                        icon: _selectedIndex == 2
+                            ? GradientIcon(
+                                Icons.map,
+                                42,
+                              )
+                            : Icon(Icons.map_outlined),
                         label: context.read<LanguageManager>().appRoutes,
                       ),
                       BottomNavigationBarItem(
-                        icon: _selectedIndex == 3 ? Icon(Icons.settings) : Icon(Icons.settings_outlined),
+                        icon: _selectedIndex == 3
+                            ? GradientIcon(
+                                Icons.settings,
+                                42,
+                              )
+                            : Icon(Icons.settings_outlined),
                         label: context.read<LanguageManager>().appSettings,
                       ),
                     ])),

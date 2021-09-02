@@ -79,12 +79,12 @@ class AuthenticationService {
     await db.delete('usericon', where: 'created_on <= ?', whereArgs: [dc]);
 
     for (var i = 0; i < loggedUser.routes.length; i++) {
-      await db.update('Route', {'rating': loggedUser.routes[i].rating, 'rating_count': loggedUser.routes[i].ratingCount},
+      await db.update('route', {'rating': loggedUser.routes[i].rating, 'rating_count': loggedUser.routes[i].ratingCount},
           where: 'id = ?', whereArgs: [loggedUser.routes[i].objectId]);
     }
 
     for (var i = 0; i < loggedUser.objectives.length; i++) {
-      await db.update('Objective', {'rating': loggedUser.objectives[i].rating, 'rating_count': loggedUser.objectives[i].ratingCount},
+      await db.update('objective', {'rating': loggedUser.objectives[i].rating, 'rating_count': loggedUser.objectives[i].ratingCount},
           where: 'id = ?', whereArgs: [loggedUser.objectives[i].objectId]);
     }
 

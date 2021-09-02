@@ -98,7 +98,17 @@ class _CommentSectionState extends State<CommentSection> {
                                       Expanded(
                                         child: ElevatedButton(
                                           child: Icon(Icons.send_outlined),
-                                          onPressed: () async {},
+                                          onPressed: () async {
+                                            var result = await CommentService().addComment(route: widget.bikeRoute.id, message: commentController.text);
+                                            if (result != null) {
+                                              this.comments.insert(0, result);
+                                              this.setState(() {
+                                                forceRemake = true;
+                                                widget.bikeRoute.commentCount += 1;
+                                              });
+                                            }
+                                            commentController.text = '';
+                                          },
                                           style: ElevatedButton.styleFrom(
                                               primary: Theme.of(context).primaryColorDark,
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(128.0)))),

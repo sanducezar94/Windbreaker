@@ -4,6 +4,7 @@ import 'package:colorful_safe_area/colorful_safe_area.dart';
 import 'package:fablebike/bloc/objective_bloc.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/objective.dart';
+import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/objective_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
@@ -68,7 +69,7 @@ class _ObjectivesScreen extends State<ObjectivesScreen> {
                                               eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
                                         },
                                         decoration: InputDecoration(
-                                            prefixIcon: Icon(Icons.search),
+                                            prefixIcon: GradientIcon(Icons.search, 22),
                                             fillColor: Colors.white,
                                             hintStyle: TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.5)),
                                             filled: true,

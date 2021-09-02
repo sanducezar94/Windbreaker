@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/pages/objective.dart';
+import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -64,11 +65,13 @@ class CardBuilder {
         Padding(
             child: Container(
                 child: InkWell(
-              child: Icon(
-                Icons.star,
-                color: rating > i ? Theme.of(context).primaryColor : Colors.grey,
-                size: size,
-              ),
+              child: rating > i
+                  ? GradientIcon(Icons.star, size)
+                  : Icon(
+                      Icons.star,
+                      color: Colors.grey,
+                      size: size,
+                    ),
               onTap: () {
                 callBack(i + 1);
               },

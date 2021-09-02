@@ -1,3 +1,4 @@
+import 'package:fablebike/pages/sections/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -195,43 +196,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 Expanded(
                                   child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 8),
-                                      child: Container(
-                                          child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(
-                                            child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                                  elevation: 12.0,
-                                                ),
-                                                onPressed: () async {
-                                                  if (userController.text.isEmpty || passwordController.text.isEmpty) return;
-                                                  if (formKey.currentState.validate()) {
-                                                    Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-                                                    var response = await context
-                                                        .read<AuthenticationService>()
-                                                        .signIn(email: userController.text, password: passwordController.text);
-                                                    Loader.hide();
-                                                    if (!response.success) {
-                                                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                          duration: const Duration(milliseconds: 1500),
-                                                          backgroundColor: Theme.of(context).errorColor,
-                                                          content: Text(response.message)));
-                                                    }
-                                                  }
-                                                },
-                                                child: Text(
-                                                  context.read<LanguageManager>().login,
-                                                  style: TextStyle(fontSize: 20, color: Colors.white, fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
-                                                )),
-                                            flex: 1,
-                                          )
-                                        ],
-                                      ))),
-                                  flex: (flexer * 1.2).toInt(),
+                                      padding: EdgeInsets.symmetric(horizontal: 0),
+                                      child: RoundedButtonWidget(
+                                        buttonText: "Logare",
+                                        width: width,
+                                        onpressed: () async {
+                                          if (userController.text.isEmpty || passwordController.text.isEmpty) return;
+                                          if (formKey.currentState.validate()) {
+                                            Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+                                            var response = await context
+                                                .read<AuthenticationService>()
+                                                .signIn(email: userController.text, password: passwordController.text);
+                                            Loader.hide();
+                                            if (!response.success) {
+                                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                  duration: const Duration(milliseconds: 1500),
+                                                  backgroundColor: Theme.of(context).errorColor,
+                                                  content: Text(response.message)));
+                                            }
+                                          }
+                                        },
+                                      )),
+                                  flex: (flexer * 1.5).toInt(),
                                 ),
                                 Spacer(
                                   flex: 3,

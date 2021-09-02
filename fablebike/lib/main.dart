@@ -63,6 +63,7 @@ class MyApp extends StatelessWidget {
             fontFamily: 'Lato',
             scaffoldBackgroundColor: Color.fromRGBO(252, 254, 255, 1),
             primaryColor: Color.fromRGBO(20, 148, 166, 1),
+            splashColor: Color.fromRGBO(157, 207, 78, 1),
             cardColor: Color.fromRGBO(252, 254, 255, 1),
             hintColor: Color.fromRGBO(64, 86, 84, 0.5),
             accentColor: Color.fromRGBO(64, 86, 84, 1),

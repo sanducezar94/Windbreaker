@@ -10,6 +10,7 @@ import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/pages/sections/comments_section.dart';
+import 'package:fablebike/pages/sections/map_elevation.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
@@ -19,7 +20,6 @@ import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong/latlong.dart';
-import 'package:map_elevation/map_elevation.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 

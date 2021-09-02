@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:fablebike/models/comments.dart';
-import 'package:flutter/foundation.dart';
+import 'package:fablebike/pages/sections/map_elevation.dart';
 import 'package:latlong/latlong.dart';
-import 'package:map_elevation/map_elevation.dart';
-import 'package:proj4dart/proj4dart.dart';
 
 class BikeRoute {
   int id;

@@ -30,20 +30,24 @@ class BookmarkBloc {
 
   Future<void> _mapEventToState(BookmarkBlocEvent event) async {
     List<Objective> _returnList = [];
-    switch (event.eventType) {
-      case BookmarkEventType.BookmarkInitializeEvent:
-        _returnList = await _getBookmarks(event.args['user_id']);
-        _initialObjectives = _returnList.toList();
-        break;
-      case BookmarkEventType.BookmarkDeleteEvent:
-        _returnList = _objectives.where((element) => element.id != event.args['index']).toList();
-        _initialObjectives = _returnList.toList();
-        break;
-      case BookmarkEventType.BookmarkSearchEvent:
-        if (_initialObjectives == null || _initialObjectives.isEmpty) break;
-        var searchQuery = event.args['search_query'].toString().toLowerCase();
-        _returnList = _initialObjectives.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
-        break;
+    try {
+      switch (event.eventType) {
+        case BookmarkEventType.BookmarkInitializeEvent:
+          _returnList = await _getBookmarks(event.args['user_id']);
+          _initialObjectives = _returnList.toList();
+          break;
+        case BookmarkEventType.BookmarkDeleteEvent:
+          _returnList = _objectives.where((element) => element.id != event.args['index']).toList();
+          _initialObjectives = _returnList.toList();
+          break;
+        case BookmarkEventType.BookmarkSearchEvent:
+          if (_initialObjectives == null || _initialObjectives.isEmpty) break;
+          var searchQuery = event.args['search_query'].toString().toLowerCase();
+          _returnList = _initialObjectives.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
+          break;
+      }
+    } on Exception {
+      _returnList = [];
     }
     _input.add(_returnList);
   }

@@ -6,6 +6,7 @@ import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/filters.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/route_map.dart';
+import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
@@ -193,7 +194,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                         },
                                         controller: searchController,
                                         decoration: InputDecoration(
-                                            prefixIcon: Icon(Icons.search),
+                                            prefixIcon: GradientIcon(Icons.search, 22),
                                             fillColor: Colors.white,
                                             hintStyle: TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.5)),
                                             filled: true,

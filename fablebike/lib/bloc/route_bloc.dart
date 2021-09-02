@@ -30,31 +30,39 @@ class RouteBloc {
 
   Future<void> _mapEventToState(RouteBlocEvent event) async {
     List<BikeRoute> _returnList = [];
-    switch (event.eventType) {
-      case RouteEventType.RouteInitializeEvent:
-        _returnList = await _getAllRoutes();
-        _initialRoutes = _returnList.toList();
-        break;
-      case RouteEventType.RouteSearchEvent:
-        if (_initialRoutes == null || _initialRoutes.isEmpty) break;
-        var searchQuery = event.args['search_query'].toString().toLowerCase();
-        _returnList = _initialRoutes.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
-        break;
-      case RouteEventType.RouteRateEvent:
-        var route = _initialRoutes.where((c) => c.id == event.args['id']).first;
-        if (route != null) route.rating = event.args['rating'];
-        _returnList = _initialRoutes;
-        break;
+    try {
+      switch (event.eventType) {
+        case RouteEventType.RouteInitializeEvent:
+          _returnList = await _getAllRoutes();
+          _initialRoutes = _returnList.toList();
+          break;
+        case RouteEventType.RouteSearchEvent:
+          if (_initialRoutes == null || _initialRoutes.isEmpty) break;
+          var searchQuery = event.args['search_query'].toString().toLowerCase();
+          _returnList = _initialRoutes.where((c) => c.name.toLowerCase().contains(searchQuery)).toList();
+          break;
+        case RouteEventType.RouteRateEvent:
+          var route = _initialRoutes.where((c) => c.id == event.args['id']).first;
+          if (route != null) route.rating = event.args['rating'];
+          _returnList = _initialRoutes;
+          break;
+      }
+    } on Exception {
+      _returnList = [];
     }
     _input.add(_returnList);
   }
 
   Future<List<BikeRoute>> _getAllRoutes() async {
-    var db = await DatabaseService().database;
+    try {
+      var db = await DatabaseService().database;
 
-    var routeRows = await db.query('route');
-    var routes = List.generate(routeRows.length, (i) => BikeRoute.fromJson(routeRows[i]));
-    return routes;
+      var routeRows = await db.query('route');
+      var routes = List.generate(routeRows.length, (i) => BikeRoute.fromJson(routeRows[i]));
+      return routes;
+    } on Exception {
+      return [];
+    }
   }
 
   void dispose() {
