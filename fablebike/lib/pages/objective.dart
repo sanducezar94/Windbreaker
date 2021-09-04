@@ -283,105 +283,6 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         SizedBox(height: bigDivider),
                         Row(children: [
                           Text(
-                            "Poze",
-                            style: Theme.of(context).textTheme.headline2,
-                            textAlign: TextAlign.start,
-                          )
-                        ]),
-                        SizedBox(height: smallDivider),
-                        Container(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                  child: Padding(
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            child: ClipRRect(
-                                                child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.175, fit: BoxFit.cover),
-                                                borderRadius: BorderRadius.circular(12.0)),
-                                            decoration: BoxDecoration(boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
-                                            ]),
-                                          ),
-                                          SizedBox(height: bigDivider),
-                                          Container(
-                                            child: ClipRRect(
-                                                child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.35, fit: BoxFit.cover),
-                                                borderRadius: BorderRadius.circular(12.0)),
-                                            decoration: BoxDecoration(boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
-                                            ]),
-                                          ),
-                                        ],
-                                      ),
-                                      padding: EdgeInsets.fromLTRB(0, 4, 8, 0))),
-                              Expanded(
-                                  child: Padding(
-                                      child: Column(
-                                        children: [
-                                          SizedBox(height: bigDivider * 2),
-                                          Container(
-                                            child: ClipRRect(
-                                                child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.35, fit: BoxFit.cover),
-                                                borderRadius: BorderRadius.circular(12.0)),
-                                            decoration: BoxDecoration(boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
-                                            ]),
-                                          ),
-                                          SizedBox(height: bigDivider),
-                                          Container(
-                                            child: ClipRRect(
-                                                child: Stack(
-                                                  children: [
-                                                    Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.175, fit: BoxFit.cover),
-                                                    Container(
-                                                      height: height * 0.175,
-                                                      decoration: BoxDecoration(
-                                                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                          color: Colors.white,
-                                                          gradient:
-                                                              LinearGradient(begin: FractionalOffset.topCenter, end: FractionalOffset.bottomCenter, colors: [
-                                                            Colors.black.withOpacity(0.25),
-                                                            Colors.black.withOpacity(0.75),
-                                                          ], stops: [
-                                                            0,
-                                                            1
-                                                          ]),
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                                color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
-                                                          ]),
-                                                      width: width,
-                                                    ),
-                                                    Container(
-                                                      height: height * 0.175,
-                                                      width: width * 0.5,
-                                                      child: Align(
-                                                        alignment: Alignment.center,
-                                                        child: Text(
-                                                          '+6 Poze',
-                                                          style: Theme.of(context).textTheme.headline3,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                borderRadius: BorderRadius.circular(12.0)),
-                                            decoration: BoxDecoration(boxShadow: [
-                                              BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))
-                                            ]),
-                                          ),
-                                        ],
-                                      ),
-                                      padding: EdgeInsets.fromLTRB(8, 4, 0, 0)))
-                            ],
-                          ),
-                          width: 999,
-                          height: bigDivider * 1 + height * 0.65,
-                        ),
-                        Row(children: [
-                          Text(
                             context.read<LanguageManager>().routeEvaluate,
                             style: Theme.of(context).textTheme.headline2,
                             textAlign: TextAlign.start,
@@ -442,7 +343,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                             GradientIcon(Icons.phone, 36),
                             SizedBox(width: 20),
                             Text(
-                              "www.bisericadepedeal.ro",
+                              "+(40) 75 111 2233",
                               style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorDark),
                               textAlign: TextAlign.start,
                             )
@@ -465,10 +366,10 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                         Row(
                           children: [
                             SizedBox(width: 16),
-                            GradientIcon(Icons.contact_mail, 36),
+                            GradientIcon(Icons.mail, 36),
                             SizedBox(width: 20),
                             Text(
-                              "www.bisericadepedeal.ro",
+                              "bisericadeal@gmail.com",
                               style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorDark),
                               textAlign: TextAlign.start,
                             )

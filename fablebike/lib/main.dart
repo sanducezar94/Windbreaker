@@ -17,6 +17,7 @@ import 'package:fablebike/pages/settings.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/utils/utils.dart';
 
 import './pages/home.dart';
 import './pages/routes.dart';
@@ -43,6 +44,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var textColor = Color.fromRGBO(24, 55, 45, 1);
     return MultiProvider(
       providers: [
         Provider<AuthenticationService>(
@@ -61,9 +63,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             fontFamily: 'Lato',
-            scaffoldBackgroundColor: Color.fromRGBO(252, 254, 255, 1),
+            scaffoldBackgroundColor: Color.fromRGBO(251, 254, 255, 1),
             primaryColor: Color.fromRGBO(20, 148, 166, 1),
-            splashColor: Color.fromRGBO(157, 207, 78, 1),
+            // splashColor: Color.fromRGBO(157, 207, 78, 1),
             cardColor: Color.fromRGBO(252, 254, 255, 1),
             hintColor: Color.fromRGBO(64, 86, 84, 0.5),
             accentColor: Color.fromRGBO(64, 86, 84, 1),
@@ -77,14 +79,14 @@ class MyApp extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0))),
             ),
             textTheme: TextTheme(
-              subtitle1: TextStyle(fontSize: 18.0, color: Color.fromRGBO(64, 86, 84, 0.5), fontFamily: 'Nunito'),
-              headline1: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Color.fromRGBO(64, 86, 84, 1), fontFamily: 'Lato'),
-              headline2: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Color.fromRGBO(64, 86, 84, 1).withOpacity(0.75), fontFamily: 'Lato'),
+              subtitle1: TextStyle(fontSize: 18.0, color: textColor.withOpacity(0.5), fontFamily: 'Nunito'),
+              headline1: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: textColor.withOpacity(0.9), fontFamily: 'Lato'),
+              headline2: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: textColor.withOpacity(0.75), fontFamily: 'Lato'),
               headline3: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Lato'),
               headline4: TextStyle(fontSize: 16.0, color: Colors.white70, fontFamily: 'Lato'),
-              subtitle2: TextStyle(fontSize: 14.0, color: Color.fromRGBO(64, 86, 84, 1).withOpacity(1), fontFamily: 'Nunito'),
-              bodyText2: TextStyle(fontSize: 14.0, color: Color.fromRGBO(64, 86, 84, 1).withOpacity(0.8), fontFamily: 'Nunito'),
-              bodyText1: TextStyle(fontSize: 17.0, color: Color.fromRGBO(64, 86, 84, 1), fontWeight: FontWeight.bold, fontFamily: 'Lato'),
+              subtitle2: TextStyle(fontSize: 14.0, color: textColor.withOpacity(1), fontFamily: 'Nunito'),
+              bodyText2: TextStyle(fontSize: 14.0, color: textColor.withOpacity(0.8), fontFamily: 'Nunito'),
+              bodyText1: TextStyle(fontSize: 17.0, color: textColor, fontWeight: FontWeight.bold, fontFamily: 'Lato'),
             )),
         home: AuthenticationWrapper(),
         routes: <String, WidgetBuilder>{

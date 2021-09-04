@@ -8,6 +8,12 @@ import 'package:flutter/material.dart';
 class CardBuilder {
   static double circularRadius = 12.0;
   static Widget buildProfileBar(BuildContext context, String tab, String subtitle) {
+    final Shader linearGradient = LinearGradient(
+      colors: <Color>[
+        Theme.of(context).accentColor,
+        Theme.of(context).primaryColorDark,
+      ],
+    ).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
     return Row(
       children: [
         Expanded(
@@ -87,6 +93,7 @@ class CardBuilder {
         padding: index == 0 ? EdgeInsets.fromLTRB(0, 6, 10.0, 6) : EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
         child: InkWell(
             onTap: () {
+              objective.userRating = 0;
               var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
               Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo);
             },
@@ -474,5 +481,106 @@ class CardBuilder {
             ],
           )),
     );
+  }
+
+  static Widget buildPreviewGallery(BuildContext context) {
+    double smallDivider = 10.0;
+    double bigDivider = 20.0;
+    double width = MediaQuery.of(context).size.width;
+    double height = max(656, MediaQuery.of(context).size.height - 80);
+
+    return Column(children: [
+      Row(children: [
+        Text(
+          "Poze",
+          style: Theme.of(context).textTheme.headline2,
+          textAlign: TextAlign.start,
+        )
+      ]),
+      SizedBox(height: smallDivider),
+      Container(
+        child: Row(
+          children: [
+            Expanded(
+                child: Padding(
+                    child: Column(
+                      children: [
+                        Container(
+                          child: ClipRRect(
+                              child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.175, fit: BoxFit.cover),
+                              borderRadius: BorderRadius.circular(12.0)),
+                          decoration: BoxDecoration(
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))]),
+                        ),
+                        SizedBox(height: bigDivider),
+                        Container(
+                          child: ClipRRect(
+                              child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.35, fit: BoxFit.cover),
+                              borderRadius: BorderRadius.circular(12.0)),
+                          decoration: BoxDecoration(
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))]),
+                        ),
+                      ],
+                    ),
+                    padding: EdgeInsets.fromLTRB(0, 4, 8, 0))),
+            Expanded(
+                child: Padding(
+                    child: Column(
+                      children: [
+                        SizedBox(height: bigDivider * 2),
+                        Container(
+                          child: ClipRRect(
+                              child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.35, fit: BoxFit.cover),
+                              borderRadius: BorderRadius.circular(12.0)),
+                          decoration: BoxDecoration(
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))]),
+                        ),
+                        SizedBox(height: bigDivider),
+                        Container(
+                          child: ClipRRect(
+                              child: Stack(
+                                children: [
+                                  Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.175, fit: BoxFit.cover),
+                                  Container(
+                                    height: height * 0.175,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        color: Colors.white,
+                                        gradient: LinearGradient(begin: FractionalOffset.topCenter, end: FractionalOffset.bottomCenter, colors: [
+                                          Colors.black.withOpacity(0.25),
+                                          Colors.black.withOpacity(0.75),
+                                        ], stops: [
+                                          0,
+                                          1
+                                        ]),
+                                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))]),
+                                    width: width,
+                                  ),
+                                  Container(
+                                    height: height * 0.175,
+                                    width: width * 0.5,
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        '+6 Poze',
+                                        style: Theme.of(context).textTheme.headline3,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(12.0)),
+                          decoration: BoxDecoration(
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 0))]),
+                        ),
+                      ],
+                    ),
+                    padding: EdgeInsets.fromLTRB(8, 4, 0, 0)))
+          ],
+        ),
+        width: 999,
+        height: bigDivider * 1 + height * 0.65,
+      )
+    ]);
   }
 }

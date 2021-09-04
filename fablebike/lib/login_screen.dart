@@ -196,9 +196,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 Expanded(
                                   child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 0),
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
                                       child: RoundedButtonWidget(
-                                        buttonText: "Logare",
+                                        child: Text(
+                                          "Logare",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            // fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                         width: width,
                                         onpressed: () async {
                                           if (userController.text.isEmpty || passwordController.text.isEmpty) return;
@@ -218,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           }
                                         },
                                       )),
-                                  flex: (flexer * 1.5).toInt(),
+                                  flex: (flexer * 1.1).toInt(),
                                 ),
                                 Spacer(
                                   flex: 3,
@@ -305,7 +312,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                           fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).accentColor.withOpacity(0.56))),
                                                   InkWell(
                                                     child: Text(context.read<LanguageManager>().createOne,
-                                                        style: TextStyle(fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).primaryColor)),
+                                                        style: TextStyle(fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).primaryColorDark)),
                                                     onTap: () async {
                                                       try {
                                                         var db = await DatabaseService().database;

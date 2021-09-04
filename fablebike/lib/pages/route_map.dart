@@ -276,42 +276,6 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                           SizedBox(height: bigDivider),
                           Row(children: [
                             Text(
-                              "Informatii",
-                              style: Theme.of(context).textTheme.headline2,
-                              textAlign: TextAlign.start,
-                            )
-                          ]),
-                          SizedBox(
-                            height: bigDivider,
-                          ),
-                          Container(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildMapStat(Icons.directions_bike, 'Distanta', '240 km'),
-                                  ),
-                                  Expanded(
-                                    child: _buildMapStat(Icons.access_time, 'Durata', '30 minute"'),
-                                  )
-                                ],
-                              ),
-                              height: height * 0.075),
-                          SizedBox(height: bigDivider),
-                          Container(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildMapStat(Icons.call_made_outlined, 'Elev. max', '889 m.'),
-                                  ),
-                                  Expanded(
-                                    child: _buildMapStat(Icons.call_received_outlined, 'Elev. min', '120 m.'),
-                                  )
-                                ],
-                              ),
-                              height: height * 0.075),
-                          SizedBox(height: bigDivider),
-                          Row(children: [
-                            Text(
                               "Harta",
                               style: Theme.of(context).textTheme.headline2,
                               textAlign: TextAlign.start,
@@ -345,7 +309,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                         ),
                                         PolylineLayerOptions(
                                           polylines: [
-                                            Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Theme.of(context).splashColor),
+                                            Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Theme.of(context).primaryColor),
                                           ],
                                         ),
                                         //LocationMarkerLayerOptions(),
@@ -429,122 +393,40 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                           ),
                           Row(children: [
                             Text(
-                              "Poze",
+                              "Informatii",
                               style: Theme.of(context).textTheme.headline2,
                               textAlign: TextAlign.start,
                             )
                           ]),
+                          SizedBox(
+                            height: bigDivider,
+                          ),
+                          Container(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMapStat(Icons.directions_bike, 'Distanta', '240 km'),
+                                  ),
+                                  Expanded(
+                                    child: _buildMapStat(Icons.access_time, 'Durata', '30 minute"'),
+                                  )
+                                ],
+                              ),
+                              height: height * 0.075),
                           SizedBox(height: bigDivider),
                           Container(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: Padding(
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              child: ClipRRect(
-                                                  child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.175, fit: BoxFit.cover),
-                                                  borderRadius: BorderRadius.circular(12.0)),
-                                              decoration: BoxDecoration(boxShadow: [
-                                                BoxShadow(
-                                                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                                                    spreadRadius: 6,
-                                                    blurRadius: 12,
-                                                    offset: Offset(0, 0))
-                                              ]),
-                                            ),
-                                            SizedBox(height: bigDivider),
-                                            Container(
-                                              child: ClipRRect(
-                                                  child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.35, fit: BoxFit.cover),
-                                                  borderRadius: BorderRadius.circular(12.0)),
-                                              decoration: BoxDecoration(boxShadow: [
-                                                BoxShadow(
-                                                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                                                    spreadRadius: 6,
-                                                    blurRadius: 12,
-                                                    offset: Offset(0, 0))
-                                              ]),
-                                            ),
-                                          ],
-                                        ),
-                                        padding: EdgeInsets.fromLTRB(0, 4, 16, 0))),
-                                Expanded(
-                                    child: Padding(
-                                        child: Column(
-                                          children: [
-                                            SizedBox(height: bigDivider * 2),
-                                            Container(
-                                              child: ClipRRect(
-                                                  child: Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.35, fit: BoxFit.cover),
-                                                  borderRadius: BorderRadius.circular(12.0)),
-                                              decoration: BoxDecoration(boxShadow: [
-                                                BoxShadow(
-                                                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                                                    spreadRadius: 6,
-                                                    blurRadius: 12,
-                                                    offset: Offset(0, 0))
-                                              ]),
-                                            ),
-                                            SizedBox(height: bigDivider),
-                                            Container(
-                                              child: ClipRRect(
-                                                  child: Stack(
-                                                    children: [
-                                                      Image.asset('assets/icons/route.png', width: width * 0.5, height: height * 0.175, fit: BoxFit.cover),
-                                                      Container(
-                                                        height: height * 0.175,
-                                                        decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                                                            color: Colors.white,
-                                                            gradient:
-                                                                LinearGradient(begin: FractionalOffset.topCenter, end: FractionalOffset.bottomCenter, colors: [
-                                                              Colors.black.withOpacity(0.25),
-                                                              Colors.black.withOpacity(0.75),
-                                                            ], stops: [
-                                                              0,
-                                                              1
-                                                            ]),
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                  color: Theme.of(context).shadowColor.withOpacity(0.025),
-                                                                  spreadRadius: 2,
-                                                                  blurRadius: 6,
-                                                                  offset: Offset(0, 0))
-                                                            ]),
-                                                        width: width,
-                                                      ),
-                                                      Container(
-                                                        height: height * 0.175,
-                                                        width: width * 0.5,
-                                                        child: Align(
-                                                          alignment: Alignment.center,
-                                                          child: Text(
-                                                            '+6 Poze',
-                                                            style: Theme.of(context).textTheme.headline3,
-                                                          ),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(12.0)),
-                                              decoration: BoxDecoration(boxShadow: [
-                                                BoxShadow(
-                                                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                                                    spreadRadius: 6,
-                                                    blurRadius: 12,
-                                                    offset: Offset(0, 0))
-                                              ]),
-                                            ),
-                                          ],
-                                        ),
-                                        padding: EdgeInsets.fromLTRB(16, 4, 0, 0)))
-                              ],
-                            ),
-                            width: 999,
-                            height: bigDivider * 1 + height * 0.65,
-                          ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildMapStat(Icons.call_made_outlined, 'Elev. max', '889 m.'),
+                                  ),
+                                  Expanded(
+                                    child: _buildMapStat(Icons.call_received_outlined, 'Elev. min', '120 m.'),
+                                  )
+                                ],
+                              ),
+                              height: height * 0.075),
+                          SizedBox(height: bigDivider),
                           Row(children: [
                             Text(
                               context.read<LanguageManager>().routeEvaluate,
@@ -579,16 +461,18 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                           })),
                           SizedBox(height: smallDivider),
                           Row(children: [
-                            Padding(
-                                child: Text(
-                                    widget.bikeRoute.userRating == null || widget.bikeRoute.userRating == 0.0
-                                        ? 'Nu ai evaluat inca traseul.'
-                                        : 'Ai acordat ' +
-                                            widget.bikeRoute.userRating.toString() +
-                                            (widget.bikeRoute.userRating == 1 ? ' stea' : ' stele') +
-                                            ' acestui traseu!',
-                                    style: Theme.of(context).textTheme.subtitle1),
-                                padding: EdgeInsets.symmetric(horizontal: 16.0))
+                            Expanded(
+                              child: Align(
+                                  child: Text(
+                                      widget.bikeRoute.userRating == null || widget.bikeRoute.userRating == 0.0
+                                          ? 'Nu ai evaluat inca traseul.'
+                                          : 'Ai acordat ' +
+                                              widget.bikeRoute.userRating.toString() +
+                                              (widget.bikeRoute.userRating == 1 ? ' stea' : ' stele') +
+                                              ' acestui traseu!',
+                                      style: Theme.of(context).textTheme.subtitle1),
+                                  alignment: Alignment.center),
+                            )
                           ]),
                           SizedBox(height: bigDivider),
                           Row(children: [
@@ -634,13 +518,13 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                             Expanded(
                               flex: 1,
                               child: Align(
-                                  alignment: Alignment.centerLeft,
+                                  alignment: Alignment.center,
                                   child: InkWell(
                                     child: Text(
                                       'Vezi toate comentariile (' +
                                           (widget.bikeRoute.commentCount != null ? widget.bikeRoute.commentCount : 0).toString() +
                                           ')',
-                                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+                                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColorDark),
                                       textAlign: TextAlign.start,
                                     ),
                                     onTap: () {

@@ -2,42 +2,34 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RoundedButtonWidget extends StatelessWidget {
-  final String buttonText;
+  final Widget child;
   final double width;
+  final BorderRadius borderRadius;
   final Function onpressed;
 
-  RoundedButtonWidget({
-    this.buttonText,
-    this.width,
-    this.onpressed,
-  });
+  RoundedButtonWidget({this.child, this.width, this.onpressed, this.borderRadius});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(0.0),
       child: Container(
         decoration: BoxDecoration(
-          boxShadow: [BoxShadow(color: Colors.black26, offset: Offset(0, 4), blurRadius: 5.0)],
+          boxShadow: [BoxShadow(color: Colors.black12, offset: Offset(0, 4), blurRadius: 8.0)],
           gradient: LinearGradient(
             begin: Alignment.bottomLeft,
             end: Alignment.topRight,
             stops: [0, 1],
             colors: [
               Theme.of(context).primaryColor,
-              Theme.of(context).splashColor,
+              Color.fromRGBO(157, 207, 78, 1),
             ],
           ),
           color: Colors.deepPurple.shade300,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: borderRadius == null ? BorderRadius.circular(12) : borderRadius,
         ),
         child: ElevatedButton(
           style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-            ),
             minimumSize: MaterialStateProperty.all(Size(width, 50)),
             backgroundColor: MaterialStateProperty.all(Colors.transparent),
             // elevation: MaterialStateProperty.all(3),
@@ -47,19 +39,11 @@ class RoundedButtonWidget extends StatelessWidget {
             onpressed();
           },
           child: Padding(
-            padding: const EdgeInsets.only(
-              top: 10,
-              bottom: 10,
-            ),
-            child: Text(
-              buttonText,
-              style: TextStyle(
-                fontSize: 18,
-                // fontWeight: FontWeight.w700,
-                color: Colors.white,
+              padding: const EdgeInsets.only(
+                top: 8,
+                bottom: 8,
               ),
-            ),
-          ),
+              child: child),
         ),
       ),
     );

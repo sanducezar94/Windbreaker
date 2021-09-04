@@ -30,7 +30,7 @@ class GradientIcon extends StatelessWidget {
           stops: [0.25, 1],
           colors: [
             Theme.of(context).primaryColor,
-            Theme.of(context).splashColor,
+            Color.fromRGBO(157, 207, 78, 1),
           ],
         ).createShader(rect);
       },
