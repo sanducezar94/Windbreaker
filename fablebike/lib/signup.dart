@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:fablebike/pages/image_picker.dart';
+import 'package:fablebike/pages/sections/rounded_button.dart';
 import 'package:fablebike/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +48,7 @@ class _SignUpScreen extends State<SignUpScreen> {
         appBar: AppBar(
           title: Text(
             context.read<LanguageManager>().createAccount,
-            style: Theme.of(context).textTheme.headline3,
+            style: Theme.of(context).textTheme.headline1,
           ),
           iconTheme: IconThemeData(color: Colors.black),
           shadowColor: Colors.white54,
@@ -110,7 +111,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                           child: InkWell(
                               child: Text(
                                 context.read<LanguageManager>().pickImage,
-                                style: Theme.of(context).textTheme.headline4,
+                                style: TextStyle(fontSize: 16, fontFamily: 'OpenSans', color: Theme.of(context).primaryColorDark),
                               ),
                               onTap: () async {
                                 Navigator.pushNamed(context, ImagePickerScreen.route).then((value) {
@@ -219,6 +220,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                                       return null;
                                     },
                                     style: formFieldStyle,
+                                    obscureText: true,
                                     textAlignVertical: TextAlignVertical.bottom,
                                     controller: passwordController,
                                     decoration: InputDecoration(
@@ -264,6 +266,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                                     style: formFieldStyle,
                                     textAlignVertical: TextAlignVertical.bottom,
                                     controller: passwordDuplicateController,
+                                    obscureText: true,
                                     decoration: InputDecoration(
                                         prefixIcon: Icon(Icons.lock_outlined),
                                         fillColor: Colors.white,
@@ -295,37 +298,39 @@ class _SignUpScreen extends State<SignUpScreen> {
                               SizedBox(
                                 height: 60,
                                 width: 999,
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                      elevation: 10.0,
+                                child: RoundedButtonWidget(
+                                  child: Text(
+                                    context.read<LanguageManager>().createAccount,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      // fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
-                                    onPressed: () async {
-                                      setState(() {
-                                        canValidate = true;
-                                      });
-                                      if (formKey.currentState.validate()) {
-                                        if (emailError.isNotEmpty && nameError.isNotEmpty && passwordError.isNotEmpty && confirmPasswordError.isNotEmpty) {
-                                          isValid = false;
-                                          return;
-                                        }
-                                        var response = await context
-                                            .read<AuthenticationService>()
-                                            .signUp(user: userController.text, email: emailController.text, password: passwordController.text);
-
-                                        if (!response.success) {
-                                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                              duration: const Duration(milliseconds: 1500),
-                                              backgroundColor: Theme.of(context).errorColor,
-                                              content: Text(response.message)));
-                                        }
+                                  ),
+                                  width: 9999,
+                                  onpressed: () async {
+                                    setState(() {
+                                      canValidate = true;
+                                    });
+                                    if (formKey.currentState.validate()) {
+                                      if (emailError.isNotEmpty && nameError.isNotEmpty && passwordError.isNotEmpty && confirmPasswordError.isNotEmpty) {
+                                        isValid = false;
+                                        return;
                                       }
-                                    },
-                                    child: Text(
-                                      context.read<LanguageManager>().createAccount,
-                                      style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-                                    )),
+                                      var response = await context
+                                          .read<AuthenticationService>()
+                                          .signUp(user: userController.text, email: emailController.text, password: passwordController.text);
+
+                                      if (!response.success) {
+                                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                            duration: const Duration(milliseconds: 1500),
+                                            backgroundColor: Theme.of(context).errorColor,
+                                            content: Text(response.message)));
+                                      }
+                                    }
+                                  },
+                                ),
                               ),
                             ],
                           ),

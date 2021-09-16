@@ -8,9 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'storage_service.dart';
 
 //const SERVER_IP = '192.168.1.251:8080';
-const SERVER_IP = 'lighthousestudio.ro/api/fablebike';
-const FILE_UPLOAD = '/auth/user_icon';
-const FILE_GET = '/auth/user_icon';
+const SERVER_IP = 'lighthousestudio.ro';
+const FILE_UPLOAD = '/api/fablebike/auth/user_icon';
+const FILE_GET = '/api/fablebike/auth/user_icon';
 
 class UserService {
   Future<bool> uploadProfileImage(Uint8List imageBytes, String filename) async {
