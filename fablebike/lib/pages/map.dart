@@ -9,6 +9,7 @@ import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/sections/comments_section.dart';
+import 'package:fablebike/services/connectivity_helper.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/carousel.dart';
 import 'package:flutter/gestures.dart';
@@ -54,49 +55,20 @@ class MapWidget extends StatefulWidget {
 
 class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   final ScrollController listViewController = ScrollController();
-  bool isLoading = false;
+  double rotation = 0, size = 12.0, kmTraveled = 0;
+  LatLng hoverPoint = LatLng(0, 0), center = LatLng(0, 0);
+  bool isLoading = false, init = false;
   String currentRoute = "poi";
-  double rotation = 0;
-  double size = 12.0;
-  bool init = false;
-  int currentPoint = 0;
+  int currentPoint = 0, stars = 0;
   MapController mapController = MapController();
-  double kmTraveled = 0;
-  var hoverPoint = LatLng(0, 0);
   var currentTab = 'poi';
-  LatLng center = LatLng(0, 0);
 
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  StreamSubscription<ConnectivityResult> _connectivitySubscription;
-  int _stars = 0;
-
-  Future<void> initConnectivity() async {
-    ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    this.setState(() {
-      _connectionStatus = result;
-    });
-  }
+  StreamSubscription _connectionChangeStream;
 
   @override
   void initState() {
     super.initState();
-    initConnectivity();
-    _stars = widget.bikeRoute.userRating;
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      this.setState(() {
-        _connectionStatus = result;
-      });
-    });
+    stars = widget.bikeRoute.userRating;
   }
 
   void goToPoint(LatLng dest) {
@@ -144,11 +116,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     return InkWell(
       child: Icon(
         Icons.star,
-        color: _stars >= starCount ? Theme.of(context).primaryColor : Colors.grey,
+        color: stars >= starCount ? Theme.of(context).primaryColor : Colors.grey,
         size: 40,
       ),
       onTap: () async {
-        _stars = starCount;
+        stars = starCount;
         var newRating = await RouteService().rateRoute(rating: starCount, route_id: widget.bikeRoute.id);
         setState(() {
           if (newRating != null && newRating != 0.0) {

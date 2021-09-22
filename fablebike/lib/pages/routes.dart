@@ -8,6 +8,7 @@ import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/route_map.dart';
 import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/navigator_helper.dart';
 import 'package:fablebike/services/route_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/routes_carousel.dart';
@@ -101,66 +102,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
       return popularRoutes;
     }
     return bikeRoutes;
-  }
-
-  _goToRoute(BikeRoute route) async {
-    try {
-      Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-      var database = await DatabaseService().database;
-      var routes = await database.query('route', where: 'id = ?', whereArgs: [route.id]);
-
-      var coords = await database.query('coord', where: 'route_id = ?', whereArgs: [route.id]);
-
-      var objToRoutes = await database.query('objectivetoroute', where: 'route_id = ?', whereArgs: [route.id]);
-
-      List<Objective> objectives = [];
-      for (var i = 0; i < objToRoutes.length; i++) {
-        var objRow = await database.query('objective', where: 'id = ?', whereArgs: [objToRoutes[i]['objective_id']]);
-        if (objRow.length > 1 || objRow.length == 0) continue;
-        objectives.add(Objective.fromJson(objRow.first));
-      }
-
-      var bikeRoute = new BikeRoute.fromJson(routes.first);
-      bikeRoute.coordinates = List.generate(coords.length, (i) {
-        return Coordinates.fromJson(coords[i]);
-      });
-      bikeRoute.rtsCoordinates = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toLatLng());
-      bikeRoute.elevationPoints = List.generate(coords.length, (i) => bikeRoute.coordinates[i].toElevationPoint());
-      bikeRoute.objectives = objectives;
-
-      var serverRoute = await RouteService().getRoute(route_id: bikeRoute.id);
-
-      if (serverRoute != null) {
-        await database.update('route', {'rating': serverRoute.rating, 'rating_count': serverRoute.ratingCount}, where: 'id = ?', whereArgs: [bikeRoute.id]);
-        bikeRoute.rating = serverRoute.rating;
-        bikeRoute.ratingCount = serverRoute.ratingCount;
-        bikeRoute.commentCount = serverRoute.commentCount;
-        bikeRoute.userRating = serverRoute.userRating;
-      }
-
-      var db = await DatabaseService().database;
-
-      var pinnedRouteRow = await db.query('routepinnedcomment', where: 'route_id = ?', whereArgs: [bikeRoute.id]);
-      if (pinnedRouteRow.length > 0) {
-        bikeRoute.pinnedComment = RoutePinnedComment.fromMap(pinnedRouteRow.first);
-      }
-      Navigator.of(context).pushNamed(RouteMapScreen.route, arguments: bikeRoute).then((newRating) async {
-        var finalRating = newRating as double;
-
-        if (newRating == null) {
-          var db = await DatabaseService().database;
-          var routeRow = await db.query('route', where: 'id = ?', whereArgs: [bikeRoute.id]);
-          if (routeRow.length > 0) finalRating = routeRow.first['rating'];
-        }
-        if (finalRating != null && finalRating > 0.0) {
-          _bloc.objectiveEventSync.add(RouteBlocEvent(eventType: RouteEventType.RouteRateEvent, args: {'id': bikeRoute.id, 'rating': finalRating}));
-          _bloc.objectiveEventSync.add(RouteBlocEvent(eventType: RouteEventType.RouteSearchEvent, args: {'search_query': searchController.text}));
-        }
-      });
-      Loader.hide();
-    } on Exception catch (e) {
-      Loader.hide();
-    }
   }
 
   @override
@@ -275,7 +216,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                             child: CardBuilder.buildBigRouteCard(context, snapshot.data[i]),
                                           ),
                                           onTap: () async {
-                                            _goToRoute(snapshot.data[i]);
+                                            await NavigatorHelper().goToRoute(snapshot.data[i], context);
                                           },
                                         ),
                                         padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),

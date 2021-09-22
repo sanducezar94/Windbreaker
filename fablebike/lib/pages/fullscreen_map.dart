@@ -24,6 +24,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 LatLng myLocation = LatLng(46.45447, 27.72501);
+const NO_USER = -1;
 
 class FullScreenMap extends StatefulWidget {
   static String route = '/route_map';
@@ -40,6 +41,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
   final _searchBlock = ObjectiveBloc();
   TextEditingController searchController = TextEditingController();
   MapController mapController = MapController();
+
   final Connectivity _connectivity = Connectivity();
   List<Polyline> _polylines = [];
   ExpandableController expandableController = ExpandableController();
@@ -49,10 +51,11 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
 
   double top = 999;
   double iconBottom = 0;
+  double zoom = 10;
   String _containerMode = 'poi';
   bool _blocInitialized = false;
   double rotation = 0;
-  double size = 36.0;
+  double size = 48.0;
   bool init = false;
   bool _showMarkers = true;
   double infoContainerHeight = 0;
@@ -97,11 +100,15 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
       setState(() {
         top = topTween.evaluate(animation);
         iconBottom = iconBottomTween.evaluate(animation);
+        this.size = this.mapController.zoom * 7;
       });
     });
 
     animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
+        setState(() {
+          this.size = this.mapController.zoom * 7;
+        });
         this.loadResults = false;
         _searchBlock.objectiveEventSync
             .add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
@@ -135,6 +142,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
+    _mapBlock.objectiveEventSync.add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveInitializeEvent, args: {'user_id': NO_USER}));
   }
 
   @override
@@ -144,7 +152,6 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
     var user = Provider.of<AuthenticatedUser>(context);
 
     if (!_blocInitialized) {
-      _mapBlock.objectiveEventSync.add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveInitializeEvent, args: {}));
       _searchBlock.objectiveEventSync.add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveInitializeEvent, args: {}));
       this._blocInitialized = true;
     }
@@ -160,7 +167,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
             children: [
               StreamBuilder<List<Objective>>(
                 builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot.hasData && snapshot.data.length > 0) {
                     List<Widget> children = [];
                     var filteredList = snapshot.data;
 
@@ -169,8 +176,8 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
 
                     for (var i = 0; i < filteredList.length && this._showMarkers; i++) {
                       markers.add(Marker(
-                          width: this.size,
-                          height: this.size,
+                          width: this.zoom * 6,
+                          height: this.zoom * 6,
                           builder: (ctx) => Transform.rotate(
                               angle: -this.rotation * 3.14159 / 180,
                               child: Container(
@@ -187,7 +194,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                                   });
                                 },
                               ))),
-                          point: LatLng(filteredList[i].coords.latitude + 0.00125, filteredList[i].coords.longitude)));
+                          point: LatLng(filteredList[i].coords.latitude + 0.0045 * (13 - this.zoom), filteredList[i].coords.longitude)));
                     }
 
                     return FlutterMap(
@@ -202,9 +209,13 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                             FocusScope.of(context).requestFocus(new FocusNode());
                           },
                           onPositionChanged: (mapPosition, _) {
-                            if (!init) return;
+                            if (!init) {
+                              init = true;
+                              return;
+                            }
                             setState(() {
-                              this.rotation = this.mapController.rotation;
+                              this.zoom = this.mapController.zoom;
+                              // this.rotation = this.mapController.rotation;
                             });
                           },
                           swPanBoundary: LatLng(46.2318, 27.3077),
@@ -218,7 +229,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                         ),
                         PolylineLayerOptions(
                           polylines: [
-                            Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Colors.blue),
+                            Polyline(points: widget.bikeRoute.rtsCoordinates, strokeWidth: 8, color: Theme.of(context).primaryColor),
                           ],
                         ),
                         LocationMarkerLayerOptions(),

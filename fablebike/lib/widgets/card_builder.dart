@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:fablebike/models/route.dart';
+import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/sections/gradient_icon.dart';
+import 'package:fablebike/services/navigator_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -89,6 +91,7 @@ class CardBuilder {
   static Widget buildSmallObjectiveCarouselCard(BuildContext context, int index, Objective objective, bool noInfo) {
     double width = MediaQuery.of(context).size.width;
     double height = max(656, MediaQuery.of(context).size.height - 80);
+
     return Padding(
         padding: index == 0 ? EdgeInsets.fromLTRB(0, 6, 10.0, 6) : EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
         child: InkWell(
@@ -167,15 +170,16 @@ class CardBuilder {
                                   ],
                                 ),
                                 flex: 2),
-                            Expanded(
-                                child: Row(
-                              children: [
-                                buildStars(context, objective.rating, true),
-                                SizedBox(width: 5),
-                                Text(objective.rating.toStringAsFixed(1) + ' (' + objective.ratingCount.toString() + ')',
-                                    style: TextStyle(fontSize: 12.0, color: Colors.white))
-                              ],
-                            ))
+                            if (!NavigatorHelper().isGuestUser(context))
+                              Expanded(
+                                  child: Row(
+                                children: [
+                                  buildStars(context, objective.rating, true),
+                                  SizedBox(width: 5),
+                                  Text(objective.rating.toStringAsFixed(1) + ' (' + objective.ratingCount.toString() + ')',
+                                      style: TextStyle(fontSize: 12.0, color: Colors.white))
+                                ],
+                              ))
                           ]),
                         ),
                         bottom: 20,
@@ -255,16 +259,17 @@ class CardBuilder {
                           ],
                         ),
                         flex: 6),
-                    Expanded(
-                        child: Row(
-                          children: [
-                            buildStars(context, objective.rating, true),
-                            SizedBox(width: 5),
-                            Text(objective.rating.toStringAsFixed(1) + ' (' + objective.ratingCount.toString() + ')',
-                                style: TextStyle(fontSize: 12.0, color: Colors.white))
-                          ],
-                        ),
-                        flex: 4),
+                    if (!NavigatorHelper().isGuestUser(context))
+                      Expanded(
+                          child: Row(
+                            children: [
+                              buildStars(context, objective.rating, true),
+                              SizedBox(width: 5),
+                              Text(objective.rating.toStringAsFixed(1) + ' (' + objective.ratingCount.toString() + ')',
+                                  style: TextStyle(fontSize: 12.0, color: Colors.white))
+                            ],
+                          ),
+                          flex: 4),
                   ]),
                 ),
                 bottom: 16,
@@ -321,11 +326,12 @@ class CardBuilder {
                                 ),
                                 alignment: Alignment.topCenter),
                             flex: 5),
-                        Expanded(
-                            child: Row(
-                              children: [buildStars(context, route.rating, false)],
-                            ),
-                            flex: 2),
+                        if (!NavigatorHelper().isGuestUser(context))
+                          Expanded(
+                              child: Row(
+                                children: [buildStars(context, route.rating, false)],
+                              ),
+                              flex: 2),
                         Expanded(
                             child: Row(
                               children: [
@@ -418,15 +424,16 @@ class CardBuilder {
                                     flex: 1)
                               ],
                             ),
-                            flex: 8),
+                            flex: NavigatorHelper().isGuestUser(context) ? 6 : 8),
                         SizedBox(
                           height: 2,
                         ),
-                        Expanded(
-                            child: Row(
-                              children: [buildStars(context, bikeRoute.rating, false)],
-                            ),
-                            flex: 4),
+                        if (!NavigatorHelper().isGuestUser(context))
+                          Expanded(
+                              child: Row(
+                                children: [buildStars(context, bikeRoute.rating, false)],
+                              ),
+                              flex: 4),
                         Expanded(
                             child: Row(
                               children: [

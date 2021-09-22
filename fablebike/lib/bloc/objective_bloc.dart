@@ -5,6 +5,7 @@ import 'package:latlong/latlong.dart';
 import 'dart:async';
 
 enum ObjectiveEventType { ObjectiveInitializeEvent, ObjectiveToggleBookmark, ObjectiveGetNearby, ObjectiveSearchEvent, ObjectiveRateEvent }
+const NO_USER = -1;
 
 class ObjectiveBlocEvent {
   final ObjectiveEventType eventType;
@@ -35,7 +36,7 @@ class ObjectiveBloc {
     try {
       switch (event.eventType) {
         case ObjectiveEventType.ObjectiveInitializeEvent:
-          _returnList = await _getAllObjectives(event.args['user_id']);
+          _returnList = await _getAllObjectives(userId: event.args['user_id']);
           _initialObjectives = _returnList.toList();
           break;
         case ObjectiveEventType.ObjectiveGetNearby:
@@ -63,12 +64,14 @@ class ObjectiveBloc {
     _input.add(_returnList);
   }
 
-  Future<List<Objective>> _getAllObjectives(int userId) async {
+  Future<List<Objective>> _getAllObjectives({int userId = NO_USER}) async {
     try {
       var db = await DatabaseService().database;
 
       var objectiveRows = await db.query('objective');
       var objectives = List.generate(objectiveRows.length, (i) => Objective.fromJson(objectiveRows[i]));
+
+      if (userId == NO_USER) return objectives;
 
       for (var i = 0; i < objectives.length; i++) {
         var objective = await db.query('objectivebookmark', where: 'objective_id = ? and user_id = ?', whereArgs: [objectives[i].id, userId]);

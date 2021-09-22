@@ -75,7 +75,7 @@ class AuthenticationService {
       dataUsage = dataUsageRow.first['value'] == '0' ? false : true;
       language = languageRow.first['value'] == 'RO' ? true : false;
     }
-    var dc = DateTime.now().subtract(Duration(hours: 128)).toIso8601String();
+    var dc = DateTime.now().subtract(Duration(hours: 12)).toIso8601String();
     await db.delete('usericon', where: 'created_on <= ?', whereArgs: [dc]);
 
     for (var i = 0; loggedUser.routes != null && i < loggedUser.routes.length; i++) {
@@ -196,23 +196,8 @@ class AuthenticationService {
 
   Future<ServiceResponse> signInGuest() async {
     try {
-      var client = http.Client();
-      String authToken = base64Encode(utf8.encode('GUEST:GUEST'));
-      var response = await client
-          .get(Uri.https(SERVER_IP, AUTH), headers: {HttpHeaders.authorizationHeader: 'Basic ' + authToken}).timeout(const Duration(seconds: 5), onTimeout: () {
-        throw TimeoutException('Connection timed out!');
-      });
-
-      if (response.statusCode == 200) {
-        var storage = new StorageService();
-        var body = jsonDecode(response.body);
-
-        await storage.writeValue('token', body["token"]);
-        //sc.add(new AuthenticatedUser(0, 'GUEST', 'GUEST', body['token'], '', 'r'));
-        return ServiceResponse(true, SUCCESS_MESSAGE);
-      }
-
-      return ServiceResponse(false, response.body);
+      sc.add(new AuthenticatedUser.newUser(0, 'GUEST', 'GUEST'));
+      return ServiceResponse(true, SUCCESS_MESSAGE);
     } on SocketException {
       return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
     } on Exception {

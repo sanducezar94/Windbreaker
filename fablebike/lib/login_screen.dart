@@ -220,7 +220,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                                   duration: const Duration(milliseconds: 1500),
                                                   backgroundColor: Theme.of(context).errorColor,
-                                                  content: Text(response.message)));
+                                                  content: Container(
+                                                    height: 32,
+                                                    width: 999,
+                                                    child: Align(
+                                                      alignment: Alignment.center,
+                                                      child: Text(response.message),
+                                                    ),
+                                                  )));
                                             }
                                           }
                                         },

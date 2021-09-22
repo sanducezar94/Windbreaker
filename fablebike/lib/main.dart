@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fablebike/bloc/main_bloc.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/pages/explore.dart';
@@ -7,6 +9,8 @@ import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
 import 'package:fablebike/pages/objectives.dart';
 import 'package:fablebike/pages/route_map.dart';
+import 'package:fablebike/services/connectivity_helper.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fablebike/services/authentication_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -37,6 +41,9 @@ Future<void> main() async {
     );
   }
   WidgetsFlutterBinding.ensureInitialized();
+
+  ConnectionStatusSingleton connectionStatus = ConnectionStatusSingleton.getInstance();
+  connectionStatus.initialize();
 
   runApp(MyApp());
 }
@@ -129,6 +136,7 @@ class MyApp extends StatelessWidget {
             final args = settings.arguments as BikeRoute;
 
             return MaterialPageRoute(
+              settings: settings,
               builder: (context) {
                 return RouteMapScreen(bikeRoute: args);
               },

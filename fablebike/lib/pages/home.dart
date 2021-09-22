@@ -93,31 +93,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     CardBuilder.buildProfileBar(context, 'Acasa', 'Bine ai venit, Cezar!'),
-                    SizedBox(height: bigDivider),
-                    Row(children: [
-                      Text(
-                        "Obiective salvate",
-                        style: Theme.of(context).textTheme.headline2,
-                        textAlign: TextAlign.start,
-                      )
-                    ]),
-                    SizedBox(height: smallDivider),
                     StreamBuilder(
                       builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
                         if (snapshot.hasData) {
-                          if (snapshot.data.length == 0)
-                            return Row(
-                              children: [Text('Nu aveti niciun obiectiv salvat.', style: Theme.of(context).textTheme.subtitle1)],
-                            );
+                          if (snapshot.data.length == 0) return SizedBox(height: 1);
 
                           return Container(
-                              height: height * 0.275,
+                              height: height * 0.35,
                               width: 999,
-                              child: Carousel(
-                                objectives: snapshot.data,
-                                context: context,
-                                width: width,
-                              ));
+                              child: Column(children: [
+                                SizedBox(height: bigDivider),
+                                Row(children: [
+                                  Text(
+                                    "Obiective salvate",
+                                    style: Theme.of(context).textTheme.headline2,
+                                    textAlign: TextAlign.start,
+                                  )
+                                ]),
+                                SizedBox(height: smallDivider),
+                                SizedBox(
+                                  height: height * 0.275,
+                                  child: Carousel(
+                                    objectives: snapshot.data,
+                                    context: context,
+                                    width: width,
+                                  ),
+                                )
+                              ]));
                         } else
                           return Container();
                       },

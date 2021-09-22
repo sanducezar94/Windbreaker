@@ -128,14 +128,9 @@ class RoutePinnedComment {
   String username;
   String comment;
   int userIcon;
+  String icon_name;
 
-  RoutePinnedComment({
-    this.id,
-    this.routeId,
-    this.username,
-    this.comment,
-    this.userIcon,
-  });
+  RoutePinnedComment({this.id, this.routeId, this.username, this.comment, this.userIcon, this.icon_name});
 
   RoutePinnedComment copyWith({
     int id,
@@ -145,32 +140,26 @@ class RoutePinnedComment {
     int userIcon,
   }) {
     return RoutePinnedComment(
-      id: id ?? this.id,
-      routeId: routeId ?? this.routeId,
-      username: username ?? this.username,
-      comment: comment ?? this.comment,
-      userIcon: userIcon ?? this.userIcon,
-    );
+        id: id ?? this.id,
+        routeId: routeId ?? this.routeId,
+        username: username ?? this.username,
+        comment: comment ?? this.comment,
+        userIcon: userIcon ?? this.userIcon,
+        icon_name: icon_name ?? this.icon_name);
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'routeId': routeId,
-      'username': username,
-      'comment': comment,
-      'userIcon': userIcon,
-    };
+    return {'id': id, 'routeId': routeId, 'username': username, 'comment': comment, 'userIcon': userIcon, 'icon_name': icon_name};
   }
 
   factory RoutePinnedComment.fromMap(Map<String, dynamic> map) {
     return RoutePinnedComment(
-      id: map['id'] ?? 0,
-      routeId: map['route_id'] ?? 0,
-      username: map['username'] ?? '',
-      comment: map['comment'] ?? '',
-      userIcon: map['usericon_id'] ?? 0,
-    );
+        id: map['id'] ?? 0,
+        routeId: map['route_id'] ?? 0,
+        username: map['username'] ?? '',
+        comment: map['comment'] ?? '',
+        userIcon: map['usericon_id'] ?? 0,
+        icon_name: map['icon_name'] ?? '');
   }
 
   String toJson() => json.encode(toMap());

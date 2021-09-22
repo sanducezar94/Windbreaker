@@ -57,11 +57,12 @@ class CommentService {
         var pinnedRouteRow = await db.query('routepinnedcomment', where: 'route_id = ?', whereArgs: [route]);
         if (pinnedRouteRow.length > 0) {
           var pinnedRouteComment = pinnedRouteRow.first;
-          await db.update('routepinnedcomment', {'username': comments[0].user, 'comment': comments[0].text},
+          await db.update('routepinnedcomment',
+              {'username': comments[0].user, 'comment': comments[0].text, 'icon_name': comments[0].icon, 'usericon_id': comments[0].userId},
               where: 'id = ?', whereArgs: [pinnedRouteComment['id']]);
         } else if (comments.length > 0) {
-          await db
-              .insert('routepinnedcomment', {'username': comments[0].user, 'comment': comments[0].text, 'route_id': route, 'usericon_id': comments[0].userId});
+          await db.insert('routepinnedcomment',
+              {'username': comments[0].user, 'comment': comments[0].text, 'route_id': route, 'icon_name': comments[0].icon, 'usericon_id': comments[0].userId});
         }
       }
 

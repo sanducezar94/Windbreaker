@@ -1,19 +1,23 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fablebike/constants/language.dart';
 import 'package:fablebike/models/comments.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
+import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/sections/gradient_icon.dart';
-import 'package:fablebike/pages/sections/map_elevation.dart';
+import 'package:fablebike/services/connectivity_helper.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/navigator_helper.dart';
 import 'package:fablebike/services/route_service.dart';
+import 'package:fablebike/services/user_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:colorful_safe_area/colorful_safe_area.dart';
-import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -45,6 +49,8 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
   var currentTab = 'poi';
   LatLng center = LatLng(0, 0);
   List<Objective> objectives = [];
+  StreamSubscription _connectionChangeStream;
+  bool isOffline = false;
 
   Future<List<Objective>> _getObjectives() async {
     var database = await DatabaseService().database;
@@ -63,6 +69,28 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
       }
     }
     return returnList;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    ConnectionStatusSingleton connectionStatus = ConnectionStatusSingleton.getInstance();
+    _connectionChangeStream = connectionStatus.connectionChange.listen((event) {
+      setState(() async {
+        isOffline = (event as ConnectivityResult) == ConnectivityResult.none;
+
+        if (!isOffline && !NavigatorHelper().isGuestUser(context)) {
+          await NavigatorHelper().goToRoute(this.widget.bikeRoute, context);
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectionChangeStream.cancel();
+    super.dispose();
   }
 
   @override
@@ -92,6 +120,135 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
               angle: -this.rotation * 3.14159 / 180,
               child: Container(child: Image(image: AssetImage('assets/icons/' + widget.bikeRoute.objectives[i].icon + '_pin.png')))),
           point: LatLng(widget.bikeRoute.objectives[i].coords.latitude + 0.0135, widget.bikeRoute.objectives[i].coords.longitude)));
+    }
+
+    _buildInteractiveRouteSection() {
+      return Column(
+        children: [
+          Row(children: [
+            Text(
+              context.read<LanguageManager>().routeEvaluate,
+              style: Theme.of(context).textTheme.headline2,
+              textAlign: TextAlign.start,
+            )
+          ]),
+          SizedBox(height: smallDivider),
+          Container(
+              child: CardBuilder.buildInteractiveStars(context, widget.bikeRoute.userRating, 48.0, callBack: (int rating) async {
+            if (!ConnectionStatusSingleton.getInstance().hasConnection) {
+              NavigatorHelper().buildTimeoutSnackbar(context);
+              return;
+            }
+            Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+            var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
+
+            if (newRating == null || newRating == 0.0) {
+              Loader.hide();
+              return;
+            }
+            widget.bikeRoute.rating = newRating;
+            widget.bikeRoute.userRating = rating;
+            if (widget.bikeRoute.userRating == 0) widget.bikeRoute.ratingCount += 1;
+
+            var db = await DatabaseService().database;
+            await db.update('route', {'rating': newRating, 'rating_count': widget.bikeRoute.ratingCount}, where: 'id = ?', whereArgs: [widget.bikeRoute.id]);
+            Loader.hide();
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: const Duration(milliseconds: 800),
+                backgroundColor: Theme.of(context).primaryColor,
+                content: Text('Votul a fost inregistrat cu succes!')));
+            setState(() {});
+          })),
+          SizedBox(height: smallDivider),
+          Row(children: [
+            Expanded(
+              child: Align(
+                  child: Text(
+                      widget.bikeRoute.userRating == null || widget.bikeRoute.userRating == 0.0
+                          ? 'Nu ai evaluat inca traseul.'
+                          : 'Ai acordat ' +
+                              widget.bikeRoute.userRating.toString() +
+                              (widget.bikeRoute.userRating == 1 ? ' stea' : ' stele') +
+                              ' acestui traseu!',
+                      style: Theme.of(context).textTheme.subtitle1),
+                  alignment: Alignment.center),
+            )
+          ]),
+          SizedBox(height: bigDivider),
+          Row(children: [
+            Text(
+              "Despre ruta",
+              style: Theme.of(context).textTheme.headline2,
+              textAlign: TextAlign.start,
+            )
+          ]),
+          SizedBox(height: bigDivider),
+          if (widget.bikeRoute.pinnedComment != null)
+            Container(
+              height: 80,
+              width: 999,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), spreadRadius: 4, blurRadius: 12, offset: Offset(0, 3))]),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Padding(
+                        child: _buildComment(
+                            context,
+                            Comment(
+                                userId: widget.bikeRoute.pinnedComment.userIcon,
+                                id: 0,
+                                text: widget.bikeRoute.pinnedComment.comment,
+                                user: widget.bikeRoute.pinnedComment.username,
+                                icon: widget.bikeRoute.pinnedComment.icon_name),
+                            false,
+                            null),
+                        padding: EdgeInsets.symmetric(vertical: 0.0)),
+                    flex: 1,
+                  )
+                ],
+              ),
+            ),
+          if (widget.bikeRoute.pinnedComment != null) SizedBox(height: bigDivider),
+          Row(children: [
+            SizedBox(
+              width: 16,
+            ),
+            Expanded(
+              flex: 1,
+              child: Align(
+                  alignment: Alignment.center,
+                  child: InkWell(
+                    child: Text(
+                      'Vezi toate comentariile (' + (widget.bikeRoute.commentCount != null ? widget.bikeRoute.commentCount : 0).toString() + ')',
+                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColorDark),
+                      textAlign: TextAlign.start,
+                    ),
+                    onTap: () {
+                      if (!ConnectionStatusSingleton.getInstance().hasConnection) {
+                        NavigatorHelper().buildTimeoutSnackbar(context);
+                        return;
+                      }
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          context: context,
+                          isDismissible: true,
+                          backgroundColor: Colors.white.withOpacity(0),
+                          builder: (context) {
+                            return CommentSection(bikeRoute: widget.bikeRoute);
+                          }).then((value) => () {
+                            setState(() {});
+                          });
+                    },
+                  )),
+            ),
+            SizedBox(height: bigDivider),
+          ]),
+        ],
+      );
     }
 
     _buildMapStat(IconData iconData, String title, String value) {
@@ -223,19 +380,20 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                       ],
                                     ),
                                     flex: 8),
-                                Expanded(
-                                    child: Row(
-                                      children: [
-                                        CardBuilder.buildStars(context, widget.bikeRoute.rating, true, opacity: 1),
-                                        SizedBox(width: 5),
-                                        Align(
-                                          child: Text(widget.bikeRoute.rating.toStringAsFixed(1) + ' (' + widget.bikeRoute.ratingCount.toString() + ')',
-                                              style: TextStyle(fontSize: 12.0, color: Colors.white)),
-                                          alignment: Alignment.center,
-                                        )
-                                      ],
-                                    ),
-                                    flex: 4),
+                                if (!NavigatorHelper().isGuestUser(context))
+                                  Expanded(
+                                      child: Row(
+                                        children: [
+                                          CardBuilder.buildStars(context, widget.bikeRoute.rating, true, opacity: 1),
+                                          SizedBox(width: 5),
+                                          Align(
+                                            child: Text(widget.bikeRoute.rating.toStringAsFixed(1) + ' (' + widget.bikeRoute.ratingCount.toString() + ')',
+                                                style: TextStyle(fontSize: 12.0, color: Colors.white)),
+                                            alignment: Alignment.center,
+                                          )
+                                        ],
+                                      ),
+                                      flex: 4),
                               ]),
                             ),
                             tag: 'route-desc' + widget.bikeRoute.name),
@@ -343,7 +501,7 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                                             height: 32,
                                           ),
                                           onTap: () {
-                                            // Navigator.of(context).pushNamed(FullScreenMap.route, arguments: widget.bikeRoute);
+                                            Navigator.of(context).pushNamed(FullScreenMap.route, arguments: widget.bikeRoute);
                                           },
                                         ))
                                   ],
@@ -427,128 +585,25 @@ class _RouteMapScreenState extends State<RouteMapScreen> {
                               ),
                               height: height * 0.075),
                           SizedBox(height: bigDivider),
-                          Row(children: [
-                            Text(
-                              context.read<LanguageManager>().routeEvaluate,
-                              style: Theme.of(context).textTheme.headline2,
-                              textAlign: TextAlign.start,
-                            )
-                          ]),
-                          SizedBox(height: smallDivider),
-                          Container(
-                              child: CardBuilder.buildInteractiveStars(context, widget.bikeRoute.userRating, 48.0, callBack: (int rating) async {
-                            Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-                            var newRating = await RouteService().rateRoute(rating: rating, route_id: widget.bikeRoute.id);
-
-                            if (newRating == null || newRating == 0.0) {
-                              Loader.hide();
-                              return;
-                            }
-                            widget.bikeRoute.rating = newRating;
-                            widget.bikeRoute.userRating = rating;
-                            if (widget.bikeRoute.userRating == 0) widget.bikeRoute.ratingCount += 1;
-
-                            var db = await DatabaseService().database;
-                            await db.update('route', {'rating': newRating, 'rating_count': widget.bikeRoute.ratingCount},
-                                where: 'id = ?', whereArgs: [widget.bikeRoute.id]);
-                            Loader.hide();
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                duration: const Duration(milliseconds: 800),
-                                backgroundColor: Theme.of(context).primaryColor,
-                                content: Text('Votul a fost inregistrat cu succes!')));
-                            setState(() {});
-                          })),
-                          SizedBox(height: smallDivider),
-                          Row(children: [
-                            Expanded(
-                              child: Align(
-                                  child: Text(
-                                      widget.bikeRoute.userRating == null || widget.bikeRoute.userRating == 0.0
-                                          ? 'Nu ai evaluat inca traseul.'
-                                          : 'Ai acordat ' +
-                                              widget.bikeRoute.userRating.toString() +
-                                              (widget.bikeRoute.userRating == 1 ? ' stea' : ' stele') +
-                                              ' acestui traseu!',
-                                      style: Theme.of(context).textTheme.subtitle1),
-                                  alignment: Alignment.center),
-                            )
-                          ]),
-                          SizedBox(height: bigDivider),
-                          Row(children: [
-                            Text(
-                              "Despre ruta",
-                              style: Theme.of(context).textTheme.headline2,
-                              textAlign: TextAlign.start,
-                            )
-                          ]),
-                          SizedBox(height: bigDivider),
-                          if (widget.bikeRoute.pinnedComment != null)
-                            Container(
-                              height: 80,
-                              width: 999,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(16.0)), color: Colors.white, boxShadow: [
-                                BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), spreadRadius: 4, blurRadius: 12, offset: Offset(0, 3))
-                              ]),
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                        child: _buildComment(
-                                            context,
-                                            Comment(
-                                                userId: 0,
-                                                id: 0,
-                                                text: widget.bikeRoute.pinnedComment.comment,
-                                                user: widget.bikeRoute.pinnedComment.username,
-                                                icon: ''),
-                                            false,
-                                            null),
-                                        padding: EdgeInsets.symmetric(vertical: 0.0)),
-                                    flex: 1,
-                                  )
-                                ],
-                              ),
-                            ),
-                          if (widget.bikeRoute.pinnedComment != null) SizedBox(height: bigDivider),
-                          Row(children: [
-                            SizedBox(
-                              width: 16,
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Align(
-                                  alignment: Alignment.center,
-                                  child: InkWell(
-                                    child: Text(
-                                      'Vezi toate comentariile (' +
-                                          (widget.bikeRoute.commentCount != null ? widget.bikeRoute.commentCount : 0).toString() +
-                                          ')',
-                                      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColorDark),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                          isScrollControlled: true,
-                                          context: context,
-                                          isDismissible: true,
-                                          backgroundColor: Colors.white.withOpacity(0),
-                                          builder: (context) {
-                                            return CommentSection(bikeRoute: widget.bikeRoute);
-                                          }).then((value) => () {
-                                            setState(() {});
-                                          });
-                                    },
-                                  )),
-                            ),
-                          ]),
-                          SizedBox(height: bigDivider),
+                          if (!NavigatorHelper().isGuestUser(context)) _buildInteractiveRouteSection(),
                         ],
                       ),
                       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0))
                 ],
               )
             ]))));
+  }
+}
+
+Future<Uint8List> getIcon({String imageName, int userId, String username}) async {
+  var blobImage = await DatabaseService().query('usericon', where: 'user_id = ? and is_profile is null', whereArgs: [userId], columns: ['blob']);
+
+  if (blobImage.length == 0) {
+    var serverImage = await UserService().getIcon(imageName: imageName, userId: userId, username: username);
+    return serverImage;
+  } else {
+    if (imageName.isEmpty) return null;
+    return blobImage.first['blob'];
   }
 }
 
@@ -564,10 +619,10 @@ Widget _buildComment(BuildContext context, Comment comment, bool moreButton, Voi
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(80.0),
                     child: snapshot.data == null
                         ? Image.asset('assets/icons/user.png', width: 80, height: 80)
-                        : Image.memory(snapshot.data, width: 80, height: 80),
+                        : Image.memory(snapshot.data, width: 48, height: 48),
                   );
                 } else {
                   return Image.asset('assets/icons/user.png', width: 80, height: 80);

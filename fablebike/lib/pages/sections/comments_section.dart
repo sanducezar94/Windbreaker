@@ -6,6 +6,7 @@ import 'package:fablebike/services/database_service.dart';
 import 'package:fablebike/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/services/comment_service.dart';
+import 'package:focus_widget/focus_widget.dart';
 import '../../models/comments.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +25,7 @@ class CommentSection extends StatefulWidget {
 class _CommentSectionState extends State<CommentSection> {
   int page = 0;
   final TextEditingController commentController = TextEditingController();
+  FocusNode _node = FocusNode();
   Future<CommentsPlate> getComments;
   List<Comment> comments = [];
   List<Widget> commentWidgets = [];
@@ -55,7 +57,7 @@ class _CommentSectionState extends State<CommentSection> {
     return Padding(
         padding: MediaQuery.of(context).viewInsets,
         child: Container(
-            height: height * 0.8,
+            height: height * 0.65,
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0))),
             child: Padding(
                 child: Stack(
@@ -74,25 +76,26 @@ class _CommentSectionState extends State<CommentSection> {
                                     children: [
                                       Spacer(flex: 1),
                                       Expanded(
-                                          child: Material(
-                                            shadowColor: Theme.of(context).accentColor.withOpacity(0.4),
-                                            elevation: 12.0,
-                                            borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                                            child: TextField(
-                                              maxLines: null,
-                                              textAlignVertical: TextAlignVertical.center,
-                                              style: Theme.of(context).textTheme.subtitle1,
-                                              controller: commentController,
-                                              decoration: InputDecoration(
-                                                  hintStyle: Theme.of(context).textTheme.subtitle1,
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                                                  border: OutlineInputBorder(
-                                                      borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                                  hintText: 'Comentariu nou...'),
-                                            ),
-                                          ),
+                                          child: FocusWidget.builder(context,
+                                              builder: (context, _node) => Material(
+                                                    shadowColor: Theme.of(context).accentColor.withOpacity(0.4),
+                                                    elevation: 12.0,
+                                                    borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                                                    child: TextField(
+                                                      maxLines: null,
+                                                      textAlignVertical: TextAlignVertical.center,
+                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                      controller: commentController,
+                                                      decoration: InputDecoration(
+                                                          hintStyle: Theme.of(context).textTheme.subtitle1,
+                                                          fillColor: Colors.white,
+                                                          filled: true,
+                                                          contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                                                          border: OutlineInputBorder(
+                                                              borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                                          hintText: 'Comentariu nou...'),
+                                                    ),
+                                                  )),
                                           flex: 20),
                                       Spacer(flex: 1),
                                       Expanded(
@@ -153,7 +156,7 @@ class _CommentSectionState extends State<CommentSection> {
 
                                   forceRemake = false;
                                   previousContainer = Container(
-                                      height: height * 0.6,
+                                      height: height * 0.45,
                                       child: Padding(
                                         child: ListView.separated(
                                             itemBuilder: (context, index) => _buildComment(

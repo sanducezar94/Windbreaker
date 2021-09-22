@@ -6,6 +6,7 @@ import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/objective.dart';
 import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/navigator_helper.dart';
 import 'package:fablebike/services/objective_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/shimmer_card_builder.dart';
@@ -46,6 +47,63 @@ class _ObjectivesScreen extends State<ObjectivesScreen> {
     double smallDivider = 10.0;
     double bigDivider = 20.0;
     var user = Provider.of<AuthenticatedUser>(context);
+
+    _buildSearchBar() {
+      return Column(children: [
+        SizedBox(height: bigDivider),
+        Container(
+          child: Row(
+            children: [
+              Expanded(
+                  child: Material(
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: (context) {
+                        _bloc.objectiveEventSync
+                            .add(ObjectiveBlocEvent(eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
+                      },
+                      decoration: InputDecoration(
+                          prefixIcon: GradientIcon(Icons.search, 22),
+                          fillColor: Colors.white,
+                          hintStyle: TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.5)),
+                          filled: true,
+                          suffixIcon: searchController.text.isNotEmpty
+                              ? InkWell(
+                                  child: Icon(Icons.clear),
+                                  onTap: () {
+                                    setState(() {
+                                      searchController.text = "";
+                                      _bloc.objectiveEventSync.add(ObjectiveBlocEvent(
+                                          eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
+                                    });
+                                  })
+                              : null,
+                          contentPadding: EdgeInsets.all(0),
+                          border: OutlineInputBorder(borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                          hintText: 'Cauta obiectiv...'),
+                    ),
+                    shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
+                    borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
+                    elevation: 10.0,
+                  ),
+                  flex: 1)
+            ],
+          ),
+          height: 48,
+          width: 999,
+        ),
+        SizedBox(height: bigDivider),
+        Row(children: [
+          Text(
+            "Obiective populare",
+            style: Theme.of(context).textTheme.headline2,
+            textAlign: TextAlign.start,
+          )
+        ]),
+        SizedBox(height: smallDivider)
+      ]);
+    }
+
     return ColorfulSafeArea(
         overflowRules: OverflowRules.all(true),
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -56,53 +114,13 @@ class _ObjectivesScreen extends State<ObjectivesScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
                         child: Column(children: [
                           CardBuilder.buildProfileBar(context, 'Obiective', '35 obiective'),
-                          SizedBox(height: bigDivider),
-                          Container(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: Material(
-                                      child: TextField(
-                                        controller: searchController,
-                                        onChanged: (context) {
-                                          _bloc.objectiveEventSync.add(ObjectiveBlocEvent(
-                                              eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
-                                        },
-                                        decoration: InputDecoration(
-                                            prefixIcon: GradientIcon(Icons.search, 22),
-                                            fillColor: Colors.white,
-                                            hintStyle: TextStyle(fontSize: 16.0, color: Theme.of(context).accentColor.withOpacity(0.5)),
-                                            filled: true,
-                                            contentPadding: EdgeInsets.all(0),
-                                            border: OutlineInputBorder(
-                                                borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                            hintText: 'Cauta obiectiv...'),
-                                      ),
-                                      shadowColor: Theme.of(context).accentColor.withOpacity(0.2),
-                                      borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
-                                      elevation: 10.0,
-                                    ),
-                                    flex: 1)
-                              ],
-                            ),
-                            height: 48,
-                            width: 999,
-                          ),
-                          SizedBox(height: bigDivider),
-                          Row(children: [
-                            Text(
-                              "Obiective populare",
-                              style: Theme.of(context).textTheme.headline2,
-                              textAlign: TextAlign.start,
-                            )
-                          ]),
-                          SizedBox(height: smallDivider),
                           StreamBuilder<List<Objective>>(
                             builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
                               if (snapshot.hasData && snapshot.data != null && snapshot.data.length > 0) {
                                 var objectives = snapshot.data;
                                 return Column(
                                   children: [
+                                    _buildSearchBar(),
                                     for (var i = 0; i < objectives.length; i++)
                                       InkWell(
                                         child: CardBuilder.buildlargeObjectiveCard(context, objectives[i], bookmarkCallback: (id) {
@@ -111,25 +129,10 @@ class _ObjectivesScreen extends State<ObjectivesScreen> {
                                         }),
                                         onTap: () async {
                                           try {
-                                            var objective = snapshot.data[i];
-                                            Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-                                            var database = await DatabaseService().database;
-                                            var serverObjective = await ObjectiveService().getObjective(objective_id: objective.id);
-
-                                            if (serverObjective != null) {
-                                              await database.update(
-                                                  'objective', {'rating': serverObjective.rating, 'rating_count': serverObjective.ratingCount},
-                                                  where: 'id = ?', whereArgs: [objective.id]);
-                                              objective.rating = serverObjective.rating;
-                                              objective.ratingCount = serverObjective.ratingCount;
-                                              objective.userRating = serverObjective.userRating;
-                                            }
-
-                                            var objectiveInfo = new ObjectiveInfo(objective: objective, fromRoute: ModalRoute.of(context).settings.name);
-                                            Navigator.of(context).pushNamed(ObjectiveScreen.route, arguments: objectiveInfo).then((newRating) {
+                                            NavigatorHelper().goToObjective(context, snapshot.data[i], (newRating) {
                                               if (newRating != null)
                                                 _bloc.objectiveEventSync.add(ObjectiveBlocEvent(
-                                                    eventType: ObjectiveEventType.ObjectiveRateEvent, args: {'id': objective.id, 'rating': newRating}));
+                                                    eventType: ObjectiveEventType.ObjectiveRateEvent, args: {'id': snapshot.data[i].id, 'rating': newRating}));
                                               _bloc.objectiveEventSync.add(ObjectiveBlocEvent(
                                                   eventType: ObjectiveEventType.ObjectiveSearchEvent, args: {'search_query': searchController.text}));
                                             });
@@ -143,7 +146,7 @@ class _ObjectivesScreen extends State<ObjectivesScreen> {
                                   ],
                                 );
                               } else {
-                                return Column(children: [for (var i = 0; i < 5; i++) ShimmerCardBuilder.buildlargeObjectiveCard(context)]);
+                                return Column(children: [_buildSearchBar(), for (var i = 0; i < 5; i++) ShimmerCardBuilder.buildlargeObjectiveCard(context)]);
                               }
                             },
                             initialData: [],

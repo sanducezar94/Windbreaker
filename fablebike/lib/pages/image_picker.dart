@@ -81,13 +81,11 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
           return;
         }
         final sample = await ImageCrop.sampleImage(file: pickedImage, preferredSize: (2000 / scale).round());
-
         final croppedImage = await ImageCrop.cropImage(file: sample, area: area);
 
         sample.delete();
 
         final compressedProfilePic = await FlutterImageCompress.compressWithList(croppedImage.readAsBytesSync(), minHeight: 200, minWidth: 200, quality: 90);
-
         final compressedFile = await FlutterImageCompress.compressWithList(croppedImage.readAsBytesSync(), minHeight: 48, minWidth: 48, quality: 80);
 
         Database db = await DatabaseService().database;
@@ -105,9 +103,9 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
         } else {
           await db.delete('usericon', where: 'name = ?', whereArgs: ['profile_pic_registration']);
 
-          await db.insert('usericon', {'name': 'profile_pic_registration', 'is_profile': 0, 'blob': compressedFile});
+          await db.insert('usericon', {'name': 'profile_pic_registration', 'created_on': dateNow, 'is_profile': 0, 'blob': compressedFile});
 
-          await db.insert('usericon', {'name': 'profile_pic_registration', 'blob': compressedProfilePic, 'is_profile': 1});
+          await db.insert('usericon', {'name': 'profile_pic_registration', 'created_on': dateNow, 'blob': compressedProfilePic, 'is_profile': 1});
         }
 
         setState(() {
