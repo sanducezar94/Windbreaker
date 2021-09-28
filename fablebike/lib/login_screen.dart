@@ -1,4 +1,5 @@
 import 'package:fablebike/pages/sections/rounded_button.dart';
+import 'package:fablebike/password_reset.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -172,19 +173,35 @@ class _LoginScreenState extends State<LoginScreen> {
                                     child: Padding(
                                         padding: EdgeInsets.symmetric(horizontal: smallPadding),
                                         child: Material(
-                                          child: TextFormField(
-                                            controller: passwordController,
-                                            style: formFieldStyle,
-                                            obscureText: true,
-                                            textAlignVertical: TextAlignVertical.bottom,
-                                            decoration: InputDecoration(
-                                                hintStyle: formFieldStyle,
-                                                prefixIcon: Icon(Icons.lock_outlined),
-                                                fillColor: Colors.white,
-                                                filled: true,
-                                                border: OutlineInputBorder(
-                                                    borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
-                                                hintText: context.read<LanguageManager>().password),
+                                          child: Stack(
+                                            children: [
+                                              TextFormField(
+                                                controller: passwordController,
+                                                style: formFieldStyle,
+                                                obscureText: true,
+                                                textAlignVertical: TextAlignVertical.bottom,
+                                                decoration: InputDecoration(
+                                                    hintStyle: formFieldStyle,
+                                                    prefixIcon: Icon(Icons.lock_outlined),
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    border: OutlineInputBorder(
+                                                        borderSide: BorderSide.none, borderRadius: const BorderRadius.all(const Radius.circular(16.0))),
+                                                    hintText: context.read<LanguageManager>().password),
+                                              ),
+                                              Align(
+                                                child: Padding(
+                                                  child: InkWell(
+                                                    child: Text('Am uitat parola'),
+                                                    onTap: () {
+                                                      Navigator.pushNamed(context, PasswordResetScreen.route);
+                                                    },
+                                                  ),
+                                                  padding: EdgeInsets.only(right: 10, top: 10, bottom: 10),
+                                                ),
+                                                alignment: Alignment.centerRight,
+                                              )
+                                            ],
                                           ),
                                           shadowColor: Theme.of(context).accentColor.withOpacity(0.3),
                                           borderRadius: const BorderRadius.all(const Radius.circular(16.0)),
@@ -198,6 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 8),
                                       child: RoundedButtonWidget(
+                                        inactive: false,
                                         child: Text(
                                           "Logare",
                                           style: TextStyle(

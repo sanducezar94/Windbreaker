@@ -7,6 +7,7 @@ import 'package:fablebike/models/route.dart';
 import 'package:fablebike/models/user.dart';
 import 'package:fablebike/pages/sections/gradient_icon.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/navigator_helper.dart';
 import 'package:fablebike/services/objective_service.dart';
 import 'package:fablebike/widgets/card_builder.dart';
 import 'package:fablebike/widgets/routes_carousel.dart';
@@ -65,6 +66,55 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
     var user = Provider.of<AuthenticatedUser>(context);
     double smallDivider = 10.0;
     double bigDivider = 20.0;
+
+    _buildEvaluateSection() {
+      return Column(children: [
+        Row(children: [
+          Text(
+            context.read<LanguageManager>().routeEvaluate,
+            style: Theme.of(context).textTheme.headline2,
+            textAlign: TextAlign.start,
+          )
+        ]),
+        SizedBox(height: smallDivider),
+        Container(
+            child: CardBuilder.buildInteractiveStars(context, widget.objective.userRating, 48.0, callBack: (int rating) async {
+          Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
+          var newRating = await ObjectiveService().rateObjective(rating: rating, objective_id: widget.objective.id);
+
+          if (newRating == null || newRating == 0.0) {
+            Loader.hide();
+            return;
+          }
+          widget.objective.rating = newRating;
+          if (widget.objective.userRating == 0) widget.objective.ratingCount += 1;
+
+          var db = await DatabaseService().database;
+          await db.update('objective', {'rating': newRating, 'rating_count': widget.objective.ratingCount}, where: 'id = ?', whereArgs: [widget.objective.id]);
+          Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.HomeRefreshBookmarks);
+          Loader.hide();
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: const Duration(milliseconds: 800),
+              backgroundColor: Theme.of(context).primaryColor,
+              content: Text('Votul a fost inregistrat cu succes!')));
+          setState(() {
+            widget.objective.userRating = rating;
+          });
+        })),
+        SizedBox(height: smallDivider),
+        Row(children: [
+          Padding(
+              child: Text(
+                  widget.objective.userRating == null || widget.objective.userRating == 0.0
+                      ? 'Nu ai evaluat inca obiectivul.'
+                      : 'Ai acordat ' + widget.objective.userRating.toString() + (widget.objective.userRating == 1 ? ' stea' : ' stele') + ' acestui obiectiv!',
+                  style: Theme.of(context).textTheme.subtitle1),
+              padding: EdgeInsets.symmetric(horizontal: 16.0))
+        ]),
+        SizedBox(height: bigDivider),
+      ]);
+    }
 
     return ColorfulSafeArea(
       overflowRules: OverflowRules.all(true),
@@ -204,16 +254,17 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                                     ],
                                   ),
                                   flex: 8),
-                              Expanded(
-                                  child: Row(
-                                    children: [
-                                      CardBuilder.buildStars(context, widget.objective.rating, true),
-                                      SizedBox(width: 5),
-                                      Text(widget.objective.rating.toStringAsFixed(1) + ' (' + widget.objective.ratingCount.toString() + ')',
-                                          style: TextStyle(fontSize: 12.0, color: Colors.white))
-                                    ],
-                                  ),
-                                  flex: 4),
+                              if (!NavigatorHelper().isGuestUser(context))
+                                Expanded(
+                                    child: Row(
+                                      children: [
+                                        CardBuilder.buildStars(context, widget.objective.rating, true),
+                                        SizedBox(width: 5),
+                                        Text(widget.objective.rating.toStringAsFixed(1) + ' (' + widget.objective.ratingCount.toString() + ')',
+                                            style: TextStyle(fontSize: 12.0, color: Colors.white))
+                                      ],
+                                    ),
+                                    flex: 4),
                             ]),
                           ),
                           bottom: 32,
@@ -281,54 +332,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           future: _getRoutes(),
                         ),
                         SizedBox(height: bigDivider),
-                        Row(children: [
-                          Text(
-                            context.read<LanguageManager>().routeEvaluate,
-                            style: Theme.of(context).textTheme.headline2,
-                            textAlign: TextAlign.start,
-                          )
-                        ]),
-                        SizedBox(height: smallDivider),
-                        Container(
-                            child: CardBuilder.buildInteractiveStars(context, widget.objective.userRating, 48.0, callBack: (int rating) async {
-                          Loader.show(context, progressIndicator: CircularProgressIndicator(color: Theme.of(context).primaryColor));
-                          var newRating = await ObjectiveService().rateObjective(rating: rating, objective_id: widget.objective.id);
-
-                          if (newRating == null || newRating == 0.0) {
-                            Loader.hide();
-                            return;
-                          }
-                          widget.objective.rating = newRating;
-                          if (widget.objective.userRating == 0) widget.objective.ratingCount += 1;
-
-                          var db = await DatabaseService().database;
-                          await db.update('objective', {'rating': newRating, 'rating_count': widget.objective.ratingCount},
-                              where: 'id = ?', whereArgs: [widget.objective.id]);
-                          Provider.of<MainBloc>(context, listen: false).objectiveEventSync.add(Constants.HomeRefreshBookmarks);
-                          Loader.hide();
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(milliseconds: 800),
-                              backgroundColor: Theme.of(context).primaryColor,
-                              content: Text('Votul a fost inregistrat cu succes!')));
-                          setState(() {
-                            widget.objective.userRating = rating;
-                          });
-                        })),
-                        SizedBox(height: smallDivider),
-                        Row(children: [
-                          Padding(
-                              child: Text(
-                                  widget.objective.userRating == null || widget.objective.userRating == 0.0
-                                      ? 'Nu ai evaluat inca obiectivul.'
-                                      : 'Ai acordat ' +
-                                          widget.objective.userRating.toString() +
-                                          (widget.objective.userRating == 1 ? ' stea' : ' stele') +
-                                          ' acestui obiectiv!',
-                                  style: Theme.of(context).textTheme.subtitle1),
-                              padding: EdgeInsets.symmetric(horizontal: 16.0))
-                        ]),
-                        SizedBox(height: bigDivider),
+                        if (!NavigatorHelper().isGuestUser(context)) _buildEvaluateSection(),
                         Row(children: [
                           Text(
                             "Contact",

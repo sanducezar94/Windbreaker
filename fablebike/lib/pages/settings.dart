@@ -107,6 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             flex: 8),
                         Expanded(
                           child: RoundedButtonWidget(
+                            inactive: false,
                             child: Icon(Icons.photo_camera_back_outlined, color: Colors.white),
                             width: width,
                             onpressed: () async {
@@ -147,6 +148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             flex: 8),
                         Expanded(
                           child: RoundedButtonWidget(
+                            inactive: false,
                             child: Text('On'),
                             width: width,
                             onpressed: () async {
@@ -186,6 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             flex: 8),
                         Expanded(
                           child: RoundedButtonWidget(
+                            inactive: false,
                             child: Icon(Icons.delete, color: Colors.white),
                             width: width,
                             onpressed: () async {
@@ -225,6 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             flex: 8),
                         Expanded(
                           child: RoundedButtonWidget(
+                            inactive: false,
                             child: user.isRomanianLanguage ? Text('EN') : Text('RO'),
                             width: width,
                             onpressed: () async {
@@ -252,6 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       width: width,
                       height: 40,
                       child: RoundedButtonWidget(
+                          inactive: false,
                           child: Align(
                             child: Text(
                               context.read<LanguageManager>().settingPresentation,
@@ -266,6 +271,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       width: width,
                       height: 40,
                       child: RoundedButtonWidget(
+                        inactive: false,
                         child: Text(
                           context.read<LanguageManager>().settingGDPR,
                           style: TextStyle(fontSize: 18.0, color: Colors.white, fontFamily: 'Nunito'),

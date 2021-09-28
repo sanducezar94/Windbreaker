@@ -299,6 +299,7 @@ class _SignUpScreen extends State<SignUpScreen> {
                                 height: 60,
                                 width: 999,
                                 child: RoundedButtonWidget(
+                                  inactive: false,
                                   child: Text(
                                     context.read<LanguageManager>().createAccount,
                                     style: TextStyle(

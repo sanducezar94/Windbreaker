@@ -12,6 +12,7 @@ import 'package:fablebike/pages/routes.dart';
 import 'package:fablebike/pages/sections/comments_section.dart';
 import 'package:fablebike/pages/sections/map_elevation.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/navigator_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:fablebike/models/route.dart';
 import 'package:focus_widget/focus_widget.dart';
@@ -302,30 +303,6 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(128.0)),
-                          color: Theme.of(context).primaryColor,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Icon(Icons.comment, color: Colors.white, size: 24),
-                          )
-                        ],
-                      ),
-                      width: 40,
-                      height: 40,
-                    ),
-                    onTap: () {
-                      _buildBottomSheet(context, widget.bikeRoute);
-                    },
-                  )),
-              Positioned(
-                  bottom: 104 + iconBottom,
-                  left: 16,
-                  child: InkWell(
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(128.0)),
                           color: this._showMarkers ? Colors.black54 : Theme.of(context).primaryColor,
                           border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
@@ -346,7 +323,7 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                     },
                   )),
               Positioned(
-                  bottom: 148 + iconBottom,
+                  bottom: 104 + iconBottom,
                   left: 16,
                   child: InkWell(
                     child: Container(
@@ -369,6 +346,31 @@ class _FullScreenMapState extends State<FullScreenMap> with TickerProviderStateM
                       goToPoint(widget.bikeRoute.center, zoom: 10);
                     },
                   )),
+              if (!NavigatorHelper().isGuestUser(context))
+                Positioned(
+                    bottom: 148 + iconBottom,
+                    left: 16,
+                    child: InkWell(
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(128.0)),
+                            color: Theme.of(context).primaryColor,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), spreadRadius: 3, blurRadius: 4, offset: Offset(0, 3))]),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Icon(Icons.comment, color: Colors.white, size: 24),
+                            )
+                          ],
+                        ),
+                        width: 40,
+                        height: 40,
+                      ),
+                      onTap: () {
+                        _buildBottomSheet(context, widget.bikeRoute);
+                      },
+                    )),
               Positioned(
                   top: top + (this._containerMode == 'poi' ? 0 : 0.1 * height),
                   child: ClipRRect(
