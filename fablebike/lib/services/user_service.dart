@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:fablebike/models/service_response.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
@@ -11,6 +12,8 @@ import 'storage_service.dart';
 const SERVER_IP = 'lighthousestudio.ro';
 const FILE_UPLOAD = '/api/fablebike/auth/user_icon';
 const FILE_GET = '/api/fablebike/auth/user_icon';
+const OTP = '/api/fablebike/otp';
+const TEST_IP = '192.168.1.251:8080';
 
 class UserService {
   Future<bool> uploadProfileImage(Uint8List imageBytes, String filename) async {
@@ -36,6 +39,46 @@ class UserService {
       return false;
     } on Exception {
       return false;
+    }
+  }
+
+  Future<ServiceResponse> getOtp({String email}) async {
+    try {
+      var client = http.Client();
+      var queryParameters = {'email': email};
+
+      var response = await client.get(Uri.http(TEST_IP, OTP, queryParameters)).timeout(const Duration(seconds: 5), onTimeout: () {
+        throw TimeoutException('Connection timed out!');
+      });
+
+      if (response.statusCode == 200) {
+        return ServiceResponse(true, response.body);
+      }
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
+    }
+  }
+
+  Future<ServiceResponse> verifyOtp({String email, String otp}) async {
+    try {
+      var client = http.Client();
+      var body = {'email': email, 'otp': otp};
+
+      var response = await client.post(Uri.http(TEST_IP, OTP), body: body).timeout(const Duration(seconds: 5), onTimeout: () {
+        throw TimeoutException('Connection timed out!');
+      });
+
+      if (response.statusCode == 200) {
+        return ServiceResponse(true, response.body);
+      }
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
     }
   }
 

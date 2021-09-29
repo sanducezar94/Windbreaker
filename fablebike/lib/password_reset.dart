@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:fablebike/pages/image_picker.dart';
 import 'package:fablebike/pages/sections/rounded_button.dart';
 import 'package:fablebike/services/database_service.dart';
+import 'package:fablebike/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +38,31 @@ class _PasswordReset extends State<PasswordResetScreen> {
     var formFieldStyle = TextStyle(fontFamily: 'Lato', fontWeight: FontWeight.w700, color: Theme.of(context).accentColor.withOpacity(0.64), fontSize: 18);
 
     errorStyle = TextStyle(color: Theme.of(context).errorColor, fontSize: 14);
+
+    _sendOtpCode() async {
+      if (emailController.text.isEmpty) return;
+      Loader.show(context, progressIndicator: CircularProgressIndicator());
+      var response = await UserService().getOtp(email: emailController.text);
+      Loader.hide();
+      setState(() {
+        if (response.success) {
+          _codeSent = true;
+        } else {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: const Duration(milliseconds: 1500),
+              backgroundColor: Theme.of(context).errorColor,
+              content: Container(
+                height: 32,
+                width: 999,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(response.message),
+                ),
+              )));
+        }
+      });
+    }
 
     _buildCodeConfirmationSection() {
       return Column(
@@ -96,8 +122,26 @@ class _PasswordReset extends State<PasswordResetScreen> {
               width: width,
               onpressed: () async {
                 if (codeController.text.isEmpty) return;
+                Loader.show(context, progressIndicator: CircularProgressIndicator());
+                var response = await UserService().verifyOtp(email: emailController.text, otp: codeController.text);
+                Loader.hide();
                 setState(() {
-                  _codeSent = true;
+                  if (response.success) {
+                    _codeSent = true;
+                  } else {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        duration: const Duration(milliseconds: 1500),
+                        backgroundColor: Theme.of(context).errorColor,
+                        content: Container(
+                          height: 32,
+                          width: 999,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(response.message),
+                          ),
+                        )));
+                  }
                 });
               },
             ),
@@ -128,10 +172,7 @@ class _PasswordReset extends State<PasswordResetScreen> {
               ),
               width: width,
               onpressed: () async {
-                if (codeController.text.isEmpty) return;
-                setState(() {
-                  _codeSent = true;
-                });
+                await _sendOtpCode();
               },
             ),
           ),
@@ -230,10 +271,8 @@ class _PasswordReset extends State<PasswordResetScreen> {
                             ),
                             width: width,
                             onpressed: () async {
-                              if (emailController.text.isEmpty) return;
-                              setState(() {
-                                _codeSent = true;
-                              });
+                              if (_codeSent) return;
+                              await _sendOtpCode();
                             },
                           ),
                         ),
