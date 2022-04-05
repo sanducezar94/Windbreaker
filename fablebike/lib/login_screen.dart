@@ -1,5 +1,5 @@
 import 'package:fablebike/pages/sections/rounded_button.dart';
-import 'package:fablebike/password_reset.dart';
+import 'package:fablebike/otp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -194,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   child: InkWell(
                                                     child: Text('Am uitat parola'),
                                                     onTap: () {
-                                                      Navigator.pushNamed(context, PasswordResetScreen.route);
+                                                      Navigator.pushNamed(context, OtpScreen.route);
                                                     },
                                                   ),
                                                   padding: EdgeInsets.only(right: 10, top: 10, bottom: 10),

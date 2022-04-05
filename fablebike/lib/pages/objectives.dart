@@ -118,6 +118,7 @@ class _ObjectivesScreen extends State<ObjectivesScreen> {
                             builder: (BuildContext context, AsyncSnapshot<List<Objective>> snapshot) {
                               if (snapshot.hasData && snapshot.data != null && snapshot.data.length > 0) {
                                 var objectives = snapshot.data;
+                                print(objectives[0].image);
                                 return Column(
                                   children: [
                                     _buildSearchBar(),

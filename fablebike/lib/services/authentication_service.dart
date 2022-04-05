@@ -16,6 +16,7 @@ const SIGNUP = '/api/fablebike/auth/sign_up';
 const FACEBOOK_SIGNUP = '/api/fablebike/auth/oauth';
 const FILE_UPLOAD = '/api/fablebike/auth/upload';
 const PERSISTENT_LOGIN = '/api/fablebike/auth/persistent';
+const CHANGE_PASSWORD = '/api/fablebike/auth/change_password';
 
 class AuthenticationService {
   StreamController sc = new StreamController<AuthenticatedUser>();
@@ -181,6 +182,39 @@ class AuthenticationService {
           var profilePic = profilePicRow.first;
           await UserService().uploadProfileImage(profilePic['blob'], user + '.jpg');
         }
+
+        sc.add(newUser);
+        return ServiceResponse(true, SUCCESS_MESSAGE);
+      }
+
+      return ServiceResponse(false, response.body);
+    } on SocketException {
+      return ServiceResponse(false, CONNECTION_TIMEOUT_MESSAGE);
+    } on Exception {
+      return ServiceResponse(false, SERVER_ERROR_MESSAGE);
+    }
+  }
+
+  Future<ServiceResponse> changePassword({String email, String password}) async {
+    try {
+      var client = http.Client();
+      var response = await client.post(
+        Uri.http(SERVER_IP, CHANGE_PASSWORD),
+        body: {'email': email, 'password': password},
+      ).timeout(const Duration(seconds: 5), onTimeout: () {
+        throw TimeoutException('Connection timed out!');
+      });
+
+      if (response.statusCode == 201) {
+        var storage = new StorageService();
+        var body = jsonDecode(response.body);
+
+        var newUser = new AuthenticatedUser.newUser(body['user_id'], "", email);
+        await setUserData(newUser);
+
+        storage.writeValue('token', body["token"]);
+
+        var db = await DatabaseService().database;
 
         sc.add(newUser);
         return ServiceResponse(true, SUCCESS_MESSAGE);

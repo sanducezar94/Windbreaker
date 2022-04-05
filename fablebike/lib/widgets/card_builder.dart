@@ -107,7 +107,7 @@ class CardBuilder {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
                     image: new DecorationImage(
-                      image: Image.asset('assets/images/bisericalemn_000.jpg').image,
+                      image: Image.asset('assets/images/objectives/' + objective.image).image,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -202,7 +202,7 @@ class CardBuilder {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(circularRadius)),
                           image: new DecorationImage(
-                            image: Image.asset('assets/images/bisericalemn_000.jpg').image,
+                            image: Image.asset('assets/images/objectives/' + objective.image).image,
                             fit: BoxFit.cover,
                           ),
                           boxShadow: [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.1), spreadRadius: 6, blurRadius: 12, offset: Offset(0, 3))]),

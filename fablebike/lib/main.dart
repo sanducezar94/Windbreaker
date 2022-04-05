@@ -9,7 +9,7 @@ import 'package:fablebike/pages/fullscreen_map.dart';
 import 'package:fablebike/pages/home_wrapper.dart';
 import 'package:fablebike/pages/objectives.dart';
 import 'package:fablebike/pages/route_map.dart';
-import 'package:fablebike/password_reset.dart';
+import 'package:fablebike/otp_screen.dart';
 import 'package:fablebike/services/connectivity_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -103,7 +103,7 @@ class MyApp extends StatelessWidget {
           SignUpScreen.route: (context) => SignUpScreen(),
           ExploreScreen.route: (context) => ExploreScreen(),
           SettingsScreen.route: (context) => SettingsScreen(),
-          PasswordResetScreen.route: (context) => PasswordResetScreen(),
+          OtpScreen.route: (context) => OtpScreen(),
           ObjectivesScreen.route: (context) => ObjectivesScreen(),
         },
         onGenerateRoute: (settings) {

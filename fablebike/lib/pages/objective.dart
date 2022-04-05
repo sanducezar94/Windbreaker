@@ -289,8 +289,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                           alignment: Alignment.centerLeft,
                           child: RichText(
                             text: TextSpan(
-                                text:
-                                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequa',
+                                text: widget.objective.description,
                                 style: Theme.of(context).textTheme.subtitle2),
                             maxLines: 15,
                             textAlign: TextAlign.start,
